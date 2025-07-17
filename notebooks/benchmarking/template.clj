@@ -4,6 +4,8 @@
                       :auto-expand-results? true
                       :budget               nil}
   (:require
+   [clojure.java.io :as io]
+   [clojure.string :as str]
    [nextjournal.clerk :as clerk]
    [nextjournal.clerk-slideshow :as slideshow]
    [tablecloth.api :as tc]
