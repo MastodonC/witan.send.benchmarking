@@ -12,7 +12,8 @@
    [witan.send.benchmarking.ceased-plans-2025 :as ceasedplans]
    [witan.send.benchmarking.newplans-2025 :as newplans]
    [witan.send.benchmarking.regional-neighbours :as rn]
-   [witan.send.benchmarking.statistical-neighbours :as sn]))
+   [witan.send.benchmarking.statistical-neighbours :as sn]
+   [witan.send.benchmarking.caseload-2025 :as caseload]))
 
 (def la-name "Kent")
 
@@ -216,6 +217,65 @@
    [:p.text-4xl.font-bold.italic "Presented by Mastodon C"]
    [:p.text-3xl "Use ⬅️➡️ keys to navigate and ESC to see an overview."]]))
 
+;; ---
+;;; # Caseload
+
+(clerk/row
+ {::clerk/width :full}
+ (clerk/table
+  {::clerk/width :full}
+  (-> @caseload/sen2-2025-caseload
+      (tc/select-rows #(= la-name (:la_name %)))
+      (tc/select-rows #(= "All EHC plans" (:breakdown %)))
+      (tc/select-columns [:time_period :ehcplans])
+      (tc/rename-columns {:time_period "Academic Year"
+                          :ehcplans "EHC Plans"}))))
+
+;; ---
+;;; # New Plans and Ceased Plans
+(clerk/row
+ {::clerk/width :full}
+ (clerk/table
+  {::clerk/width :full}
+  (-> @newplans/newplans
+      (tc/select-rows #(= la-name (:la_name %)))
+      (tc/select-rows #(= "New EHC plans" (:breakdown %)))
+      (tc/select-columns [:time_period :new_ehc_plans])
+      (tc/convert-types {:time_period :int16})
+      (tc/inner-join
+       (-> @ceasedplans/ceased-plans
+           (tc/select-rows #(= la-name (:la_name %)))
+           (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
+           (tc/select-columns [:time_period :total_ceased]))
+       [:time_period])
+      (tc/map-columns :ehcp-change [:new_ehc_plans :total_ceased] -)
+      (tc/rename-columns {:time_period "Calendar Year"
+                          :new_ehc_plans "New Plans"
+                          :total_ceased "Ceased Plans"
+                          :ehcp-change "Change in # of EHCPs"}))))
+
+;; ---
+;;; # Ceased Plan Breakdown
+(clerk/row
+ {::clerk/width :full}
+ (clerk/table
+  {::clerk/width :full}
+  (-> @ceasedplans/ceased-plans
+      (tc/select-rows #(= la-name (:la_name %)))
+      (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
+      (tc/select-columns [:time_period :total_ceased :max_age :needs_met :he :employ :transfer :no_engage :moved_outside_eng :deceased :not_rec :other])
+      (tc/rename-columns {:time_period "Calendar Year"
+                          :total_ceased "Total Ceased"
+                          :max_age "Max Age"
+                          :needs_met "Needs Met"
+                          :he "Higher Ed"
+                          :employ "Employed"
+                          :transfer "Transfer Out"
+                          :no_engage "No Engagement"
+                          :moved_outside_eng "Left England"
+                          :deceased "Deceased"
+                          :not_rec "Not Recorded"
+                          :other "Other"}))))
 
 ;; ---
 ;;; # Statistical Nearest Neighbours
