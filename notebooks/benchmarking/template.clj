@@ -25,8 +25,8 @@
         in-path (str "notebooks/" pathified-namepace ".clj")
         out-path (str out-dir
                       (-> la-name
-                          (str/replace #"\.|-| |," 
-                                       {"." "/" 
+                          (str/replace #"\.|-| |,"
+                                       {"." "/"
                                         "-" "_"
                                         "," "_"
                                         " " "_"})
@@ -48,7 +48,7 @@
 
 (def new-plans-regional-neighbours-max-y
   (let [neighbours regional-neighbours-pred]
-    (-> (tc/concat 
+    (-> (tc/concat
          (-> @newplans/new-plans-by-age-by-la
              (tc/select-rows #(#{la-name} (:la_name %))))
          (-> @newplans/new-plans-by-age-by-la
@@ -59,7 +59,7 @@
 
 (def ceased-plans-regional-neighbours-max-y
   (let [neighbours regional-neighbours-pred]
-    (-> (tc/concat 
+    (-> (tc/concat
          (-> @ceasedplans/ceased-plans-by-age-by-la
              (tc/select-rows #(#{la-name} (:la_name %))))
          (-> @ceasedplans/ceased-plans-by-age-by-la
@@ -74,7 +74,7 @@
 
 (def new-plans-statistical-neighbours-max-y
   (let [neighbours statistical-neighbours-pred]
-    (-> (tc/concat 
+    (-> (tc/concat
          (-> @newplans/new-plans-by-age-by-la
              (tc/select-rows #(#{la-name} (:la_name %))))
          (-> @newplans/new-plans-by-age-by-la
@@ -85,7 +85,7 @@
 
 (def ceased-plans-statistical-neighbours-max-y
   (let [neighbours statistical-neighbours-pred]
-    (-> (tc/concat 
+    (-> (tc/concat
          (-> @ceasedplans/ceased-plans-by-age-by-la
              (tc/select-rows #(#{la-name} (:la_name %))))
          (-> @ceasedplans/ceased-plans-by-age-by-la
@@ -198,13 +198,6 @@
               :showlegend false}
      :config {:displayModeBar false
               :displayLogo false}}))
-
-(comment
-
-  (plotly-ceased-neighbour-comparison
-   la-name "age 16" statistical-neighbours-pred "Test" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)
-
-  )
 
 (
 ;;; Deck
