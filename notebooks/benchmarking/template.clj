@@ -150,6 +150,7 @@
 
 (defn plotly-ceased-neighbour-comparison
   [la-name age neighbours title max-y ceased-plans-by-age]
+  ;; FIXME: max-y values seem a bit broken, but I'm not sure they should be
   (let [la-plans (-> ceased-plans-by-age
                      (tc/select-rows #(#{la-name} (:la_name %)))
                      (tc/select-rows #(= age (:breakdown %))))
