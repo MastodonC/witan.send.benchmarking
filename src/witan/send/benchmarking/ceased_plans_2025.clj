@@ -122,14 +122,13 @@
 (def ceased-plans-by-age-by-la
   (delay
     (-> @ceased-plans
-        #_(tc/map-columns :time_period [:time_period] #(str % "/" (inc (- % 2000))))
-        (tc/map-columns :time_period [:time_period] inc)
         (tc/select-rows #(#{"Local authority"} (:geographic_level %)))
         (tc/inner-join
          (-> @caseload/sen2-2025-caseload-all-ehcps-by-age
              (tc/drop-missing [:new_la_code])
-             #_(tc/map-columns :time_period [:time_period] {202324 "2023/24" 202425 "2024/25"})
-             (tc/map-columns :time_period [:time_period] {202324 2024 202425 2025})
+             (tc/map-columns :time_period [:time_period]
+                             {202324 2022
+                              202425 2023})
              (tc/map-columns
               :breakdown [:breakdown]
               (fn [age]
@@ -151,6 +150,41 @@
 
 
 (comment
+
+  (-> @ceased-plans-by-age-by-la
+      (tc/select-rows #(#{"South Gloucestershire"} (:la_name %)))
+      (tc/select-columns [:time_period :new_la_code :la_name :breakdown_topic :breakdown :total_ceased :ehcplans :ceased-ehcps-per-1000-ehcps])
+      (tc/head 500))
+
+
+  (-> @ceased-plans
+      (tc/select-rows #(#{"South Gloucestershire"} (:la_name %)))
+      (tc/select-rows #(= "Age plan ceased" (:breakdown_topic %)))
+      (tc/head 500))
+
+  (-> @caseload/sen2-2025-caseload-all-ehcps-by-age
+      (tc/select-rows #(#{"South Gloucestershire"} (:la_name %)))
+      (tc/select-rows #(= "Child or young persons age" (:breakdown_topic %)))
+      (tc/select-columns [:time_period :la_name :breakdown_topic :breakdown :ehcplans])
+      (tc/head 500))
+  
+  (-> @caseload/sen2-2025-caseload-all-ehcps-by-age
+      (tc/drop-missing [:new_la_code])
+      #_(tc/map-columns :time_period [:time_period]
+                        {202324 2023
+                         202425 2024})
+      (tc/map-columns
+       :breakdown [:breakdown]
+       (fn [age]
+         (cond
+           (#{"under 3"} age) "age 2 and under"
+           (#{"Age unknown" "age 20" "age 21" "age 22" "age 23" "age 24" "age 25"} age) "age 20 and over"
+           :else age)))
+      (tc/group-by [:time_period :new_la_code :breakdown])
+      (tc/aggregate {:ehcplans #(dfn/sum (:ehcplans %))})
+      (tc/select-rows #(#{"E06000025"} (:new_la_code %)))
+      (tc/head 400))
+  
 
   @sen2-2025-ceased-plans
 
