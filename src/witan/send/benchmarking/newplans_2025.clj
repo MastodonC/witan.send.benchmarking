@@ -2,6 +2,7 @@
   (:require
    [tablecloth.api :as tc]
    [tech.v3.dataset.reductions :as dsr]
+   [tech.v3.datatype.gradient :as dt-grad]
    [witan.population.england.snpp-2022 :as pop-2022]
    [witan.send.benchmarking.newplans-2025 :as newplans]))
 
@@ -138,6 +139,9 @@
   (-> @newplans
       (tc/select-rows #(= "Age when plan started" (% :breakdown_topic))))
 
+  (-> (pop-2022/->witan-send-population)
+      (tc/select-rows #(= "Cumbria" (:UTLA22NM %))))
+
   )
 
 (def snpp-2025
@@ -161,6 +165,14 @@
                  [:UTLA22CD :UTLA22NM :snpp-year :calendar-year :age-group :age-group-label]
                  {:population (dsr/sum :population)}
                  $)))))
+
+;; [[file:~/wip/witan.send.adroddiad/src/witan/send/adroddiad/year_counts.clj::(defn population-by-year][diff1d example]]
+(def new-plans-by-la
+  (delay
+    (-> @newplans
+        (tc/drop-missing [:la_name])
+        (tc/select-rows #(= "New EHC plans" (:breakdown %)))
+        (tc/update-columns {:time_period (partial map parse-long)}))))
 
 (def new-plans-by-age-by-la
   (delay
@@ -229,6 +241,16 @@
   (la-name->region-name "Surrey")
 
   (into (sorted-set) (@newplans :la_name))
+
+  (let [la-name "York"]
+    (-> @newplans
+        (tc/select-rows #(= la-name (:la_name %)))
+        (tc/select-rows #(= "New EHC plans" (:breakdown %)))
+        #_(tc/select-columns [:time_period :new_ehc_plans])
+        (tc/convert-types {:time_period :int16})
+        ))
+
+  
 
   )
 

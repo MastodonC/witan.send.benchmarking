@@ -4,18 +4,21 @@
                       :auto-expand-results? true
                       :budget               nil}
   (:require
+   [tech.v3.datatype.gradient :as dt-grad]
    [clojure.java.io :as io]
    [clojure.string :as str]
+   [fastmath.core :as m]
    [nextjournal.clerk :as clerk]
    [nextjournal.clerk-slideshow :as slideshow]
    [tablecloth.api :as tc]
+   [tech.v3.datatype.functional :as dfn]
    [witan.send.benchmarking.ceased-plans-2025 :as ceasedplans]
    [witan.send.benchmarking.newplans-2025 :as newplans]
    [witan.send.benchmarking.regional-neighbours :as rn]
    [witan.send.benchmarking.statistical-neighbours :as sn]
    [witan.send.benchmarking.caseload-2025 :as caseload]))
 
-(def la-name "Kent")
+(def la-name "Thurrock")
 
 (def out-dir "doc/")
 
@@ -284,16 +287,81 @@
   (plotly-caseload-neighbour-comparison
    la-name statistical-neighbours-pred "Statistical Neighbours Total Caseload" @caseload/sen2-2025-caseload-all-ehcps)))
 
+;; ---
+;;; # New Plans and Moved In CYP
+
+;; 2024 Caseload - 2024 Ceasers + 2024 New Plans = 2025 Caseload - Plans moved in
+
+(def yoy-flows
+
+  (-> @caseload/sen2-2025-caseload-all-ehcps
+      (tc/select-columns [:time_period :calendar-year :new_la_code :la_name :ehcplans])
+      (tc/rename-columns {:ehcplans :ehcplans-start})
+      (tc/inner-join
+       (-> @caseload/sen2-2025-caseload-all-ehcps
+           (tc/select-columns [:time_period :calendar-year :new_la_code :la_name :ehcplans])
+           (tc/update-columns {:calendar-year (partial map dec)})
+           (tc/rename-columns {:ehcplans :ehcplans-finish}))
+       [:calendar-year :new_la_code])
+      (tc/drop-columns #"^:inner.*")
+      (tc/inner-join
+       (-> @ceasedplans/ceased-plans
+           (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
+           (tc/drop-missing [:la_name])
+           (tc/select-columns [:time_period :new_la_code :total_ceased])
+           (tc/rename-columns {:time_period :calendar-year}))
+       [:calendar-year :new_la_code])
+      (tc/inner-join
+       (-> @newplans/new-plans-by-la
+           (tc/select-columns [:time_period :new_la_code :new_ehc_plans])
+           (tc/rename-columns {:time_period :calendar-year}))
+       [:calendar-year :new_la_code])
+      (tc/drop-columns #"^:sen2.*")
+      (tc/map-columns :yoy-delta [:ehcplans-finish :ehcplans-start] dfn/-)
+      (tc/map-columns
+       :ehcps-transferred-in
+       [:yoy-delta :total_ceased :new_ehc_plans]
+       (fn [delta ceased new_ehcps]
+         (+ (- delta new_ehcps)
+            ceased)))
+      (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+      (tc/map-columns
+       :yoy-delta-% [:yoy-delta :ehcplans-start]
+       #(dfn// %1 %2))
+      (tc/map-columns
+       :ceased-% [:total_ceased :ehcplans-start]
+       #(dfn// %1 %2))
+      (tc/map-columns
+       :new-plans-% [:new_ehc_plans :ehcplans-finish]
+       #(dfn// %1 %2))
+      (tc/map-columns
+       :ehcps-transferred-in-% [:ehcps-transferred-in :ehcplans-finish]
+       #(dfn// %1 %2))
+      (tc/reorder-columns [:time_period :calendar-year
+                           :new_la_code :la_name
+                           :ehcplans-start :ehcplans-finish
+                           :yoy-delta :yoy-delta-%
+                           :total_ceased :ceased-%
+                           :new_ehc_plans :new-plans-%
+                           :ehcps-transferred-in :ehcps-transferred-in-%])
+      (tc/map-columns
+       :cross-check [:total_ceased :new_ehc_plans :ehcps-transferred-in]
+       (fn [ceased new-plans transfers]
+         (- (+ new-plans transfers)
+            ceased)))
+      (tc/order-by [:la_name :calendar-year]))
+
+
+  )
+
 (clerk/row
  {::clerk/width :full}
  (clerk/table
   {::clerk/width :full}
-  (-> @caseload/sen2-2025-caseload
+  (-> @caseload/sen2-2025-caseload-all-ehcps
       (tc/select-rows #(= la-name (:la_name %)))
-      (tc/select-rows #(= "All EHC plans" (:breakdown %)))
-      (tc/select-columns [:time_period :ehcplans])
-      (tc/rename-columns {:time_period "Academic Year"
-                          :ehcplans "EHC Plans"}))))
+      (caseload/add-diffs)
+      (tc/map-columns :calendar-year [:time_period] caseload/time_period->calendar-year))))
 
 ;; ---
 ;;; # New Plans and Ceased Plans

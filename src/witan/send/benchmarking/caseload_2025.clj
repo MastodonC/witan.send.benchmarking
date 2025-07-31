@@ -1,6 +1,13 @@
 (ns witan.send.benchmarking.caseload-2025
   (:require
-   [tablecloth.api :as tc]))
+   [tablecloth.api :as tc]
+   [tech.v3.datatype.gradient :as dt-grad]
+   [tech.v3.datatype.functional :as dfn]
+   [tech.v3.dataset.reductions :as dsr]
+   [witan.population.england.snpp-2022 :as pop]))
+
+(defn time_period->calendar-year [time-period]
+  (when time-period (-> time-period str (subs 4) parse-long (+ 2000))))
 
 (def sen2-2025-caseload-filename
   "./src-data/education-health-and-care-plans_2025/data/caseload.csv")
@@ -67,15 +74,73 @@
                                :placement_unknown_pc [:int32 :relaxed?]
                                :await_prov_2022 [:int32 :relaxed?]
                                :perm_ex_2022 [:int32 :relaxed?]}})
+      (tc/map-columns :calendar-year [:time_period] time_period->calendar-year)
       (delay)))
 
 
+(comment
 
+  )
+
+(defn add-diffs [caseload]
+  (apply tc/concat
+         (into []
+               (comp
+                (map (fn [ds]
+                       (-> ds
+                           (tc/order-by [:time_period])
+                           (tc/add-columns
+                            {:ehcp-yoy-diff
+                             (fn yoy-diff [ds]
+                               (into [nil]
+                                     (dt-grad/diff1d (:ehcplans ds))))
+                             :ehcp-yoy-diff-%
+                             (fn yoy-diff-% [ds]
+                               (let [diffs   (dt-grad/diff1d (:ehcplans ds))
+                                     diff-%s (dfn// diffs (drop-last (:ehcplans ds)))]
+                                 (into [] cat [[nil] diff-%s])))
+                             :pop-yoy-diff
+                             (fn yoy-diff [ds]
+                               (into [nil]
+                                     (dt-grad/diff1d (:total-pop ds))))
+                             :pop-yoy-diff-%
+                             (fn yoy-diff-% [ds]
+                               (let [diffs   (dt-grad/diff1d (:total-pop ds))
+                                     diff-%s (dfn// diffs (drop-last (:total-pop ds)))]
+                                 (into [] cat [[nil] diff-%s])))})))))
+               (-> caseload
+                   (tc/group-by [:new_la_code :la_name :breakdown_topic :breakdown] {:result-type :as-seq})))))
+
+(comment
+
+  (add-diffs @sen2-2025-caseload-all-ehcps)
+
+  )
 
 (def sen2-2025-caseload-all-ehcps
   (delay
     (-> @sen2-2025-caseload
-        (tc/select-rows #(#{"All EHC plans"} (% :breakdown_topic))))))
+        (tc/select-rows #(#{"All EHC plans"} (% :breakdown_topic)))
+        (tc/inner-join
+         (-> (pop/->witan-send-population)
+             (as-> $
+                 (dsr/group-by-column-agg
+                  [:UTLA22CD :UTLA22NM :calendar-year]
+                  {:total-pop (dsr/sum :population)}
+                  $))
+             (tc/rename-columns {:UTLA22CD :new_la_code})
+             (tc/order-by [:new_la_code :calendar-year]))
+         [:new_la_code :calendar-year])
+        (tc/map-columns :ehcp-rate [:ehcplans :total-pop] dfn//))))
+
+(comment
+  (let [la-name "Tower Hamlets"]
+
+    (-> @sen2-2025-caseload-all-ehcps
+        (tc/select-rows #(#{la-name} (:la_name %)))
+        (tc/head 500)))
+
+  )
 
 (def sen2-2025-caseload-all-ehcps-by-age
   (delay
@@ -157,16 +222,98 @@
       (tc/unique-by [:breakdown_topic :breakdown])
       (tc/order-by [:breakdown_topic :breakdown])
       (tc/head 100))
+  ;; => sen2-2025-caseload [80 2]:
+  ;;    |           :breakdown_topic |                          :breakdown |
+  ;;    |----------------------------|-------------------------------------|
+  ;;    |      Age when plan started |                              age 10 |
+  ;;    |      Age when plan started |                              age 11 |
+  ;;    |      Age when plan started |                              age 12 |
+  ;;    |      Age when plan started |                              age 13 |
+  ;;    |      Age when plan started |                              age 14 |
+  ;;    |      Age when plan started |                              age 15 |
+  ;;    |      Age when plan started |                              age 16 |
+  ;;    |      Age when plan started |                              age 17 |
+  ;;    |      Age when plan started |                              age 18 |
+  ;;    |      Age when plan started |                              age 19 |
+  ;;    |      Age when plan started |                     age 2 and under |
+  ;;    |      Age when plan started |                     age 20 and over |
+  ;;    |      Age when plan started |                               age 3 |
+  ;;    |      Age when plan started |                               age 4 |
+  ;;    |      Age when plan started |                               age 5 |
+  ;;    |      Age when plan started |                               age 6 |
+  ;;    |      Age when plan started |                               age 7 |
+  ;;    |      Age when plan started |                               age 8 |
+  ;;    |      Age when plan started |                               age 9 |
+  ;;    |      Age when plan started |                             unknown |
+  ;;    |              All EHC plans |                       All EHC plans |
+  ;;    | Child or young persons age |                              age 10 |
+  ;;    | Child or young persons age |                              age 11 |
+  ;;    | Child or young persons age |                              age 12 |
+  ;;    | Child or young persons age |                              age 13 |
+  ;;    | Child or young persons age |                              age 14 |
+  ;;    | Child or young persons age |                              age 15 |
+  ;;    | Child or young persons age |                              age 16 |
+  ;;    | Child or young persons age |                              age 17 |
+  ;;    | Child or young persons age |                              age 18 |
+  ;;    | Child or young persons age |                              age 19 |
+  ;;    | Child or young persons age |                              age 20 |
+  ;;    | Child or young persons age |                              age 21 |
+  ;;    | Child or young persons age |                              age 22 |
+  ;;    | Child or young persons age |                              age 23 |
+  ;;    | Child or young persons age |                              age 24 |
+  ;;    | Child or young persons age |                              age 25 |
+  ;;    | Child or young persons age |                               age 3 |
+  ;;    | Child or young persons age |                               age 4 |
+  ;;    | Child or young persons age |                               age 5 |
+  ;;    | Child or young persons age |                               age 6 |
+  ;;    | Child or young persons age |                               age 7 |
+  ;;    | Child or young persons age |                               age 8 |
+  ;;    | Child or young persons age |                               age 9 |
+  ;;    | Child or young persons age |                             under 3 |
+  ;;    |                  Ethnicity |              Any other ethnic group |
+  ;;    |                  Ethnicity |  Asian - Any other Asian background |
+  ;;    |                  Ethnicity |                 Asian - Bangladeshi |
+  ;;    |                  Ethnicity |                     Asian - Chinese |
+  ;;    |                  Ethnicity |                      Asian - Indian |
+  ;;    |                  Ethnicity |                   Asian - Pakistani |
+  ;;    |                  Ethnicity |  Black - Any other Black background |
+  ;;    |                  Ethnicity |               Black - Black African |
+  ;;    |                  Ethnicity |             Black - Black Caribbean |
+  ;;    |                  Ethnicity |  Mixed - Any other Mixed background |
+  ;;    |                  Ethnicity |             Mixed - White and Asian |
+  ;;    |                  Ethnicity |     Mixed - White and Black African |
+  ;;    |                  Ethnicity |   Mixed - White and Black Caribbean |
+  ;;    |                  Ethnicity |                        Unclassified |
+  ;;    |                  Ethnicity |  White - Any other White background |
+  ;;    |                  Ethnicity |                  White - Gypsy/Roma |
+  ;;    |                  Ethnicity |                       White - Irish |
+  ;;    |                  Ethnicity | White - Traveller of Irish heritage |
+  ;;    |                  Ethnicity |               White - White British |
+  ;;    |                        Sex |                              Female |
+  ;;    |                        Sex |                                Male |
+  ;;    |                        Sex |                             Unknown |
+  ;;    |    Years EHC plan in place |                                   1 |
+  ;;    |    Years EHC plan in place |                                  10 |
+  ;;    |    Years EHC plan in place |                                  11 |
+  ;;    |    Years EHC plan in place |                          12 or more |
+  ;;    |    Years EHC plan in place |                                   2 |
+  ;;    |    Years EHC plan in place |                                   3 |
+  ;;    |    Years EHC plan in place |                                   4 |
+  ;;    |    Years EHC plan in place |                                   5 |
+  ;;    |    Years EHC plan in place |                                   6 |
+  ;;    |    Years EHC plan in place |                                   7 |
+  ;;    |    Years EHC plan in place |                                   8 |
+  ;;    |    Years EHC plan in place |                                   9 |
+  ;;    |    Years EHC plan in place |                    Less than a year |
 
   (into (sorted-set) (@sen2-2025-caseload :breakdown_topic))
   #{"Age when plan started" "All EHC plans" "Child or young persons age" "Ethnicity" "Sex" "Years EHC plan in place"}
-  
+
   (-> @sen2-2025-caseload
       (tc/select-rows #(#{"All EHC plans"} (% :breakdown_topic)))
       (tc/head 100))
 
   (into (sorted-set) (-> @sen2-2025-caseload-all-ehcps-by-age :breakdown))
   #{"age 10" "age 11" "age 12" "age 13" "age 14" "age 15" "age 16" "age 17" "age 18" "age 19" "age 20" "age 21" "age 22" "age 23" "age 24" "age 25" "age 3" "age 4" "age 5" "age 6" "age 7" "age 8" "age 9" "under 3"}
-  
-  )
 
+  )
