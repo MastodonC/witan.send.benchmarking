@@ -148,6 +148,64 @@
      :config {:displayModeBar false
               :displayLogo false}}))
 
+(defn plotly-caseload-neighbour-comparison
+  [la-name neighbours title caseload]
+  (let [caseload (-> caseload
+                     (tc/map-columns :ehcp-rate [:ehcp-rate] #(-> % (* 100) (m/approx 2))))
+        la-plans (-> caseload
+                     (tc/select-rows #(#{la-name} (:la_name %))))
+        neighbour-plans (-> caseload
+                            (tc/select-rows #((set neighbours) (:la_name %))))
+        box-data
+        (transduce
+         identity
+         (fn
+           ([] {})
+           ([acc]
+            (into []
+                  (map (fn [[k v]]
+                         {:x k
+                          :y (:y v)
+                          :text (:text v)
+                          :name k
+                          :marker {:color "orange"}
+                          :boxpoints "all"
+                          :pointpos -1.8
+                          :jitter 0.3
+                          :type "box"}))
+                  acc))
+           ([acc x]
+            (-> acc
+                (update-in [(:calendar-year x) :y] conj (:ehcp-rate x))
+                (update-in [(:calendar-year x) :text] conj (:la_name x)))))
+         (tc/rows neighbour-plans :as-maps))]
+    {:data (conj
+            box-data
+            {:x (into [] (la-plans :calendar-year))
+             :y (into [] (la-plans :ehcp-rate))
+             :text (into [] (la-plans :la_name))
+             :name la-name
+             :marker {:color "blue" :size 14 :symbol "star-diamond"}
+             :mode "markers"
+             :type "scatter"})
+     :layout {:title {:text title}
+              :scattermode "group"
+              :scattergap 0.7
+              :xaxis {:dtick 1 :title "SEN2 Census Year"}
+              :yaxis {:rangemode "tozero" :title "% of EHCPs"}
+              :height 600
+              :width 1400
+              :showlegend false}
+     :config {:displayModeBar false
+              :displayLogo false}}))
+
+(comment
+
+  (plotly-caseload-neighbour-comparison
+   la-name statistical-neighbours-pred "foo" @caseload/sen2-2025-caseload-all-ehcps)
+
+  )
+
 (defn plotly-ceased-neighbour-comparison
   [la-name age neighbours title max-y ceased-plans-by-age]
   ;; FIXME: max-y values seem a bit broken, but I'm not sure they should be
@@ -220,6 +278,11 @@
 
 ;; ---
 ;;; # Caseload
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (plotly-caseload-neighbour-comparison
+   la-name statistical-neighbours-pred "Statistical Neighbours Total Caseload" @caseload/sen2-2025-caseload-all-ehcps)))
 
 (clerk/row
  {::clerk/width :full}
