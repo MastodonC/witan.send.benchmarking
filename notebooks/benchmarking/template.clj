@@ -11,6 +11,7 @@
    [nextjournal.clerk :as clerk]
    [nextjournal.clerk-slideshow :as slideshow]
    [tablecloth.api :as tc]
+   [tablecloth.column.api :as tcc]
    [tech.v3.datatype.functional :as dfn]
    [witan.send.benchmarking.ceased-plans-2025 :as ceasedplans]
    [witan.send.benchmarking.newplans-2025 :as newplans]
@@ -87,6 +88,88 @@
         (as-> $ (reduce max $))
         (as-> $ (+ $ (* $ 0.1))))))
 
+
+(def yoy-flows
+  (-> @caseload/sen2-2025-caseload-all-ehcps
+      (tc/select-columns [:time_period :calendar-year :new_la_code :la_name :total-pop :ehcplans])
+      (tc/rename-columns {:ehcplans :ehcplans-start})
+      (tc/inner-join
+       (-> @caseload/sen2-2025-caseload-all-ehcps
+           (tc/select-columns [:time_period :calendar-year :new_la_code :la_name :ehcplans])
+           (tc/update-columns {:calendar-year (partial map dec)})
+           (tc/rename-columns {:ehcplans :ehcplans-finish}))
+       [:calendar-year :new_la_code])
+      (tc/drop-columns #"^:inner.*")
+      (tc/inner-join
+       (-> @ceasedplans/ceased-plans
+           (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
+           (tc/drop-missing [:la_name])
+           (tc/select-columns [:time_period :new_la_code :total_ceased])
+           (tc/rename-columns {:time_period :calendar-year}))
+       [:calendar-year :new_la_code])
+      (tc/inner-join
+       (-> @newplans/new-plans-by-la
+           (tc/select-columns [:time_period :new_la_code :new_ehc_plans])
+           (tc/rename-columns {:time_period :calendar-year}))
+       [:calendar-year :new_la_code])
+      (tc/drop-columns #"^:sen2.*")
+      (tc/map-columns :yoy-delta [:ehcplans-finish :ehcplans-start] dfn/-)
+      (tc/map-columns
+       :ehcps-transferred-in
+       [:yoy-delta :total_ceased :new_ehc_plans]
+       (fn [delta ceased new_ehcps]
+         (+ (- delta new_ehcps)
+            ceased)))
+      (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+      (tc/map-columns
+       :yoy-delta-% [:yoy-delta :ehcplans-start]
+       #(dfn// %1 %2))
+      (tc/map-columns
+       :ceased-% [:total_ceased :ehcplans-start]
+       #(dfn// %1 %2))
+      (tc/map-columns
+       :new-plans-% [:new_ehc_plans :ehcplans-finish]
+       #(dfn// %1 %2))
+      (tc/map-columns
+       :ehcp-new-plans-rate [:new_ehc_plans :total-pop]
+       #(dfn// %1 %2))
+      (tc/map-columns
+       :ehcps-transferred-in-% [:ehcps-transferred-in :ehcplans-finish]
+       #(dfn// %1 %2))
+      (tc/reorder-columns [:time_period :calendar-year
+                           :new_la_code :la_name
+                           :ehcplans-start :ehcplans-finish
+                           :yoy-delta :yoy-delta-%
+                           :total_ceased :ceased-%
+                           :new_ehc_plans :new-plans-% :ehcp-new-plans-rate
+                           :ehcps-transferred-in :ehcps-transferred-in-%])
+      (tc/map-columns
+       :cross-check [:total_ceased :new_ehc_plans :ehcps-transferred-in]
+       (fn [ceased new-plans transfers]
+         (- (+ new-plans transfers)
+            ceased)))
+      (tc/order-by [:la_name :calendar-year])))
+
+
+(def all-ceased-plans
+  (-> @caseload/sen2-2025-caseload-all-ehcps
+      (tc/inner-join
+       (-> @ceasedplans/ceased-plans
+           (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
+           (tc/drop-missing [:la_name])
+           (tc/select-columns [:time_period :new_la_code :total_ceased])
+           (tc/rename-columns {:time_period :calendar-year}))
+       [:calendar-year :new_la_code])
+      (tc/map-columns
+       :ceased-% [:total_ceased :ehcplans]
+       #(dfn// %1 %2))))
+
+(comment
+
+  (tc/head yoy-flows 500)
+
+  )
+
 (def ceased-plans-statistical-neighbours-max-y
   (let [neighbours statistical-neighbours-pred]
     (-> (tc/concat
@@ -151,14 +234,10 @@
      :config {:displayModeBar false
               :displayLogo false}}))
 
-(defn plotly-caseload-neighbour-comparison
-  [la-name neighbours title caseload]
-  (let [caseload (-> caseload
-                     (tc/map-columns :ehcp-rate [:ehcp-rate] #(-> % (* 100) (m/approx 2))))
-        la-plans (-> caseload
+(defn neighbour-comparison-boxplot
+  [{:keys [neighbour-data la-name title y-field y-title]}]
+  (let [la-plans (-> neighbour-data
                      (tc/select-rows #(#{la-name} (:la_name %))))
-        neighbour-plans (-> caseload
-                            (tc/select-rows #((set neighbours) (:la_name %))))
         box-data
         (transduce
          identity
@@ -179,13 +258,15 @@
                   acc))
            ([acc x]
             (-> acc
-                (update-in [(:calendar-year x) :y] conj (:ehcp-rate x))
+                (update-in [(:calendar-year x) :y] conj (y-field x))
                 (update-in [(:calendar-year x) :text] conj (:la_name x)))))
-         (tc/rows neighbour-plans :as-maps))]
+         (-> neighbour-data
+             (tc/drop-rows #(#{la-name} (:la_name %)))
+             (tc/rows :as-maps)))]
     {:data (conj
             box-data
             {:x (into [] (la-plans :calendar-year))
-             :y (into [] (la-plans :ehcp-rate))
+             :y (into [] (la-plans y-field))
              :text (into [] (la-plans :la_name))
              :name la-name
              :marker {:color "blue" :size 14 :symbol "star-diamond"}
@@ -195,19 +276,12 @@
               :scattermode "group"
               :scattergap 0.7
               :xaxis {:dtick 1 :title "SEN2 Census Year"}
-              :yaxis {:rangemode "tozero" :title "% of EHCPs"}
+              :yaxis {:rangemode "tozero" :title y-title}
               :height 600
               :width 1400
               :showlegend false}
      :config {:displayModeBar false
               :displayLogo false}}))
-
-(comment
-
-  (plotly-caseload-neighbour-comparison
-   la-name statistical-neighbours-pred "foo" @caseload/sen2-2025-caseload-all-ehcps)
-
-  )
 
 (defn plotly-ceased-neighbour-comparison
   [la-name age neighbours title max-y ceased-plans-by-age]
@@ -262,6 +336,8 @@
      :config {:displayModeBar false
               :displayLogo false}}))
 
+
+
 (
 ;;; Deck
  )
@@ -280,111 +356,46 @@
    [:p.text-3xl "Use ⬅️➡️ keys to navigate and ESC to see an overview."]]))
 
 ;; ---
-;;; # Caseload
+;;; ## Caseload
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
-  (plotly-caseload-neighbour-comparison
-   la-name statistical-neighbours-pred "Statistical Neighbours Total Caseload" @caseload/sen2-2025-caseload-all-ehcps)))
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @caseload/sen2-2025-caseload-all-ehcps
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/map-columns :ehcp-rate [:ehcp-rate] #(-> % (* 100) (m/approx 2))))
+    :la-name la-name
+    :title "Statistical Neighbours Total Caseload"
+    :y-field :ehcp-rate
+    :y-title "% of EHCPs"})))
 
 ;; ---
-;;; # New Plans and Moved In CYP
-
-;; 2024 Caseload - 2024 Ceasers + 2024 New Plans = 2025 Caseload - Plans moved in
-
-(def yoy-flows
-
-  (-> @caseload/sen2-2025-caseload-all-ehcps
-      (tc/select-columns [:time_period :calendar-year :new_la_code :la_name :ehcplans])
-      (tc/rename-columns {:ehcplans :ehcplans-start})
-      (tc/inner-join
-       (-> @caseload/sen2-2025-caseload-all-ehcps
-           (tc/select-columns [:time_period :calendar-year :new_la_code :la_name :ehcplans])
-           (tc/update-columns {:calendar-year (partial map dec)})
-           (tc/rename-columns {:ehcplans :ehcplans-finish}))
-       [:calendar-year :new_la_code])
-      (tc/drop-columns #"^:inner.*")
-      (tc/inner-join
-       (-> @ceasedplans/ceased-plans
-           (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
-           (tc/drop-missing [:la_name])
-           (tc/select-columns [:time_period :new_la_code :total_ceased])
-           (tc/rename-columns {:time_period :calendar-year}))
-       [:calendar-year :new_la_code])
-      (tc/inner-join
-       (-> @newplans/new-plans-by-la
-           (tc/select-columns [:time_period :new_la_code :new_ehc_plans])
-           (tc/rename-columns {:time_period :calendar-year}))
-       [:calendar-year :new_la_code])
-      (tc/drop-columns #"^:sen2.*")
-      (tc/map-columns :yoy-delta [:ehcplans-finish :ehcplans-start] dfn/-)
-      (tc/map-columns
-       :ehcps-transferred-in
-       [:yoy-delta :total_ceased :new_ehc_plans]
-       (fn [delta ceased new_ehcps]
-         (+ (- delta new_ehcps)
-            ceased)))
-      (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
-      (tc/map-columns
-       :yoy-delta-% [:yoy-delta :ehcplans-start]
-       #(dfn// %1 %2))
-      (tc/map-columns
-       :ceased-% [:total_ceased :ehcplans-start]
-       #(dfn// %1 %2))
-      (tc/map-columns
-       :new-plans-% [:new_ehc_plans :ehcplans-finish]
-       #(dfn// %1 %2))
-      (tc/map-columns
-       :ehcps-transferred-in-% [:ehcps-transferred-in :ehcplans-finish]
-       #(dfn// %1 %2))
-      (tc/reorder-columns [:time_period :calendar-year
-                           :new_la_code :la_name
-                           :ehcplans-start :ehcplans-finish
-                           :yoy-delta :yoy-delta-%
-                           :total_ceased :ceased-%
-                           :new_ehc_plans :new-plans-%
-                           :ehcps-transferred-in :ehcps-transferred-in-%])
-      (tc/map-columns
-       :cross-check [:total_ceased :new_ehc_plans :ehcps-transferred-in]
-       (fn [ceased new-plans transfers]
-         (- (+ new-plans transfers)
-            ceased)))
-      (tc/order-by [:la_name :calendar-year]))
-
-
-  )
-
+;;; ## Ceased Plans
 (clerk/row
  {::clerk/width :full}
- (clerk/table
-  {::clerk/width :full}
-  (-> @caseload/sen2-2025-caseload-all-ehcps
-      (tc/select-rows #(= la-name (:la_name %)))
-      (caseload/add-diffs)
-      (tc/map-columns :calendar-year [:time_period] caseload/time_period->calendar-year))))
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> all-ceased-plans
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/map-columns :ceased-% [:ceased-%] #(-> % (* 100) (m/approx 2))))
+    :la-name la-name
+    :title "Statistical Neighbours Total Ceased Plan Rate"
+    :y-field :ceased-%
+    :y-title "% of EHCPs"})))
 
 ;; ---
-;;; # New Plans and Ceased Plans
+;;; ## New Plans
 (clerk/row
  {::clerk/width :full}
- (clerk/table
-  {::clerk/width :full}
-  (-> @newplans/newplans
-      (tc/select-rows #(= la-name (:la_name %)))
-      (tc/select-rows #(= "New EHC plans" (:breakdown %)))
-      (tc/select-columns [:time_period :new_ehc_plans])
-      (tc/convert-types {:time_period :int16})
-      (tc/inner-join
-       (-> @ceasedplans/ceased-plans
-           (tc/select-rows #(= la-name (:la_name %)))
-           (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
-           (tc/select-columns [:time_period :total_ceased]))
-       [:time_period])
-      (tc/map-columns :ehcp-change [:new_ehc_plans :total_ceased] -)
-      (tc/rename-columns {:time_period "Calendar Year"
-                          :new_ehc_plans "New Plans"
-                          :total_ceased "Ceased Plans"
-                          :ehcp-change "Change in # of EHCPs"}))))
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @newplans/new-plans-by-la
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/map-columns :new-ehcps-per-thousand [:new-ehcps-per-thousand] #(m/approx % 2)))
+    :la-name la-name
+    :title "Statistical Neighbours Total New Plan Rate"
+    :y-field :new-ehcps-per-thousand
+    :y-title "EHCPs per 1,00"})))
 
 ;; ---
 ;;; # Ceased Plan Breakdown
@@ -408,6 +419,56 @@
                           :deceased "Deceased"
                           :not_rec "Not Recorded"
                           :other "Other"}))))
+
+;; ---
+;;; ## Max Age Cease
+
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data (-> @ceasedplans/ceased-plans
+                            (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
+                            (tc/rename-columns {:time_period :calendar-year})
+                            (tc/map-columns :max_age_pc [:max_age :total_ceased] #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :needs_met_pc [:needs_met :total_ceased] #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :he_pc [:he :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :employ_pc [:employ :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :transfer_pc [:transfer :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :no_engage_pc [:no_engage :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :moved_outside_eng_pc [:moved_outside_eng :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :deceased_pc [:deceased :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :not_rec_pc [:not_rec :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :other_pc [:other :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %))))
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "Max Age")
+        :y-field :max_age_pc
+        :y-title "% of Ceased Plans"})
+      (assoc-in [:layout :height] 400)
+      (assoc-in [:layout :width] 500)))
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data (-> @ceasedplans/ceased-plans
+                            (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
+                            (tc/rename-columns {:time_period :calendar-year})
+                            (tc/map-columns :max_age_pc [:max_age :total_ceased] #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :needs_met_pc [:needs_met :total_ceased] #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :he_pc [:he :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :employ_pc [:employ :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :transfer_pc [:transfer :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :no_engage_pc [:no_engage :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :moved_outside_eng_pc [:moved_outside_eng :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :deceased_pc [:deceased :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :not_rec_pc [:not_rec :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/map-columns :other_pc [:other :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+                            (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %))))
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "No Engagement")
+        :y-field :no_engage_pc
+        :y-title "% of Ceased Plans"})
+      (assoc-in [:layout :height] 400)
+      (assoc-in [:layout :width] 500))) )
 
 ;; ---
 ;;; # Statistical Nearest Neighbours

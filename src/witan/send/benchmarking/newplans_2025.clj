@@ -144,7 +144,7 @@
 
   )
 
-(def snpp-2025
+(def snpp-2025-by-age
   (delay
     (-> (pop-2022/->witan-send-population)
         (tc/map-columns
@@ -166,13 +166,26 @@
                  {:population (dsr/sum :population)}
                  $)))))
 
-;; [[file:~/wip/witan.send.adroddiad/src/witan/send/adroddiad/year_counts.clj::(defn population-by-year][diff1d example]]
+(def snpp-2025-send-age-pop
+  (delay
+    (dsr/group-by-column-agg
+     [:UTLA22CD :UTLA22NM :snpp-year :calendar-year]
+     {:population (dsr/sum :population)}
+     (pop-2022/->witan-send-population))))
+
 (def new-plans-by-la
   (delay
     (-> @newplans
         (tc/drop-missing [:la_name])
         (tc/select-rows #(= "New EHC plans" (:breakdown %)))
-        (tc/update-columns {:time_period (partial map parse-long)}))))
+        (tc/update-columns {:time_period (partial map parse-long)})
+        (tc/inner-join @snpp-2025-send-age-pop
+                       {:left [:new_la_code :time_period]
+                        :right [:UTLA22CD :snpp-year]})
+        (tc/map-columns 
+         :new-ehcps-per-thousand
+         [:new_ehc_plans :population]
+         (fn [new-plans pop] (* 1000 (/ new-plans pop)))))))
 
 (def new-plans-by-age-by-la
   (delay
@@ -180,7 +193,7 @@
         (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
         (tc/select-rows #(= "Local authority" (% :geographic_level)))
         (tc/inner-join 
-         (-> @snpp-2025
+         (-> @snpp-2025-by-age
              (tc/map-columns :snpp-year [:snpp-year] str))
          {:left [:new_la_code :time_period :breakdown]
           :right [:UTLA22CD :snpp-year :age-group-label]})
