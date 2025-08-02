@@ -19,7 +19,7 @@
    [witan.send.benchmarking.statistical-neighbours :as sn]
    [witan.send.benchmarking.caseload-2025 :as caseload]))
 
-(def la-name "Swindon")
+(def la-name "Thurrock")
 
 (def out-dir "doc/")
 
@@ -370,6 +370,17 @@
    [:p.text-3xl "Use ⬅️➡️ keys to navigate and ESC to see an overview."]]))
 
 ;; ---
+;;; ## Statistical Nearest Neighbours
+(clerk/row
+ {::clerk/width :full}
+ (clerk/table
+  (-> statistical-neighbours
+      (tc/select-columns [:sn :sn_name :sn_prox])
+      (tc/rename-columns {:sn_name "Neighbour Name"
+                          :sn "Neighbour Rank"
+                          :sn_prox "Statistical Proximity"}))))
+
+;; ---
 ;;; ## Caseload
 (clerk/row
  {::clerk/width :full}
@@ -382,6 +393,20 @@
     :title "Statistical Neighbours Total Caseload"
     :y-field :ehcp-rate
     :y-title "% of EHCPs"})))
+
+;; ---
+;;; ## New Plans
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @newplans/new-plans-by-la
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/map-columns :new-ehcps-per-thousand [:new-ehcps-per-thousand] #(m/approx % 2)))
+    :la-name la-name
+    :title "Statistical Neighbours Total New Plan Rate"
+    :y-field :new-ehcps-per-thousand
+    :y-title "EHCPs per 1,000"})))
 
 ;; ---
 ;;; ## Ceased Plans
@@ -398,21 +423,7 @@
     :y-title "% of EHCPs"})))
 
 ;; ---
-;;; ## New Plans
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (neighbour-comparison-boxplot
-   {:neighbour-data (-> @newplans/new-plans-by-la
-                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
-                        (tc/map-columns :new-ehcps-per-thousand [:new-ehcps-per-thousand] #(m/approx % 2)))
-    :la-name la-name
-    :title "Statistical Neighbours Total New Plan Rate"
-    :y-field :new-ehcps-per-thousand
-    :y-title "EHCPs per 1,00"})))
-
-;; ---
-;;; # Ceased Plan Breakdown
+;;; ## Ceased Plan Reason Breakdown
 (clerk/row
  {::clerk/width :full}
  (clerk/table
@@ -435,7 +446,7 @@
                           :other "Other"}))))
 
 ;; ---
-;;; ## Ceasing Reasons
+;;; ## Ceasing Reason Comparison
 
 (clerk/row
  {::clerk/width :full}
@@ -497,16 +508,6 @@
       (assoc-in [:layout :height] 375)
       (assoc-in [:layout :width] 500))))
 
-;; ---
-;;; # Statistical Nearest Neighbours
-(clerk/row
- {::clerk/width :full}
- (clerk/table
-  (-> statistical-neighbours
-      (tc/select-columns [:sn :sn_name :sn_prox])
-      (tc/rename-columns {:sn_name "Neighbour Name"
-                          :sn "Neighbour Rank"
-                          :sn_prox "Statistical Proximity"}))))
 
 ;; ---
 ;;; ## New Plans in Early Years
@@ -524,24 +525,6 @@
  (clerk/plotly
   (plotly-newplan-neighbour-comparison
    la-name "age 4" statistical-neighbours-pred "Age 4 w/Statistical Neighbours" new-plans-statistical-neighbours-max-y @newplans/new-plans-by-age-by-la)))
-
-;; ---
-;;; ## Ceased Plans in Early Years
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 2 and under" statistical-neighbours-pred "Age 2 and Under w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 3" statistical-neighbours-pred "Age 3 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 4" statistical-neighbours-pred "Age 4 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
 
 ;; ---
 ;;; ## New Plans in Primary Ages
@@ -571,39 +554,6 @@
    la-name "age 10" statistical-neighbours-pred "Age 10 w/Statistical Neighbours" new-plans-statistical-neighbours-max-y @newplans/new-plans-by-age-by-la)))
 
 ;; ---
-;;; ## Ceased Plans in Primary
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 5" statistical-neighbours-pred "Age 5 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 6" statistical-neighbours-pred "Age 6 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 7" statistical-neighbours-pred "Age 7 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 8" statistical-neighbours-pred "Age 8 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 9" statistical-neighbours-pred "Age 9 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 10" statistical-neighbours-pred "Age 10 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
-
-
-;; ---
 ;;; ## New Plans in Secondary Ages
 (clerk/row
  {::clerk/width :full}
@@ -630,38 +580,6 @@
    la-name "age 16" statistical-neighbours-pred "Age 16 w/Statistical Neighbours" new-plans-statistical-neighbours-max-y @newplans/new-plans-by-age-by-la)))
 
 ;; ---
-;;; ## Ceased Plans in Secondary
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 11" statistical-neighbours-pred "Age 11 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 12" statistical-neighbours-pred "Age 12 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 13" statistical-neighbours-pred "Age 13 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 14" statistical-neighbours-pred "Age 14 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 15" statistical-neighbours-pred "Age 15 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 16" statistical-neighbours-pred "Age 16 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
-
-;; ---
 ;;; ## New Plans in Post 16 Ages
 (clerk/row
  {::clerk/width :full}
@@ -682,21 +600,7 @@
    la-name "age 20 and over" statistical-neighbours-pred "Age 20+ w/Statistical Neighbours" new-plans-statistical-neighbours-max-y @newplans/new-plans-by-age-by-la)))
 
 ;; ---
-;;; ## Ceased Plans in Post 16 Ages
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 19" statistical-neighbours-pred "Age 19 w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 20 and over" statistical-neighbours-pred "Age 20 and over w/Statistical Neighbours" ceased-plans-statistical-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
-
-;; ---
-;;; # Regional Neighbours
+;;; ## Regional Neighbours
 
 (clerk/row
  {::clerk/width :full}
@@ -721,24 +625,6 @@
  (clerk/plotly
   (plotly-newplan-neighbour-comparison
    la-name "age 4" regional-neighbours-pred "Age 4 w/Regional Neighbours" new-plans-regional-neighbours-max-y @newplans/new-plans-by-age-by-la)))
-
-;; ---
-;;; ## Ceased Plans in Early Years
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 2 and under" regional-neighbours-pred "Age 2 and Under w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 3" regional-neighbours-pred "Age 3 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 4" regional-neighbours-pred "Age 4 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
 
 ;; ---
 ;;; ## New Plans in Primary Ages
@@ -768,38 +654,6 @@
    la-name "age 10" regional-neighbours-pred "Age 10 w/Regional Neighbours" new-plans-regional-neighbours-max-y @newplans/new-plans-by-age-by-la)))
 
 ;; ---
-;;; ## Ceased Plans in Primary
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 5" regional-neighbours-pred "Age 5 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 6" regional-neighbours-pred "Age 6 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 7" regional-neighbours-pred "Age 7 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 8" regional-neighbours-pred "Age 8 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 9" regional-neighbours-pred "Age 9 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 10" regional-neighbours-pred "Age 10 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
-
-;; ---
 ;;; ## New Plans in Secondary Ages
 (clerk/row
  {::clerk/width :full}
@@ -826,39 +680,6 @@
    la-name "age 16" regional-neighbours-pred "Age 16 w/Regional Neighbours" new-plans-regional-neighbours-max-y @newplans/new-plans-by-age-by-la)))
 
 ;; ---
-;;; ## Ceased Plans in Secondary
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 11" regional-neighbours-pred "Age 11 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 12" regional-neighbours-pred "Age 12 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 13" regional-neighbours-pred "Age 13 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 14" regional-neighbours-pred "Age 14 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 15" regional-neighbours-pred "Age 15 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 16" regional-neighbours-pred "Age 16 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
-
-
-
-;; ---
 ;;; ## New Plans in Post 16 Ages
 (clerk/row
  {::clerk/width :full}
@@ -877,16 +698,3 @@
  (clerk/plotly
   (plotly-newplan-neighbour-comparison
    la-name "age 20 and over" regional-neighbours-pred "Age 20+ w/Regional Neighbours" new-plans-regional-neighbours-max-y @newplans/new-plans-by-age-by-la)))
-
-;; ---
-;;; ## Ceased Plans in Post 16 Ages
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 19" regional-neighbours-pred "Age 19 w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la))
-
- (clerk/plotly
-  (plotly-ceased-neighbour-comparison
-   la-name "age 20 and over" regional-neighbours-pred "Age 20 and over w/Regional Neighbours" ceased-plans-regional-neighbours-max-y @ceasedplans/ceased-plans-by-age-by-la)))
