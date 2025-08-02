@@ -19,7 +19,7 @@
    [witan.send.benchmarking.statistical-neighbours :as sn]
    [witan.send.benchmarking.caseload-2025 :as caseload]))
 
-(def la-name "Thurrock")
+(def la-name "Swindon")
 
 (def out-dir "doc/")
 
@@ -336,7 +336,21 @@
      :config {:displayModeBar false
               :displayLogo false}}))
 
-
+(def ceased-plan-pc
+  (-> @ceasedplans/ceased-plans
+      (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
+      (tc/rename-columns {:time_period :calendar-year})
+      (tc/map-columns :max_age_pc [:max_age :total_ceased] #(m/approx (* 100 (dfn// %1 %2)) 2))
+      (tc/map-columns :needs_met_pc [:needs_met :total_ceased] #(m/approx (* 100 (dfn// %1 %2)) 2))
+      (tc/map-columns :he_pc [:he :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+      (tc/map-columns :employ_pc [:employ :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+      (tc/map-columns :transfer_pc [:transfer :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+      (tc/map-columns :no_engage_pc [:no_engage :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+      (tc/map-columns :moved_outside_eng_pc [:moved_outside_eng :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+      (tc/map-columns :deceased_pc [:deceased :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+      (tc/map-columns :not_rec_pc [:not_rec :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+      (tc/map-columns :other_pc [:other :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
+      (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))))
 
 (
 ;;; Deck
@@ -421,54 +435,67 @@
                           :other "Other"}))))
 
 ;; ---
-;;; ## Max Age Cease
+;;; ## Ceasing Reasons
 
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
   (-> (neighbour-comparison-boxplot
-       {:neighbour-data (-> @ceasedplans/ceased-plans
-                            (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
-                            (tc/rename-columns {:time_period :calendar-year})
-                            (tc/map-columns :max_age_pc [:max_age :total_ceased] #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :needs_met_pc [:needs_met :total_ceased] #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :he_pc [:he :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :employ_pc [:employ :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :transfer_pc [:transfer :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :no_engage_pc [:no_engage :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :moved_outside_eng_pc [:moved_outside_eng :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :deceased_pc [:deceased :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :not_rec_pc [:not_rec :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :other_pc [:other :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %))))
+       {:neighbour-data ceased-plan-pc
         :la-name la-name
         :title (format "Ceasing Reason: %s" "Max Age")
         :y-field :max_age_pc
         :y-title "% of Ceased Plans"})
-      (assoc-in [:layout :height] 400)
+      (assoc-in [:layout :height] 375)
       (assoc-in [:layout :width] 500)))
  (clerk/plotly
   (-> (neighbour-comparison-boxplot
-       {:neighbour-data (-> @ceasedplans/ceased-plans
-                            (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
-                            (tc/rename-columns {:time_period :calendar-year})
-                            (tc/map-columns :max_age_pc [:max_age :total_ceased] #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :needs_met_pc [:needs_met :total_ceased] #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :he_pc [:he :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :employ_pc [:employ :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :transfer_pc [:transfer :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :no_engage_pc [:no_engage :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :moved_outside_eng_pc [:moved_outside_eng :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :deceased_pc [:deceased :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :not_rec_pc [:not_rec :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/map-columns :other_pc [:other :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
-                            (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %))))
+       {:neighbour-data ceased-plan-pc
         :la-name la-name
         :title (format "Ceasing Reason: %s" "No Engagement")
         :y-field :no_engage_pc
         :y-title "% of Ceased Plans"})
-      (assoc-in [:layout :height] 400)
-      (assoc-in [:layout :width] 500))) )
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500)))
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data ceased-plan-pc
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "Transferred Out")
+        :y-field :transfer_pc
+        :y-title "% of Ceased Plans"})
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500))))
+
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data ceased-plan-pc
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "Needs Met")
+        :y-field :needs_met_pc
+        :y-title "% of Ceased Plans"})
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500)))
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data ceased-plan-pc
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "Higher Education")
+        :y-field :he_pc
+        :y-title "% of Ceased Plans"})
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500)))
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data ceased-plan-pc
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "Employed")
+        :y-field :employ_pc
+        :y-title "% of Ceased Plans"})
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500))))
 
 ;; ---
 ;;; # Statistical Nearest Neighbours
