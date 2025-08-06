@@ -428,6 +428,61 @@
     :x-title "Calendar Year"})))
 
 ;; ---
+;;; ## Requests to Decide to Issue Plan
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @requests/sen2-2025-requests
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/select-rows #(= "All requests for EHC needs assessments" (:breakdown %)))
+                        (tc/inner-join (-> @assessments/sen2-2025-assessments
+                                           (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                                           (tc/select-rows #(= "All EHC needs assessments" (:breakdown %)))
+                                           (tc/drop-missing [:assess_issued]))
+                                       [:time_period :la_name])
+                        (tc/drop-missing [:assess_issued :requests_received_in_year])
+                        (tc/map-columns 
+                         :pct-request-to-plan [:assess_issued :requests_received_in_year]
+                         #(-> (dfn// %1 %2)
+                              (dfn/* 100)
+                              (m/approx 2))))
+    :la-name la-name
+    :title "Statistical Neighbours % of requests vs assessments where a plan was issued"
+    :y-field :pct-request-to-plan
+    :y-title "% Request where Plan Issued"
+    :x-field :time_period
+    :x-title "Calendar Year"})))
+
+;; ---
+;;; ## Requests to Plan Issued
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @requests/sen2-2025-requests
+                        (tc/map-columns :time_period [:time_period] str)
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/select-rows #(= "All requests for EHC needs assessments" (:breakdown %)))
+                        (tc/inner-join (-> @newplans/newplans
+                                           (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                                           (tc/select-rows #(= (:breakdown %) "New EHC plans")))
+                                       [:time_period :la_name])
+                        (tc/drop-missing [:new_ehc_plans :requests_received_in_year])
+                        (tc/map-columns 
+                         :pct-request-to-plan [:new_ehc_plans :requests_received_in_year]
+                         #(-> (dfn// %1 %2)
+                              (dfn/* 100)
+                              (m/approx 2))))
+    :la-name la-name
+    :title "Statistical Neighbours % of requests vs new plans issued"
+    :y-field :pct-request-to-plan
+    :y-title "% Request where Plan Issued"
+    :x-field :time_period
+    :x-title "Calendar Year"})))
+
+
+;; ---
 ;;; ## Requests
 (clerk/row
  {::clerk/width :full}
