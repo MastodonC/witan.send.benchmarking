@@ -13,8 +13,10 @@
    [tablecloth.api :as tc]
    [tablecloth.column.api :as tcc]
    [tech.v3.datatype.functional :as dfn]
+   [witan.send.benchmarking.assessment-2025 :as assessments]
    [witan.send.benchmarking.ceased-plans-2025 :as ceasedplans]
    [witan.send.benchmarking.newplans-2025 :as newplans]
+   [witan.send.benchmarking.requests-2025 :as requests]
    [witan.send.benchmarking.regional-neighbours :as rn]
    [witan.send.benchmarking.statistical-neighbours :as sn]
    [witan.send.benchmarking.caseload-2025 :as caseload]))
@@ -235,7 +237,9 @@
               :displayLogo false}}))
 
 (defn neighbour-comparison-boxplot
-  [{:keys [neighbour-data la-name title y-field y-title]}]
+  [{:keys [neighbour-data la-name title y-field y-title x-field x-title]
+    :or {x-field :calendar-year
+         x-title "SEN2 Census Year"}}]
   (let [la-plans (-> neighbour-data
                      (tc/select-rows #(#{la-name} (:la_name %))))
         box-data
@@ -258,14 +262,14 @@
                   acc))
            ([acc x]
             (-> acc
-                (update-in [(:calendar-year x) :y] conj (y-field x))
-                (update-in [(:calendar-year x) :text] conj (:la_name x)))))
+                (update-in [(x-field x) :y] conj (y-field x))
+                (update-in [(x-field x) :text] conj (:la_name x)))))
          (-> neighbour-data
              (tc/drop-rows #(#{la-name} (:la_name %)))
              (tc/rows :as-maps)))]
     {:data (conj
             box-data
-            {:x (into [] (la-plans :calendar-year))
+            {:x (into [] (la-plans x-field))
              :y (into [] (la-plans y-field))
              :text (into [] (la-plans :la_name))
              :name la-name
@@ -275,7 +279,7 @@
      :layout {:title {:text title}
               :scattermode "group"
               :scattergap 0.7
-              :xaxis {:dtick 1 :title "SEN2 Census Year"}
+              :xaxis {:dtick 1 :title x-title}
               :yaxis {:rangemode "tozero" :title y-title}
               :height 600
               :width 1400
@@ -420,7 +424,42 @@
     :la-name la-name
     :title "Statistical Neighbours Total New Plan Rate"
     :y-field :new-ehcps-per-thousand
-    :y-title "EHCPs per 1,000"})))
+    :y-title "EHCPs per 1,000"
+    :x-title "Calendar Year"})))
+
+;; ---
+;;; ## Requests
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @requests/sen2-2025-requests
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/select-rows #(= "All requests for EHC needs assessments" (:breakdown %)))
+                        (tc/drop-missing [:request_assess_pc]))
+    :la-name la-name
+    :title "Statistical Neighbours % of requests where LA decided to proceed with an assessment"
+    :y-field :request_assess_pc
+    :y-title "% Agreed to Assess"
+    :x-field :time_period
+    :x-title "Calendar Year"})))
+
+;; ---
+;;; ## Assessments
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @assessments/sen2-2025-assessments
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/select-rows #(= "All EHC needs assessments" (:breakdown %)))
+                        (tc/drop-missing [:assess_issued_pc]))
+    :la-name la-name
+    :title "Statistical Neighbours % of assessments where a plan was issued"
+    :y-field :assess_issued_pc
+    :y-title "% Plans Issued"
+    :x-field :time_period
+    :x-title "Calendar Year"})))
 
 ;; ---
 ;;; ## Ceased Plans
@@ -434,7 +473,8 @@
     :la-name la-name
     :title "Statistical Neighbours Total Ceased Plan Rate"
     :y-field :ceased-%
-    :y-title "% of EHCPs"})))
+    :y-title "% of EHCPs"
+    :x-title "Calendar Year"})))
 
 ;; ---
 ;;; ## Ceased Plan Reason Breakdown
