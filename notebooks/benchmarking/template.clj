@@ -4,14 +4,12 @@
                       :auto-expand-results? true
                       :budget               nil}
   (:require
-   [tech.v3.datatype.gradient :as dt-grad]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [fastmath.core :as m]
    [nextjournal.clerk :as clerk]
    [nextjournal.clerk-slideshow :as slideshow]
    [tablecloth.api :as tc]
-   [tablecloth.column.api :as tcc]
    [tech.v3.datatype.functional :as dfn]
    [witan.send.benchmarking.assessment-2025 :as assessments]
    [witan.send.benchmarking.ceased-plans-2025 :as ceasedplans]
@@ -21,13 +19,12 @@
    [witan.send.benchmarking.statistical-neighbours :as sn]
    [witan.send.benchmarking.caseload-2025 :as caseload]))
 
-(def la-name "Thurrock")
+(def la-name "Kent")
 
 (def out-dir "doc/")
 
-(comment
-
-  (let [ns-str (str *ns*)
+(defn output-ns [ns]
+  (let [ns-str (str ns)
         pathified-namepace (str/replace ns-str #"\.|-" {"." "/" "-" "_"})
         in-path (str "notebooks/" pathified-namepace ".clj")
         out-path (str out-dir
@@ -43,7 +40,11 @@
                    :ssr true
                    :bundle   true
                    :out-path out-dir})
-    [(.renameTo (io/file index-out) (io/file out-path)) index-out out-path])
+    [(.renameTo (io/file index-out) (io/file out-path)) index-out out-path]))
+
+(comment
+
+  (output-ns *ns*)
 
   )
 
@@ -359,10 +360,6 @@
 (
 ;;; TODO
 
- ;; EHCPs/Assessment
- ;; EHCPs/Requests to Assess
- ;; Asessments/Requests to Assess
- ;;
  ;; Needs of New EHCPs (by phase?) (and in 4/5 11/12/13)
  ;; Settings of New EHCPs (by phase?) (and in 4/5 11/12/13)
  ;; Raw count of new plans
@@ -410,7 +407,15 @@
     :la-name la-name
     :title "Statistical Neighbours Total Caseload"
     :y-field :ehcp-rate
-    :y-title "% of EHCPs"})))
+    :y-title "% of EHCPs"}))
+ (clerk/col
+  (clerk/md "### Number of EHCPs")
+  (clerk/table 
+   (-> @caseload/sen2-2025-caseload-all-ehcps
+       (tc/select-rows #(= la-name (:la_name %)))
+       (tc/select-columns [:calendar-year :ehcplans])
+       (tc/order-by [:calendar-year])
+       (tc/rename-columns {:calendar-year "SEN2 Census Year" :ehcplans "EHC Plans"})))))
 
 ;; ---
 ;;; ## New Plans
@@ -425,10 +430,44 @@
     :title "Statistical Neighbours Total New Plan Rate"
     :y-field :new-ehcps-per-thousand
     :y-title "EHCPs per 1,000"
-    :x-title "Calendar Year"})))
+    :x-title "Calendar Year"}))
+ (clerk/col
+  (clerk/md "### New Plans Issued")
+  (clerk/table
+   (-> @newplans/new-plans-by-la
+       (tc/select-rows #(= la-name (:la_name %)))
+       (tc/select-columns [:time_period :new_ehc_plans])
+       (tc/order-by [:time_period])
+       (tc/rename-columns {:time_period "Year" :new_ehc_plans "Plans Issued"})))))
 
 ;; ---
-;;; ## Requests to Decide to Issue Plan
+;;; ## Requests to Assess Per 1,000 CYP
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @requests/sen2-2025-request-rate
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/map-columns
+                         :requests-per-1000 [:requests-per-1000]
+                         #(m/approx % 2)))
+    :la-name la-name
+    :title "Statistical Neighbours % of requests per 1,000 CYP"
+    :y-field :requests-per-1000
+    :y-title "Requests per 1,000 CYP"
+    :x-field :time_period
+    :x-title "Calendar Year"}))
+ (clerk/col
+  (clerk/md "### Requests Received")
+  (clerk/table
+   (-> @requests/sen2-2025-request-rate
+       (tc/select-rows #(= la-name (:la_name %)))
+       (tc/select-columns [:time_period :requests_received_in_year])
+       (tc/order-by [:time_period])
+       (tc/rename-columns {:time_period "Year" :requests_received_in_year "Requests"})))))
+
+;; ---
+;;; ## Requests vs Decision to Issue Plan
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
@@ -442,11 +481,13 @@
                                            (tc/drop-missing [:assess_issued]))
                                        [:time_period :la_name])
                         (tc/drop-missing [:assess_issued :requests_received_in_year])
-                        (tc/map-columns 
+                        (tc/map-columns
                          :pct-request-to-plan [:assess_issued :requests_received_in_year]
-                         #(-> (dfn// %1 %2)
-                              (dfn/* 100)
-                              (m/approx 2))))
+                         #(if (zero? %2)
+                            nil
+                            (-> (dfn// %1 %2)
+                                (dfn/* 100)
+                                (m/approx 2)))))
     :la-name la-name
     :title "Statistical Neighbours % of requests vs assessments where a plan was issued"
     :y-field :pct-request-to-plan
@@ -455,7 +496,7 @@
     :x-title "Calendar Year"})))
 
 ;; ---
-;;; ## Requests to Plan Issued
+;;; ## Requests vs New EHC Plans
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
@@ -469,11 +510,13 @@
                                            (tc/select-rows #(= (:breakdown %) "New EHC plans")))
                                        [:time_period :la_name])
                         (tc/drop-missing [:new_ehc_plans :requests_received_in_year])
-                        (tc/map-columns 
+                        (tc/map-columns
                          :pct-request-to-plan [:new_ehc_plans :requests_received_in_year]
-                         #(-> (dfn// %1 %2)
-                              (dfn/* 100)
-                              (m/approx 2))))
+                         #(if (zero? %2)
+                            nil
+                            (-> (dfn// %1 %2)
+                                (dfn/* 100)
+                                (m/approx 2)))))
     :la-name la-name
     :title "Statistical Neighbours % of requests vs new plans issued"
     :y-field :pct-request-to-plan
@@ -483,7 +526,7 @@
 
 
 ;; ---
-;;; ## Requests
+;;; ## Percentage Requests where LA Decided to Proceed with an Assessment
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
@@ -500,7 +543,7 @@
     :x-title "Calendar Year"})))
 
 ;; ---
-;;; ## Assessments
+;;; ## Percentage Requests where a Plan was Issued
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
@@ -517,7 +560,7 @@
     :x-title "Calendar Year"})))
 
 ;; ---
-;;; ## Ceased Plans
+;;; ## Percentage of EHC Plans Ceased
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly

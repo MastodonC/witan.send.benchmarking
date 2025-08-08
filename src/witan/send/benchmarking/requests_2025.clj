@@ -30,6 +30,20 @@
                                  :tribunal_related_request [:int32 :relaxed?]
                                  :tribunal_after_mediation_request [:int32 :relaxed?]}}))))
 
+(def sen2-2025-request-rate
+  (delay
+    (-> @sen2-2025-requests
+        (tc/select-rows #(= "All requests for EHC needs assessments" (:breakdown %)))
+        (tc/inner-join 
+         (dsr/group-by-column-agg
+          [:UTLA22CD :UTLA22NM :calendar-year]
+          {:total-pop (dsr/sum :population)}
+          (pop/->witan-send-population))
+         {:left [:new_la_code :time_period] :right [:UTLA22CD :calendar-year]})
+        (tc/drop-missing [:requests_received_in_year])
+        (tc/map-columns :requests-per-1000 [:requests_received_in_year :total-pop]
+                        #(* 1000 (dfn// %1 %2))))))
+
 (comment
 
   (tc/info @sen2-2025-requests)
