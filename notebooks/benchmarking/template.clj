@@ -457,8 +457,44 @@
     :x-field :time_period
     :x-title "Calendar Year"})))
 
+
 ;; ---
-;;; ## Percentage Requests where a Plan was Issued
+;;; ## Percentage Requests where the LA Decided to not Assess
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @requests/sen2-2025-requests
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/select-rows #(= "All requests for EHC needs assessments" (:breakdown %)))
+                        (tc/drop-missing [:request_not_assess_pc]))
+    :la-name la-name
+    :title "Statistical Neighbours % of requests where LA decided to not assess"
+    :y-field :request_not_assess_pc
+    :y-title "% Decided to not Assess"
+    :x-field :time_period
+    :x-title "Calendar Year"})))
+
+
+;; ---
+;;; ## Percentage Requests where the Request Outcome Took Over 6 Weeks
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @requests/sen2-2025-requests
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/select-rows #(= "All requests for EHC needs assessments" (:breakdown %)))
+                        (tc/drop-missing [:request_outcome_over_6_weeks_pc]))
+    :la-name la-name
+    :title "Statistical Neighbours % of requests where the request outcome took over 6 weeks"
+    :y-field :request_outcome_over_6_weeks_pc
+    :y-title "% outcome over 6 weeks"
+    :x-field :time_period
+    :x-title "Calendar Year"})))
+
+;; ---
+;;; ## Percentage Assessments where a Plan was Issued
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
