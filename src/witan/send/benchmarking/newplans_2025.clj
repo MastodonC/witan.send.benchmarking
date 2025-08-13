@@ -2,7 +2,6 @@
   (:require
    [tablecloth.api :as tc]
    [tech.v3.dataset.reductions :as dsr]
-   [tech.v3.datatype.gradient :as dt-grad]
    [witan.population.england.snpp-2022 :as pop-2022]
    [witan.send.benchmarking.newplans-2025 :as newplans]))
 
@@ -136,12 +135,6 @@
   ;;    |                   Sex |                                Male |
   ;;    |                   Sex |                             Unknown |
 
-  (-> @newplans
-      (tc/select-rows #(= "Age when plan started" (% :breakdown_topic))))
-
-  (-> (pop-2022/->witan-send-population)
-      (tc/select-rows #(= "Cumbria" (:UTLA22NM %))))
-
   )
 
 (def snpp-2025-by-age
@@ -202,29 +195,38 @@
          [:new_ehc_plans :population]
          (fn [new-plans pop] (* 1000 (/ new-plans pop)))))))
 
+
+#_
 (defn england-new-plans-by-age []
   (-> @newplans
       (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
       (tc/select-rows #(= "National" (% :geographic_level)))))
 
+
+#_
 (defn regional-new-plans-by-age [region-name]
   (-> @newplans
       (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
       (tc/select-rows #(= "Regional" (% :geographic_level)))
       (tc/select-rows #(= region-name (% :region_name)))))
 
+
+#_
 (defn regional-neigbours-new-plans-by-age [region-name]
   (-> @newplans
       (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
       (tc/select-rows #(= "Local authority" (% :geographic_level)))
       (tc/select-rows #(= region-name (% :region_name)))))
 
+#_
 (defn la-name->region-name [la-name]
   (-> @newplans 
       (tc/select-rows #(= la-name (% :la_name)))
       :region_name
       first))
 
+
+#_
 (defn la-regional-neigbours-new-plans-by-age [la-name]
   (let [region-name (la-name->region-name la-name)]
     (-> @newplans
@@ -232,6 +234,8 @@
         (tc/select-rows #(= "Local authority" (% :geographic_level)))
         (tc/select-rows #(= region-name (% :region_name))))))
 
+
+#_
 (defn la-new-plans-by-age [la-name]
   (-> @newplans
       (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
@@ -262,8 +266,6 @@
         #_(tc/select-columns [:time_period :new_ehc_plans])
         (tc/convert-types {:time_period :int16})
         ))
-
-  
 
   )
 

@@ -133,15 +133,6 @@
          [:new_la_code :calendar-year])
         (tc/map-columns :ehcp-rate [:ehcplans :total-pop] dfn//))))
 
-(comment
-  (let [la-name "Tower Hamlets"]
-
-    (-> @sen2-2025-caseload-all-ehcps
-        (tc/select-rows #(#{la-name} (:la_name %)))
-        (tc/head 500)))
-
-  )
-
 (def sen2-2025-caseload-all-ehcps-by-age
   (delay
     (-> @sen2-2025-caseload
