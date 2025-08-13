@@ -184,61 +184,8 @@
         (as-> $ (reduce max $))
         (as-> $ (+ $ (* $ 0.1))))))
 
-(defn plotly-newplan-neighbour-comparison
-  [la-name age neighbours title max-y new-plans-by-age]
-  (let [la-plans (-> new-plans-by-age
-                     (tc/select-rows #(#{la-name} (:la_name %)))
-                     (tc/select-rows #(= age (:breakdown %))))
-        neighbour-plans (-> new-plans-by-age
-                            (tc/select-rows #((set neighbours) (:la_name %)))
-                            (tc/select-rows #(= age (:breakdown %))))]
-    {:data (conj
-            (transduce
-             (map (fn [m] (assoc m :time_period (parse-long (:time_period m)))))
-             (fn
-               ([] {})
-               ([acc] (into []
-                            (map (fn [[k v]]
-                                   {:x k
-                                    :y v
-                                    :name k
-                                    :marker {:color "orange"}
-                                    :type "box"}))
-                            acc))
-               ([acc x]
-                (update-in acc [(:time_period x)] conj (:new-ehcps-per-thousand x))))
-             (tc/rows neighbour-plans :as-maps))
-            {:x (into []
-                      (comp
-                       (map parse-long)
-                       (map (fn [y] (- (- y (rand 0.2)) 0.1))))
-                      (neighbour-plans :time_period))
-             :y (into [] (neighbour-plans :new-ehcps-per-thousand))
-             :text (into [] (neighbour-plans  :la_name))
-             :name "Neighbours"
-             :marker {:color "magenta" :size 6 :symbol "square"}
-             :mode "markers"
-             :type "scatter"}
-            {:x (into [] (map parse-long) (la-plans :time_period))
-             :y (into [] (la-plans :new-ehcps-per-thousand))
-             :text (into [] (la-plans :la_name))
-             :name la-name
-             :marker {:color "blue" :size 14 :symbol "star-diamond"}
-             :mode "markers"
-             :type "scatter"})
-     :layout {:title {:text title}
-              :scattermode "group"
-              :scattergap 0.7
-              :xaxis {:dtick 1 :title "SEN2 Census Year"}
-              :yaxis {:rangemode "tozero" :title "New EHCPs per 1000 CYP" :range [0 max-y]}
-              :height 400
-              :width 500
-              :showlegend false}
-     :config {:displayModeBar false
-              :displayLogo false}}))
-
 (defn neighbour-comparison-boxplot
-  [{:keys [neighbour-data la-name title y-field y-title x-field x-title]
+  [{:keys [neighbour-data la-name title y-field y-title x-field x-title max-y]
     :or {x-field :calendar-year
          x-title "SEN2 Census Year"}}]
   (let [la-plans (-> neighbour-data
@@ -281,65 +228,32 @@
               :scattermode "group"
               :scattergap 0.7
               :xaxis {:dtick 1 :title x-title}
-              :yaxis {:rangemode "tozero" :title y-title}
+              :yaxis {:rangemode "tozero" :title y-title :range (when max-y [0 max-y])}
               :height 600
               :width 1400
               :showlegend false}
      :config {:displayModeBar false
               :displayLogo false}}))
 
-(defn plotly-ceased-neighbour-comparison
-  [la-name age neighbours title max-y ceased-plans-by-age]
-  ;; FIXME: max-y values seem a bit broken, but I'm not sure they should be
-  (let [la-plans (-> ceased-plans-by-age
-                     (tc/select-rows #(#{la-name} (:la_name %)))
-                     (tc/select-rows #(= age (:breakdown %))))
-        neighbour-plans (-> ceased-plans-by-age
-                            (tc/select-rows #((set neighbours) (:la_name %)))
-                            (tc/select-rows #(= age (:breakdown %))))]
-    {:data (conj
-            (transduce
-             (map identity)
-             (fn
-               ([] {})
-               ([acc] (into []
-                            (map (fn [[k v]]
-                                   {:x k
-                                    :y v
-                                    :name k
-                                    :marker {:color "orange"}
-                                    :type "box"}))
-                            acc))
-               ([acc x]
-                (update-in acc [(:time_period x)] conj (:ceased-ehcps-per-1000-ehcps x))))
-             (tc/rows neighbour-plans :as-maps))
-            {:x (into []
-                      (comp
-                       (map (fn [y] (- (- y (rand 0.2)) 0.1))))
-                      (neighbour-plans :time_period))
-             :y (into [] (neighbour-plans :ceased-ehcps-per-1000-ehcps))
-             :text (into [] (neighbour-plans  :la_name))
-             :name "Neighbours"
-             :marker {:color "magenta" :size 6 :symbol "square"}
-             :mode "markers"
-             :type "scatter"}
-            {:x (into [] (la-plans :time_period))
-             :y (into [] (la-plans :ceased-ehcps-per-1000-ehcps))
-             :text (into [] (la-plans :la_name))
-             :marker {:color "blue" :size 14 :symbol "star-diamond"}
-             :name la-name
-             :mode "markers"
-             :type "scatter"})
-     :layout {:title {:text title}
-              :scattermode "group"
-              :scattergap 0.7
-              :xaxis {:dtick 1 :title "SEN2 Census Year"}
-              :yaxis {:rangemode "tozero" :title "Ceased EHCPs per 1000 EHCPs"}
-              :height 400
-              :width 500
-              :showlegend false}
-     :config {:displayModeBar false
-              :displayLogo false}}))
+(defn plotly-newplan-neighbour-comparison
+  [la-name age neighbours title max-y new-plans-by-age]
+  (-> (neighbour-comparison-boxplot
+       (let [neighbours statistical-neighbours-pred
+             max-y new-plans-statistical-neighbours-max-y
+             age-data (-> new-plans-by-age
+                          (tc/select-rows #(= age (:breakdown %))))]
+         {:neighbour-data (tc/concat
+                           (-> age-data
+                               (tc/select-rows #(#{la-name} (:la_name %))))
+                           (-> age-data
+                               (tc/select-rows #((set neighbours) (:la_name %)))))
+          :la-name la-name
+          :title (or title (format "%s w/Statistical Neighbours" (str/capitalize age)))
+          :y-field :new-ehcps-per-thousand
+          :y-title "New EHCPs per 1,000 CYP"
+          :max-y max-y}))
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500)))
 
 (def ceased-plan-pc
   (-> @ceasedplans/ceased-plans
@@ -430,6 +344,7 @@
     :title "Statistical Neighbours Total New Plan Rate"
     :y-field :new-ehcps-per-thousand
     :y-title "EHCPs per 1,000"
+    :x-field :time_period
     :x-title "Calendar Year"}))
  (clerk/col
   (clerk/md "### New Plans Issued")
