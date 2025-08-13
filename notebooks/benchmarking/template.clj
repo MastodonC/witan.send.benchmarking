@@ -17,7 +17,8 @@
    [witan.send.benchmarking.requests-2025 :as requests]
    [witan.send.benchmarking.regional-neighbours :as rn]
    [witan.send.benchmarking.statistical-neighbours :as sn]
-   [witan.send.benchmarking.caseload-2025 :as caseload]))
+   [witan.send.benchmarking.caseload-2025 :as caseload]
+   [tech.v3.dataset.reductions :as dsr]))
 
 (def la-name "Kent")
 
@@ -255,6 +256,27 @@
       (assoc-in [:layout :height] 375)
       (assoc-in [:layout :width] 500)))
 
+(def new-plans-by-phase
+  (-> @newplans/new-plans-by-age-by-la
+      (tc/map-columns
+       :phase [:age-group]
+       (fn [age]
+         (cond
+           (#{0 1 2 3} age) "Early Years"
+           (#{4 5 6 7 8 9 10} age) "Primary"
+           (#{11 12 13 14 15 16} age) "Secondary"
+           (#{17 18 19} age) "Post 16"
+           (= 20 age) "Post 19")))
+      (as-> $
+          (dsr/group-by-column-agg
+           [:time_period :new_la_code :la_name :phase]
+           {:new_ehc_plans (dsr/sum :new_ehc_plans)
+            :population (dsr/sum :population)}
+           $))
+      (tc/map-columns
+       :new-ehcps-per-thousand [:new_ehc_plans :population]
+       #(* 1000 (dfn// %1 %2)))))
+
 (def ceased-plan-pc
   (-> @ceasedplans/ceased-plans
       (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
@@ -324,7 +346,7 @@
     :y-title "% of EHCPs"}))
  (clerk/col
   (clerk/md "### Number of EHCPs")
-  (clerk/table 
+  (clerk/table
    (-> @caseload/sen2-2025-caseload-all-ehcps
        (tc/select-rows #(= la-name (:la_name %)))
        (tc/select-columns [:calendar-year :ehcplans])
@@ -610,6 +632,68 @@
         :y-title "% of Ceased Plans"})
       (assoc-in [:layout :height] 375)
       (assoc-in [:layout :width] 500))))
+
+
+;; ---
+;;; ## New Plans by Phase
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (let [phase "Early Years"]
+    (-> (neighbour-comparison-boxplot
+         {:neighbour-data (tc/concat
+                           (-> new-plans-by-phase
+                               (tc/select-rows #(statistical-neighbours-pred (:la_name %)))
+                               (tc/select-rows #(= phase (:phase %))))
+                           (-> new-plans-by-phase
+                               (tc/select-rows #(= la-name (:la_name %)))
+                               (tc/select-rows #(= phase (:phase %)))))
+          :la-name la-name
+          :title (format "%s w/Statistical Neighbours" phase)
+          :y-field :new-ehcps-per-thousand
+          :y-title "New plans per 1,000 CYP"
+          :x-field :time_period
+          :x-title "Calendar Year"})
+        (assoc-in [:layout :height] 375)
+        (assoc-in [:layout :width] 500))))
+
+ (clerk/plotly
+  (let [phase "Primary"]
+    (-> (neighbour-comparison-boxplot
+         {:neighbour-data (tc/concat
+                           (-> new-plans-by-phase
+                               (tc/select-rows #(statistical-neighbours-pred (:la_name %)))
+                               (tc/select-rows #(= phase (:phase %))))
+                           (-> new-plans-by-phase
+                               (tc/select-rows #(= la-name (:la_name %)))
+                               (tc/select-rows #(= phase (:phase %)))))
+          :la-name la-name
+          :title (format "%s w/Statistical Neighbours" phase)
+          :y-field :new-ehcps-per-thousand
+          :y-title "New plans per 1,000 CYP"
+          :x-field :time_period
+          :x-title "Calendar Year"})
+        (assoc-in [:layout :height] 375)
+        (assoc-in [:layout :width] 500))))
+
+ (clerk/plotly
+  (let [phase "Secondary"]
+    (-> (neighbour-comparison-boxplot
+         {:neighbour-data (tc/concat
+                           (-> new-plans-by-phase
+                               (tc/select-rows #(statistical-neighbours-pred (:la_name %)))
+                               (tc/select-rows #(= phase (:phase %))))
+                           (-> new-plans-by-phase
+                               (tc/select-rows #(= la-name (:la_name %)))
+                               (tc/select-rows #(= phase (:phase %)))))
+          :la-name la-name
+          :title (format "%s w/Statistical Neighbours" phase)
+          :y-field :new-ehcps-per-thousand
+          :y-title "New plans per 1,000 CYP"
+          :x-field :time_period
+          :x-title "Calendar Year"})
+        (assoc-in [:layout :height] 375)
+        (assoc-in [:layout :width] 500)))))
 
 
 ;; ---
