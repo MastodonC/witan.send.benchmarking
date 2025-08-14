@@ -298,8 +298,6 @@
 
  ;; Needs of New EHCPs (by phase?) (and in 4/5 11/12/13)
  ;; Settings of New EHCPs (by phase?) (and in 4/5 11/12/13)
- ;; Raw count of new plans
-
 
  )
 
