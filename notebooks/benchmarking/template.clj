@@ -256,17 +256,17 @@
       (assoc-in [:layout :height] 375)
       (assoc-in [:layout :width] 500)))
 
+(defn phase-from-integer-age [age]
+  (cond
+    (#{0 1 2 3} age) "Early Years"
+    (#{4 5 6 7 8 9 10} age) "Primary"
+    (#{11 12 13 14 15 16} age) "Secondary"
+    (#{17 18 19} age) "Post 16"
+    (= 20 age) "Post 19"))
+
 (def new-plans-by-phase
   (-> @newplans/new-plans-by-age-by-la
-      (tc/map-columns
-       :phase [:age-group]
-       (fn [age]
-         (cond
-           (#{0 1 2 3} age) "Early Years"
-           (#{4 5 6 7 8 9 10} age) "Primary"
-           (#{11 12 13 14 15 16} age) "Secondary"
-           (#{17 18 19} age) "Post 16"
-           (= 20 age) "Post 19")))
+      (tc/map-columns :phase [:age-group] phase-from-integer-age)
       (as-> $
           (dsr/group-by-column-agg
            [:time_period :new_la_code :la_name :phase]
