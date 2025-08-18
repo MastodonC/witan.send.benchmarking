@@ -1,0 +1,1532 @@
+la_code,la_name,SN,SN_code,SN_name,SN_prox
+E06000001,Hartlepool,1,E06000003,Redcar and Cleveland,Very close
+E06000001,Hartlepool,2,E08000024,Sunderland,Very close
+E06000001,Hartlepool,3,E08000023,South Tyneside,Very close
+E06000001,Hartlepool,4,E06000009,Blackpool,Very close
+E06000001,Hartlepool,5,E06000002,Middlesbrough,Close 
+E06000001,Hartlepool,6,E08000037,Gateshead,Close 
+E06000001,Hartlepool,7,E06000047,County Durham,Close 
+E06000001,Hartlepool,8,E06000006,Halton,Close 
+E06000001,Hartlepool,9,E08000018,Rotherham,Close 
+E06000001,Hartlepool,10,E08000011,Knowsley,Close 
+E06000002,Middlesbrough,1,E06000009,Blackpool,Very close
+E06000002,Middlesbrough,2,E06000001,Hartlepool,Close 
+E06000002,Middlesbrough,3,E06000021,Stoke-on-Trent,Close 
+E06000002,Middlesbrough,4,E08000005,Rochdale,Close 
+E06000002,Middlesbrough,5,E08000021,Newcastle upon Tyne,Close 
+E06000002,Middlesbrough,6,E08000031,Wolverhampton,Close 
+E06000002,Middlesbrough,7,E08000030,Walsall,Close 
+E06000002,Middlesbrough,8,E08000023,South Tyneside,Close 
+E06000002,Middlesbrough,9,E08000012,Liverpool,Close 
+E06000002,Middlesbrough,10,E08000006,Salford,Close 
+E06000003,Redcar and Cleveland,1,E08000024,Sunderland,Very close
+E06000003,Redcar and Cleveland,2,E08000023,South Tyneside,Very close
+E06000003,Redcar and Cleveland,3,E06000001,Hartlepool,Very close
+E06000003,Redcar and Cleveland,4,E08000018,Rotherham,Very close
+E06000003,Redcar and Cleveland,5,E08000037,Gateshead,Very close
+E06000003,Redcar and Cleveland,6,E06000047,County Durham,Very close
+E06000003,Redcar and Cleveland,7,E08000016,Barnsley,Very close
+E06000003,Redcar and Cleveland,8,E08000008,Tameside,Very close
+E06000003,Redcar and Cleveland,9,E08000017,Doncaster,Very close
+E06000003,Redcar and Cleveland,10,E06000027,Torbay,Very close
+E06000004,Stockton-on-Tees,1,E06000005,Darlington,Very close
+E06000004,Stockton-on-Tees,2,E08000027,Dudley,Very close
+E06000004,Stockton-on-Tees,3,E10000017,Lancashire,Very close
+E06000004,Stockton-on-Tees,4,E08000037,Gateshead,Very close
+E06000004,Stockton-on-Tees,5,E08000036,Wakefield,Very close
+E06000004,Stockton-on-Tees,6,E08000002,Bury,Very close
+E06000004,Stockton-on-Tees,7,E06000047,County Durham,Very close
+E06000004,Stockton-on-Tees,8,E08000018,Rotherham,Very close
+E06000004,Stockton-on-Tees,9,E06000020,Telford and Wrekin,Very close
+E06000004,Stockton-on-Tees,10,E08000015,Wirral,Very close
+E06000005,Darlington,1,E08000037,Gateshead,Very close
+E06000005,Darlington,2,E06000004,Stockton-on-Tees,Very close
+E06000005,Darlington,3,E08000027,Dudley,Very close
+E06000005,Darlington,4,E08000036,Wakefield,Very close
+E06000005,Darlington,5,E10000017,Lancashire,Very close
+E06000005,Darlington,6,E06000020,Telford and Wrekin,Very close
+E06000005,Darlington,7,E08000018,Rotherham,Very close
+E06000005,Darlington,8,E08000008,Tameside,Very close
+E06000005,Darlington,9,E06000047,County Durham,Very close
+E06000005,Darlington,10,E08000017,Doncaster,Very close
+E06000006,Halton,1,E08000013,St Helens,Very close
+E06000006,Halton,2,E06000047,County Durham,Very close
+E06000006,Halton,3,E08000015,Wirral,Very close
+E06000006,Halton,4,E08000024,Sunderland,Very close
+E06000006,Halton,5,E06000003,Redcar and Cleveland,Close 
+E06000006,Halton,6,E08000016,Barnsley,Close 
+E06000006,Halton,7,E08000037,Gateshead,Close 
+E06000006,Halton,8,E08000018,Rotherham,Close 
+E06000006,Halton,9,E06000004,Stockton-on-Tees,Close 
+E06000006,Halton,10,E08000014,Sefton,Close 
+E06000007,Warrington,1,E06000049,Cheshire East,Very close
+E06000007,Warrington,2,E10000031,Warwickshire,Very close
+E06000007,Warrington,3,E10000028,Staffordshire,Very close
+E06000007,Warrington,4,E06000011,East Riding of Yorkshire,Very close
+E06000007,Warrington,5,E06000065,North Yorkshire,Very close
+E06000007,Warrington,6,E10000013,Gloucestershire,Very close
+E06000007,Warrington,7,E08000029,Solihull,Very close
+E06000007,Warrington,8,E06000051,Shropshire,Very close
+E06000007,Warrington,9,E10000034,Worcestershire,Very close
+E06000007,Warrington,10,E06000054,Wiltshire,Very close
+E06000008,Blackburn with Darwen,1,E08000032,Bradford,Very close
+E06000008,Blackburn with Darwen,2,E08000004,Oldham,Very close
+E06000008,Blackburn with Darwen,3,E08000001,Bolton,Close 
+E06000008,Blackburn with Darwen,4,E06000015,Derby,Close 
+E06000008,Blackburn with Darwen,5,E08000005,Rochdale,Close 
+E06000008,Blackburn with Darwen,6,E08000030,Walsall,Close 
+E06000008,Blackburn with Darwen,7,E08000019,Sheffield,Close 
+E06000008,Blackburn with Darwen,8,E06000021,Stoke-on-Trent,Close 
+E06000008,Blackburn with Darwen,9,E08000025,Birmingham,Close 
+E06000008,Blackburn with Darwen,10,E08000034,Kirklees,Close 
+E06000009,Blackpool,1,E06000001,Hartlepool,Very close
+E06000009,Blackpool,2,E06000002,Middlesbrough,Very close
+E06000009,Blackpool,3,E08000024,Sunderland,Very close
+E06000009,Blackpool,4,E08000012,Liverpool,Very close
+E06000009,Blackpool,5,E08000023,South Tyneside,Close 
+E06000009,Blackpool,6,E06000003,Redcar and Cleveland,Close 
+E06000009,Blackpool,7,E08000005,Rochdale,Close 
+E06000009,Blackpool,8,E06000027,Torbay,Close 
+E06000009,Blackpool,9,E08000006,Salford,Close 
+E06000009,Blackpool,10,E06000021,Stoke-on-Trent,Close 
+E06000010,"Kingston upon Hull, City of",1,E08000028,Sandwell,Very close
+E06000010,"Kingston upon Hull, City of",2,E08000031,Wolverhampton,Very close
+E06000010,"Kingston upon Hull, City of",3,E06000021,Stoke-on-Trent,Very close
+E06000010,"Kingston upon Hull, City of",4,E08000030,Walsall,Close 
+E06000010,"Kingston upon Hull, City of",5,E06000012,North East Lincolnshire,Close 
+E06000010,"Kingston upon Hull, City of",6,E08000005,Rochdale,Close 
+E06000010,"Kingston upon Hull, City of",7,E06000002,Middlesbrough,Close 
+E06000010,"Kingston upon Hull, City of",8,E08000017,Doncaster,Close 
+E06000010,"Kingston upon Hull, City of",9,E06000015,Derby,Somewhat close
+E06000010,"Kingston upon Hull, City of",10,E08000018,Rotherham,Somewhat close
+E06000011,East Riding of Yorkshire,1,E10000028,Staffordshire,Very close
+E06000011,East Riding of Yorkshire,2,E06000051,Shropshire,Very close
+E06000011,East Riding of Yorkshire,3,E06000065,North Yorkshire,Very close
+E06000011,East Riding of Yorkshire,4,E06000007,Warrington,Very close
+E06000011,East Riding of Yorkshire,5,E10000018,Leicestershire,Very close
+E06000011,East Riding of Yorkshire,6,E06000066,Somerset,Very close
+E06000011,East Riding of Yorkshire,7,E06000019,"Herefordshire, County of",Very close
+E06000011,East Riding of Yorkshire,8,E06000064,Westmorland and Furness,Very close
+E06000011,East Riding of Yorkshire,9,E10000031,Warwickshire,Very close
+E06000011,East Riding of Yorkshire,10,E10000007,Derbyshire,Very close
+E06000012,North East Lincolnshire,1,E08000017,Doncaster,Very close
+E06000012,North East Lincolnshire,2,E06000021,Stoke-on-Trent,Very close
+E06000012,North East Lincolnshire,3,E08000018,Rotherham,Very close
+E06000012,North East Lincolnshire,4,E06000020,Telford and Wrekin,Very close
+E06000012,North East Lincolnshire,5,E08000030,Walsall,Close 
+E06000012,North East Lincolnshire,6,E08000036,Wakefield,Close 
+E06000012,North East Lincolnshire,7,E06000005,Darlington,Close 
+E06000012,North East Lincolnshire,8,E08000016,Barnsley,Close 
+E06000012,North East Lincolnshire,9,E06000003,Redcar and Cleveland,Close 
+E06000012,North East Lincolnshire,10,E08000008,Tameside,Close 
+E06000013,North Lincolnshire,1,E08000036,Wakefield,Very close
+E06000013,North Lincolnshire,2,E10000019,Lincolnshire,Very close
+E06000013,North Lincolnshire,3,E08000017,Doncaster,Very close
+E06000013,North Lincolnshire,4,E08000016,Barnsley,Very close
+E06000013,North Lincolnshire,5,E06000061,North Northamptonshire,Very close
+E06000013,North Lincolnshire,6,E08000027,Dudley,Very close
+E06000013,North Lincolnshire,7,E06000063,Cumberland,Close 
+E06000013,North Lincolnshire,8,E08000018,Rotherham,Close 
+E06000013,North Lincolnshire,9,E06000020,Telford and Wrekin,Close 
+E06000013,North Lincolnshire,10,E10000017,Lancashire,Close 
+E06000014,York,1,E10000013,Gloucestershire,Very close
+E06000014,York,2,E06000022,Bath and North East Somerset,Very close
+E06000014,York,3,E06000024,North Somerset,Very close
+E06000014,York,4,E10000015,Hertfordshire,Close 
+E06000014,York,5,E10000031,Warwickshire,Close 
+E06000014,York,6,E10000025,Oxfordshire,Close 
+E06000014,York,7,E10000032,West Sussex,Close 
+E06000014,York,8,E08000009,Trafford,Close 
+E06000014,York,9,E10000014,Hampshire,Close 
+E06000014,York,10,E08000007,Stockport,Close 
+E06000015,Derby,1,E08000026,Coventry,Very close
+E06000015,Derby,2,E08000001,Bolton,Very close
+E06000015,Derby,3,E08000030,Walsall,Very close
+E06000015,Derby,4,E06000045,Southampton,Very close
+E06000015,Derby,5,E08000034,Kirklees,Very close
+E06000015,Derby,6,E06000031,Peterborough,Very close
+E06000015,Derby,7,E08000005,Rochdale,Very close
+E06000015,Derby,8,E08000019,Sheffield,Very close
+E06000015,Derby,9,E08000008,Tameside,Close 
+E06000015,Derby,10,E06000021,Stoke-on-Trent,Close 
+E06000016,Leicester,1,E06000032,Luton,Close 
+E06000016,Leicester,2,E06000039,Slough,Somewhat close
+E06000016,Leicester,3,E09000005,Brent,Somewhat close
+E06000016,Leicester,4,E09000025,Newham,Somewhat close
+E06000016,Leicester,5,E08000028,Sandwell,Somewhat close
+E06000016,Leicester,6,E08000032,Bradford,Somewhat close
+E06000016,Leicester,7,E09000009,Ealing,Not close
+E06000016,Leicester,8,E09000018,Hounslow,Not close
+E06000016,Leicester,9,E08000025,Birmingham,Not close
+E06000016,Leicester,10,E06000008,Blackburn with Darwen,Not close
+E06000017,Rutland,1,E06000054,Wiltshire,Close 
+E06000017,Rutland,2,E06000065,North Yorkshire,Close 
+E06000017,Rutland,3,E06000051,Shropshire,Close 
+E06000017,Rutland,4,E06000049,Cheshire East,Close 
+E06000017,Rutland,5,E10000014,Hampshire,Close 
+E06000017,Rutland,6,E06000056,Central Bedfordshire,Close 
+E06000017,Rutland,7,E10000013,Gloucestershire,Close 
+E06000017,Rutland,8,E10000018,Leicestershire,Close 
+E06000017,Rutland,9,E06000037,West Berkshire,Close 
+E06000017,Rutland,10,E06000011,East Riding of Yorkshire,Close 
+E06000018,Nottingham,1,E08000025,Birmingham,Very close
+E06000018,Nottingham,2,E08000003,Manchester,Very close
+E06000018,Nottingham,3,E08000021,Newcastle upon Tyne,Close 
+E06000018,Nottingham,4,E06000002,Middlesbrough,Close 
+E06000018,Nottingham,5,E08000032,Bradford,Close 
+E06000018,Nottingham,6,E08000028,Sandwell,Somewhat close
+E06000018,Nottingham,7,E06000045,Southampton,Somewhat close
+E06000018,Nottingham,8,E08000004,Oldham,Somewhat close
+E06000018,Nottingham,9,E08000019,Sheffield,Somewhat close
+E06000018,Nottingham,10,E08000006,Salford,Somewhat close
+E06000019,"Herefordshire, County of",1,E06000064,Westmorland and Furness,Very close
+E06000019,"Herefordshire, County of",2,E10000028,Staffordshire,Very close
+E06000019,"Herefordshire, County of",3,E10000019,Lincolnshire,Very close
+E06000019,"Herefordshire, County of",4,E06000051,Shropshire,Very close
+E06000019,"Herefordshire, County of",5,E06000066,Somerset,Very close
+E06000019,"Herefordshire, County of",6,E10000017,Lancashire,Very close
+E06000019,"Herefordshire, County of",7,E10000029,Suffolk,Very close
+E06000019,"Herefordshire, County of",8,E06000011,East Riding of Yorkshire,Very close
+E06000019,"Herefordshire, County of",9,E06000065,North Yorkshire,Very close
+E06000019,"Herefordshire, County of",10,E10000007,Derbyshire,Very close
+E06000020,Telford and Wrekin,1,E08000036,Wakefield,Very close
+E06000020,Telford and Wrekin,2,E08000018,Rotherham,Very close
+E06000020,Telford and Wrekin,3,E08000027,Dudley,Very close
+E06000020,Telford and Wrekin,4,E08000016,Barnsley,Very close
+E06000020,Telford and Wrekin,5,E08000008,Tameside,Very close
+E06000020,Telford and Wrekin,6,E08000017,Doncaster,Very close
+E06000020,Telford and Wrekin,7,E06000005,Darlington,Very close
+E06000020,Telford and Wrekin,8,E08000037,Gateshead,Very close
+E06000020,Telford and Wrekin,9,E06000026,Plymouth,Very close
+E06000020,Telford and Wrekin,10,E06000004,Stockton-on-Tees,Very close
+E06000021,Stoke-on-Trent,1,E08000030,Walsall,Very close
+E06000021,Stoke-on-Trent,2,E08000005,Rochdale,Very close
+E06000021,Stoke-on-Trent,3,E08000031,Wolverhampton,Very close
+E06000021,Stoke-on-Trent,4,E08000017,Doncaster,Very close
+E06000021,Stoke-on-Trent,5,E06000012,North East Lincolnshire,Very close
+E06000021,Stoke-on-Trent,6,E06000010,"Kingston upon Hull, City of",Very close
+E06000021,Stoke-on-Trent,7,E08000028,Sandwell,Close 
+E06000021,Stoke-on-Trent,8,E08000008,Tameside,Close 
+E06000021,Stoke-on-Trent,9,E06000015,Derby,Close 
+E06000021,Stoke-on-Trent,10,E08000018,Rotherham,Close 
+E06000022,Bath and North East Somerset,1,E06000014,York,Very close
+E06000022,Bath and North East Somerset,2,E08000009,Trafford,Close 
+E06000022,Bath and North East Somerset,3,E10000015,Hertfordshire,Close 
+E06000022,Bath and North East Somerset,4,E08000007,Stockport,Close 
+E06000022,Bath and North East Somerset,5,E10000032,West Sussex,Close 
+E06000022,Bath and North East Somerset,6,E09000021,Kingston upon Thames,Close 
+E06000022,Bath and North East Somerset,7,E06000060,Buckinghamshire,Close 
+E06000022,Bath and North East Somerset,8,E10000025,Oxfordshire,Close 
+E06000022,Bath and North East Somerset,9,E10000003,Cambridgeshire,Close 
+E06000022,Bath and North East Somerset,10,E10000013,Gloucestershire,Close 
+E06000023,"Bristol, City of",1,E06000043,Brighton and Hove,Close 
+E06000023,"Bristol, City of",2,E08000035,Leeds,Close 
+E06000023,"Bristol, City of",3,E06000033,Southend-on-Sea,Close 
+E06000023,"Bristol, City of",4,E08000019,Sheffield,Close 
+E06000023,"Bristol, City of",5,E06000042,Milton Keynes,Close 
+E06000023,"Bristol, City of",6,E06000044,Portsmouth,Close 
+E06000023,"Bristol, City of",7,E06000038,Reading,Close 
+E06000023,"Bristol, City of",8,E09000003,Barnet,Close 
+E06000023,"Bristol, City of",9,E06000058,"Bournemouth, Christchurch and Poole",Somewhat close
+E06000023,"Bristol, City of",10,E08000034,Kirklees,Somewhat close
+E06000024,North Somerset,1,E10000014,Hampshire,Very close
+E06000024,North Somerset,2,E10000013,Gloucestershire,Very close
+E06000024,North Somerset,3,E06000054,Wiltshire,Very close
+E06000024,North Somerset,4,E10000031,Warwickshire,Very close
+E06000024,North Somerset,5,E10000018,Leicestershire,Very close
+E06000024,North Somerset,6,E10000012,Essex,Very close
+E06000024,North Somerset,7,E10000032,West Sussex,Very close
+E06000024,North Somerset,8,E06000025,South Gloucestershire,Very close
+E06000024,North Somerset,9,E10000024,Nottinghamshire,Very close
+E06000024,North Somerset,10,E10000016,Kent,Very close
+E06000025,South Gloucestershire,1,E10000018,Leicestershire,Very close
+E06000025,South Gloucestershire,2,E10000014,Hampshire,Very close
+E06000025,South Gloucestershire,3,E10000032,West Sussex,Very close
+E06000025,South Gloucestershire,4,E10000003,Cambridgeshire,Very close
+E06000025,South Gloucestershire,5,E06000056,Central Bedfordshire,Very close
+E06000025,South Gloucestershire,6,E06000024,North Somerset,Very close
+E06000025,South Gloucestershire,7,E10000013,Gloucestershire,Very close
+E06000025,South Gloucestershire,8,E10000012,Essex,Very close
+E06000025,South Gloucestershire,9,E10000025,Oxfordshire,Very close
+E06000025,South Gloucestershire,10,E06000054,Wiltshire,Very close
+E06000026,Plymouth,1,E08000008,Tameside,Very close
+E06000026,Plymouth,2,E06000027,Torbay,Very close
+E06000026,Plymouth,3,E06000020,Telford and Wrekin,Very close
+E06000026,Plymouth,4,E08000027,Dudley,Very close
+E06000026,Plymouth,5,E08000018,Rotherham,Very close
+E06000026,Plymouth,6,E08000036,Wakefield,Very close
+E06000026,Plymouth,7,E08000034,Kirklees,Close 
+E06000026,Plymouth,8,E08000037,Gateshead,Close 
+E06000026,Plymouth,9,E06000035,Medway,Close 
+E06000026,Plymouth,10,E06000052,Cornwall,Close 
+E06000027,Torbay,1,E08000008,Tameside,Very close
+E06000027,Torbay,2,E08000024,Sunderland,Very close
+E06000027,Torbay,3,E06000026,Plymouth,Very close
+E06000027,Torbay,4,E08000018,Rotherham,Very close
+E06000027,Torbay,5,E06000003,Redcar and Cleveland,Very close
+E06000027,Torbay,6,E06000046,Isle of Wight,Close 
+E06000027,Torbay,7,E08000016,Barnsley,Close 
+E06000027,Torbay,8,E08000037,Gateshead,Close 
+E06000027,Torbay,9,E08000005,Rochdale,Close 
+E06000027,Torbay,10,E06000020,Telford and Wrekin,Close 
+E06000030,Swindon,1,E06000035,Medway,Very close
+E06000030,Swindon,2,E06000061,North Northamptonshire,Very close
+E06000030,Swindon,3,E06000034,Thurrock,Very close
+E06000030,Swindon,4,E09000004,Bexley,Very close
+E06000030,Swindon,5,E06000055,Bedford,Very close
+E06000030,Swindon,6,E06000062,West Northamptonshire,Very close
+E06000030,Swindon,7,E10000029,Suffolk,Very close
+E06000030,Swindon,8,E09000016,Havering,Very close
+E06000030,Swindon,9,E10000024,Nottinghamshire,Close 
+E06000030,Swindon,10,E10000016,Kent,Close 
+E06000031,Peterborough,1,E08000026,Coventry,Very close
+E06000031,Peterborough,2,E06000015,Derby,Very close
+E06000031,Peterborough,3,E09000017,Hillingdon,Close 
+E06000031,Peterborough,4,E08000001,Bolton,Close 
+E06000031,Peterborough,5,E06000045,Southampton,Close 
+E06000031,Peterborough,6,E08000030,Walsall,Close 
+E06000031,Peterborough,7,E06000032,Luton,Close 
+E06000031,Peterborough,8,E08000005,Rochdale,Close 
+E06000031,Peterborough,9,E08000031,Wolverhampton,Close 
+E06000031,Peterborough,10,E06000034,Thurrock,Close 
+E06000032,Luton,1,E06000039,Slough,Close 
+E06000032,Luton,2,E06000031,Peterborough,Close 
+E06000032,Luton,3,E08000026,Coventry,Close 
+E06000032,Luton,4,E09000018,Hounslow,Close 
+E06000032,Luton,5,E09000017,Hillingdon,Close 
+E06000032,Luton,6,E06000016,Leicester,Close 
+E06000032,Luton,7,E09000009,Ealing,Close 
+E06000032,Luton,8,E08000028,Sandwell,Close 
+E06000032,Luton,9,E06000045,Southampton,Close 
+E06000032,Luton,10,E09000002,Barking and Dagenham,Close 
+E06000033,Southend-on-Sea,1,E06000058,"Bournemouth, Christchurch and Poole",Very close
+E06000033,Southend-on-Sea,2,E08000035,Leeds,Very close
+E06000033,Southend-on-Sea,3,E06000042,Milton Keynes,Very close
+E06000033,Southend-on-Sea,4,E08000002,Bury,Very close
+E06000033,Southend-on-Sea,5,E10000011,East Sussex,Close 
+E06000033,Southend-on-Sea,6,E06000044,Portsmouth,Close 
+E06000033,Southend-on-Sea,7,E10000016,Kent,Close 
+E06000033,Southend-on-Sea,8,E09000004,Bexley,Close 
+E06000033,Southend-on-Sea,9,E08000022,North Tyneside,Close 
+E06000033,Southend-on-Sea,10,E06000055,Bedford,Close 
+E06000034,Thurrock,1,E06000030,Swindon,Very close
+E06000034,Thurrock,2,E09000004,Bexley,Very close
+E06000034,Thurrock,3,E09000016,Havering,Very close
+E06000034,Thurrock,4,E06000035,Medway,Very close
+E06000034,Thurrock,5,E06000061,North Northamptonshire,Very close
+E06000034,Thurrock,6,E06000055,Bedford,Very close
+E06000034,Thurrock,7,E06000062,West Northamptonshire,Close 
+E06000034,Thurrock,8,E08000027,Dudley,Close 
+E06000034,Thurrock,9,E10000019,Lincolnshire,Close 
+E06000034,Thurrock,10,E10000029,Suffolk,Close 
+E06000035,Medway,1,E06000030,Swindon,Very close
+E06000035,Medway,2,E08000027,Dudley,Very close
+E06000035,Medway,3,E10000016,Kent,Very close
+E06000035,Medway,4,E09000004,Bexley,Very close
+E06000035,Medway,5,E10000020,Norfolk,Very close
+E06000035,Medway,6,E10000029,Suffolk,Very close
+E06000035,Medway,7,E06000034,Thurrock,Very close
+E06000035,Medway,8,E10000024,Nottinghamshire,Very close
+E06000035,Medway,9,E08000002,Bury,Very close
+E06000035,Medway,10,E08000036,Wakefield,Very close
+E06000036,Bracknell Forest,1,E10000015,Hertfordshire,Very close
+E06000036,Bracknell Forest,2,E10000014,Hampshire,Very close
+E06000036,Bracknell Forest,3,E06000060,Buckinghamshire,Very close
+E06000036,Bracknell Forest,4,E10000025,Oxfordshire,Very close
+E06000036,Bracknell Forest,5,E06000037,West Berkshire,Very close
+E06000036,Bracknell Forest,6,E10000032,West Sussex,Very close
+E06000036,Bracknell Forest,7,E06000025,South Gloucestershire,Very close
+E06000036,Bracknell Forest,8,E06000056,Central Bedfordshire,Very close
+E06000036,Bracknell Forest,9,E10000013,Gloucestershire,Very close
+E06000036,Bracknell Forest,10,E06000054,Wiltshire,Very close
+E06000037,West Berkshire,1,E06000060,Buckinghamshire,Very close
+E06000037,West Berkshire,2,E10000014,Hampshire,Very close
+E06000037,West Berkshire,3,E10000025,Oxfordshire,Very close
+E06000037,West Berkshire,4,E06000036,Bracknell Forest,Very close
+E06000037,West Berkshire,5,E10000015,Hertfordshire,Very close
+E06000037,West Berkshire,6,E10000003,Cambridgeshire,Very close
+E06000037,West Berkshire,7,E06000056,Central Bedfordshire,Very close
+E06000037,West Berkshire,8,E06000054,Wiltshire,Very close
+E06000037,West Berkshire,9,E10000013,Gloucestershire,Very close
+E06000037,West Berkshire,10,E09000006,Bromley,Very close
+E06000038,Reading,1,E06000042,Milton Keynes,Very close
+E06000038,Reading,2,E09000003,Barnet,Close 
+E06000038,Reading,3,E09000017,Hillingdon,Close 
+E06000038,Reading,4,E09000024,Merton,Close 
+E06000038,Reading,5,E06000055,Bedford,Close 
+E06000038,Reading,6,E09000008,Croydon,Close 
+E06000038,Reading,7,E09000031,Waltham Forest,Close 
+E06000038,Reading,8,E08000035,Leeds,Close 
+E06000038,Reading,9,E06000045,Southampton,Close 
+E06000038,Reading,10,E09000015,Harrow,Close 
+E06000039,Slough,1,E09000018,Hounslow,Very close
+E06000039,Slough,2,E09000017,Hillingdon,Close 
+E06000039,Slough,3,E06000032,Luton,Close 
+E06000039,Slough,4,E09000009,Ealing,Close 
+E06000039,Slough,5,E09000026,Redbridge,Close 
+E06000039,Slough,6,E09000015,Harrow,Somewhat close
+E06000039,Slough,7,E09000005,Brent,Somewhat close
+E06000039,Slough,8,E06000031,Peterborough,Somewhat close
+E06000039,Slough,9,E09000031,Waltham Forest,Somewhat close
+E06000039,Slough,10,E06000016,Leicester,Somewhat close
+E06000040,Windsor and Maidenhead,1,E10000030,Surrey,Very close
+E06000040,Windsor and Maidenhead,2,E06000060,Buckinghamshire,Very close
+E06000040,Windsor and Maidenhead,3,E06000041,Wokingham,Close 
+E06000040,Windsor and Maidenhead,4,E08000009,Trafford,Close 
+E06000040,Windsor and Maidenhead,5,E10000015,Hertfordshire,Close 
+E06000040,Windsor and Maidenhead,6,E06000037,West Berkshire,Close 
+E06000040,Windsor and Maidenhead,7,E09000006,Bromley,Close 
+E06000040,Windsor and Maidenhead,8,E06000056,Central Bedfordshire,Close 
+E06000040,Windsor and Maidenhead,9,E10000025,Oxfordshire,Close 
+E06000040,Windsor and Maidenhead,10,E06000036,Bracknell Forest,Close 
+E06000041,Wokingham,1,E06000040,Windsor and Maidenhead,Close 
+E06000041,Wokingham,2,E10000030,Surrey,Close 
+E06000041,Wokingham,3,E06000060,Buckinghamshire,Close 
+E06000041,Wokingham,4,E06000037,West Berkshire,Close 
+E06000041,Wokingham,5,E09000006,Bromley,Close 
+E06000041,Wokingham,6,E08000009,Trafford,Close 
+E06000041,Wokingham,7,E09000027,Richmond upon Thames,Close 
+E06000041,Wokingham,8,E10000015,Hertfordshire,Close 
+E06000041,Wokingham,9,E06000036,Bracknell Forest,Close 
+E06000041,Wokingham,10,E06000056,Central Bedfordshire,Close 
+E06000042,Milton Keynes,1,E06000055,Bedford,Very close
+E06000042,Milton Keynes,2,E09000004,Bexley,Very close
+E06000042,Milton Keynes,3,E06000033,Southend-on-Sea,Very close
+E06000042,Milton Keynes,4,E06000038,Reading,Very close
+E06000042,Milton Keynes,5,E06000058,"Bournemouth, Christchurch and Poole",Very close
+E06000042,Milton Keynes,6,E09000016,Havering,Very close
+E06000042,Milton Keynes,7,E10000015,Hertfordshire,Close 
+E06000042,Milton Keynes,8,E10000016,Kent,Close 
+E06000042,Milton Keynes,9,E09000029,Sutton,Close 
+E06000042,Milton Keynes,10,E08000035,Leeds,Close 
+E06000043,Brighton and Hove,1,E06000023,"Bristol, City of",Close 
+E06000043,Brighton and Hove,2,E06000033,Southend-on-Sea,Somewhat close
+E06000043,Brighton and Hove,3,E09000003,Barnet,Somewhat close
+E06000043,Brighton and Hove,4,E09000021,Kingston upon Thames,Somewhat close
+E06000043,Brighton and Hove,5,E06000022,Bath and North East Somerset,Somewhat close
+E06000043,Brighton and Hove,6,E08000035,Leeds,Somewhat close
+E06000043,Brighton and Hove,7,E09000023,Lewisham,Somewhat close
+E06000043,Brighton and Hove,8,E06000042,Milton Keynes,Somewhat close
+E06000043,Brighton and Hove,9,E09000032,Wandsworth,Somewhat close
+E06000043,Brighton and Hove,10,E06000014,York,Somewhat close
+E06000044,Portsmouth,1,E08000019,Sheffield,Very close
+E06000044,Portsmouth,2,E08000035,Leeds,Very close
+E06000044,Portsmouth,3,E08000034,Kirklees,Very close
+E06000044,Portsmouth,4,E08000006,Salford,Very close
+E06000044,Portsmouth,5,E06000045,Southampton,Very close
+E06000044,Portsmouth,6,E06000033,Southend-on-Sea,Close 
+E06000044,Portsmouth,7,E06000026,Plymouth,Close 
+E06000044,Portsmouth,8,E06000015,Derby,Close 
+E06000044,Portsmouth,9,E08000037,Gateshead,Close 
+E06000044,Portsmouth,10,E08000008,Tameside,Close 
+E06000045,Southampton,1,E08000026,Coventry,Very close
+E06000045,Southampton,2,E06000015,Derby,Very close
+E06000045,Southampton,3,E06000044,Portsmouth,Very close
+E06000045,Southampton,4,E08000019,Sheffield,Close 
+E06000045,Southampton,5,E09000017,Hillingdon,Close 
+E06000045,Southampton,6,E08000006,Salford,Close 
+E06000045,Southampton,7,E06000031,Peterborough,Close 
+E06000045,Southampton,8,E08000035,Leeds,Close 
+E06000045,Southampton,9,E08000001,Bolton,Close 
+E06000045,Southampton,10,E09000031,Waltham Forest,Close 
+E06000046,Isle of Wight,1,E08000008,Tameside,Very close
+E06000046,Isle of Wight,2,E06000052,Cornwall,Very close
+E06000046,Isle of Wight,3,E10000020,Norfolk,Close 
+E06000046,Isle of Wight,4,E06000027,Torbay,Close 
+E06000046,Isle of Wight,5,E06000026,Plymouth,Close 
+E06000046,Isle of Wight,6,E08000001,Bolton,Close 
+E06000046,Isle of Wight,7,E06000057,Northumberland,Close 
+E06000046,Isle of Wight,8,E08000018,Rotherham,Close 
+E06000046,Isle of Wight,9,E08000005,Rochdale,Close 
+E06000046,Isle of Wight,10,E08000002,Bury,Close 
+E06000047,County Durham,1,E06000006,Halton,Very close
+E06000047,County Durham,2,E08000015,Wirral,Very close
+E06000047,County Durham,3,E08000037,Gateshead,Very close
+E06000047,County Durham,4,E06000003,Redcar and Cleveland,Very close
+E06000047,County Durham,5,E08000018,Rotherham,Very close
+E06000047,County Durham,6,E08000016,Barnsley,Very close
+E06000047,County Durham,7,E08000024,Sunderland,Very close
+E06000047,County Durham,8,E08000023,South Tyneside,Very close
+E06000047,County Durham,9,E06000004,Stockton-on-Tees,Very close
+E06000047,County Durham,10,E06000005,Darlington,Very close
+E06000049,Cheshire East,1,E10000013,Gloucestershire,Very close
+E06000049,Cheshire East,2,E10000031,Warwickshire,Very close
+E06000049,Cheshire East,3,E06000065,North Yorkshire,Very close
+E06000049,Cheshire East,4,E06000007,Warrington,Very close
+E06000049,Cheshire East,5,E06000054,Wiltshire,Very close
+E06000049,Cheshire East,6,E10000014,Hampshire,Very close
+E06000049,Cheshire East,7,E06000050,Cheshire West and Chester,Very close
+E06000049,Cheshire East,8,E10000025,Oxfordshire,Very close
+E06000049,Cheshire East,9,E10000034,Worcestershire,Very close
+E06000049,Cheshire East,10,E10000018,Leicestershire,Very close
+E06000050,Cheshire West and Chester,1,E08000029,Solihull,Very close
+E06000050,Cheshire West and Chester,2,E08000007,Stockport,Very close
+E06000050,Cheshire West and Chester,3,E06000049,Cheshire East,Very close
+E06000050,Cheshire West and Chester,4,E10000031,Warwickshire,Very close
+E06000050,Cheshire West and Chester,5,E10000034,Worcestershire,Very close
+E06000050,Cheshire West and Chester,6,E10000013,Gloucestershire,Very close
+E06000050,Cheshire West and Chester,7,E06000007,Warrington,Very close
+E06000050,Cheshire West and Chester,8,E10000008,Devon,Very close
+E06000050,Cheshire West and Chester,9,E10000032,West Sussex,Close 
+E06000050,Cheshire West and Chester,10,E06000057,Northumberland,Close 
+E06000051,Shropshire,1,E06000065,North Yorkshire,Extremely close
+E06000051,Shropshire,2,E06000066,Somerset,Very close
+E06000051,Shropshire,3,E10000028,Staffordshire,Very close
+E06000051,Shropshire,4,E06000011,East Riding of Yorkshire,Very close
+E06000051,Shropshire,5,E06000059,Dorset,Very close
+E06000051,Shropshire,6,E06000019,"Herefordshire, County of",Very close
+E06000051,Shropshire,7,E10000007,Derbyshire,Very close
+E06000051,Shropshire,8,E10000034,Worcestershire,Very close
+E06000051,Shropshire,9,E06000064,Westmorland and Furness,Very close
+E06000051,Shropshire,10,E10000013,Gloucestershire,Very close
+E06000052,Cornwall,1,E10000020,Norfolk,Very close
+E06000052,Cornwall,2,E08000002,Bury,Very close
+E06000052,Cornwall,3,E10000011,East Sussex,Very close
+E06000052,Cornwall,4,E10000007,Derbyshire,Very close
+E06000052,Cornwall,5,E06000057,Northumberland,Very close
+E06000052,Cornwall,6,E10000029,Suffolk,Very close
+E06000052,Cornwall,7,E10000008,Devon,Very close
+E06000052,Cornwall,8,E10000024,Nottinghamshire,Very close
+E06000052,Cornwall,9,E10000017,Lancashire,Very close
+E06000052,Cornwall,10,E10000016,Kent,Very close
+E06000053,Isles of Scilly,1,E06000037,West Berkshire,Not close
+E06000053,Isles of Scilly,2,E06000060,Buckinghamshire,Not close
+E06000053,Isles of Scilly,3,E06000041,Wokingham,Not close
+E06000053,Isles of Scilly,4,E10000025,Oxfordshire,Not close
+E06000053,Isles of Scilly,5,E10000014,Hampshire,Not close
+E06000053,Isles of Scilly,6,E10000030,Surrey,Not close
+E06000053,Isles of Scilly,7,E10000003,Cambridgeshire,Not close
+E06000053,Isles of Scilly,8,E06000024,North Somerset,Not close
+E06000053,Isles of Scilly,9,E06000036,Bracknell Forest,Not close
+E06000053,Isles of Scilly,10,E06000054,Wiltshire,Not close
+E06000054,Wiltshire,1,E10000014,Hampshire,Extremely close
+E06000054,Wiltshire,2,E10000013,Gloucestershire,Very close
+E06000054,Wiltshire,3,E06000024,North Somerset,Very close
+E06000054,Wiltshire,4,E10000032,West Sussex,Very close
+E06000054,Wiltshire,5,E10000018,Leicestershire,Very close
+E06000054,Wiltshire,6,E10000031,Warwickshire,Very close
+E06000054,Wiltshire,7,E06000049,Cheshire East,Very close
+E06000054,Wiltshire,8,E10000012,Essex,Very close
+E06000054,Wiltshire,9,E06000065,North Yorkshire,Very close
+E06000054,Wiltshire,10,E06000025,South Gloucestershire,Very close
+E06000055,Bedford,1,E09000004,Bexley,Very close
+E06000055,Bedford,2,E06000042,Milton Keynes,Very close
+E06000055,Bedford,3,E06000062,West Northamptonshire,Very close
+E06000055,Bedford,4,E09000016,Havering,Very close
+E06000055,Bedford,5,E10000031,Warwickshire,Very close
+E06000055,Bedford,6,E06000058,"Bournemouth, Christchurch and Poole",Very close
+E06000055,Bedford,7,E10000016,Kent,Very close
+E06000055,Bedford,8,E10000029,Suffolk,Very close
+E06000055,Bedford,9,E10000012,Essex,Very close
+E06000055,Bedford,10,E06000030,Swindon,Very close
+E06000056,Central Bedfordshire,1,E06000060,Buckinghamshire,Very close
+E06000056,Central Bedfordshire,2,E06000025,South Gloucestershire,Very close
+E06000056,Central Bedfordshire,3,E10000003,Cambridgeshire,Very close
+E06000056,Central Bedfordshire,4,E10000014,Hampshire,Very close
+E06000056,Central Bedfordshire,5,E06000054,Wiltshire,Very close
+E06000056,Central Bedfordshire,6,E10000025,Oxfordshire,Very close
+E06000056,Central Bedfordshire,7,E10000032,West Sussex,Very close
+E06000056,Central Bedfordshire,8,E06000036,Bracknell Forest,Very close
+E06000056,Central Bedfordshire,9,E06000037,West Berkshire,Very close
+E06000056,Central Bedfordshire,10,E10000015,Hertfordshire,Very close
+E06000057,Northumberland,1,E10000020,Norfolk,Very close
+E06000057,Northumberland,2,E10000007,Derbyshire,Very close
+E06000057,Northumberland,3,E10000017,Lancashire,Very close
+E06000057,Northumberland,4,E06000052,Cornwall,Very close
+E06000057,Northumberland,5,E10000008,Devon,Very close
+E06000057,Northumberland,6,E06000047,County Durham,Very close
+E06000057,Northumberland,7,E06000059,Dorset,Very close
+E06000057,Northumberland,8,E10000016,Kent,Very close
+E06000057,Northumberland,9,E10000034,Worcestershire,Very close
+E06000057,Northumberland,10,E10000029,Suffolk,Very close
+E06000058,"Bournemouth, Christchurch and Poole",1,E06000055,Bedford,Very close
+E06000058,"Bournemouth, Christchurch and Poole",2,E06000033,Southend-on-Sea,Very close
+E06000058,"Bournemouth, Christchurch and Poole",3,E10000016,Kent,Very close
+E06000058,"Bournemouth, Christchurch and Poole",4,E10000008,Devon,Very close
+E06000058,"Bournemouth, Christchurch and Poole",5,E06000042,Milton Keynes,Very close
+E06000058,"Bournemouth, Christchurch and Poole",6,E09000004,Bexley,Very close
+E06000058,"Bournemouth, Christchurch and Poole",7,E10000032,West Sussex,Very close
+E06000058,"Bournemouth, Christchurch and Poole",8,E10000020,Norfolk,Very close
+E06000058,"Bournemouth, Christchurch and Poole",9,E10000011,East Sussex,Close 
+E06000058,"Bournemouth, Christchurch and Poole",10,E10000012,Essex,Close 
+E06000059,Dorset,1,E06000066,Somerset,Very close
+E06000059,Dorset,2,E10000008,Devon,Very close
+E06000059,Dorset,3,E06000051,Shropshire,Very close
+E06000059,Dorset,4,E10000029,Suffolk,Very close
+E06000059,Dorset,5,E10000034,Worcestershire,Very close
+E06000059,Dorset,6,E10000012,Essex,Very close
+E06000059,Dorset,7,E10000007,Derbyshire,Very close
+E06000059,Dorset,8,E10000016,Kent,Very close
+E06000059,Dorset,9,E10000032,West Sussex,Very close
+E06000059,Dorset,10,E06000065,North Yorkshire,Very close
+E06000060,Buckinghamshire,1,E10000025,Oxfordshire,Very close
+E06000060,Buckinghamshire,2,E10000015,Hertfordshire,Very close
+E06000060,Buckinghamshire,3,E06000037,West Berkshire,Very close
+E06000060,Buckinghamshire,4,E10000030,Surrey,Very close
+E06000060,Buckinghamshire,5,E10000003,Cambridgeshire,Very close
+E06000060,Buckinghamshire,6,E06000036,Bracknell Forest,Very close
+E06000060,Buckinghamshire,7,E06000056,Central Bedfordshire,Very close
+E06000060,Buckinghamshire,8,E06000040,Windsor and Maidenhead,Very close
+E06000060,Buckinghamshire,9,E08000009,Trafford,Very close
+E06000060,Buckinghamshire,10,E10000014,Hampshire,Very close
+E06000061,North Northamptonshire,1,E06000030,Swindon,Very close
+E06000061,North Northamptonshire,2,E06000062,West Northamptonshire,Very close
+E06000061,North Northamptonshire,3,E10000029,Suffolk,Very close
+E06000061,North Northamptonshire,4,E10000019,Lincolnshire,Very close
+E06000061,North Northamptonshire,5,E06000066,Somerset,Very close
+E06000061,North Northamptonshire,6,E06000034,Thurrock,Very close
+E06000061,North Northamptonshire,7,E10000024,Nottinghamshire,Very close
+E06000061,North Northamptonshire,8,E06000013,North Lincolnshire,Very close
+E06000061,North Northamptonshire,9,E06000035,Medway,Very close
+E06000061,North Northamptonshire,10,E08000036,Wakefield,Very close
+E06000062,West Northamptonshire,1,E06000055,Bedford,Very close
+E06000062,West Northamptonshire,2,E06000061,North Northamptonshire,Very close
+E06000062,West Northamptonshire,3,E10000031,Warwickshire,Very close
+E06000062,West Northamptonshire,4,E06000030,Swindon,Very close
+E06000062,West Northamptonshire,5,E06000066,Somerset,Very close
+E06000062,West Northamptonshire,6,E10000029,Suffolk,Very close
+E06000062,West Northamptonshire,7,E09000016,Havering,Very close
+E06000062,West Northamptonshire,8,E10000018,Leicestershire,Very close
+E06000062,West Northamptonshire,9,E10000025,Oxfordshire,Very close
+E06000062,West Northamptonshire,10,E09000004,Bexley,Very close
+E06000063,Cumberland,1,E06000064,Westmorland and Furness,Very close
+E06000063,Cumberland,2,E10000019,Lincolnshire,Very close
+E06000063,Cumberland,3,E06000019,"Herefordshire, County of",Very close
+E06000063,Cumberland,4,E10000017,Lancashire,Close 
+E06000063,Cumberland,5,E06000013,North Lincolnshire,Close 
+E06000063,Cumberland,6,E08000036,Wakefield,Close 
+E06000063,Cumberland,7,E10000028,Staffordshire,Close 
+E06000063,Cumberland,8,E06000057,Northumberland,Close 
+E06000063,Cumberland,9,E08000017,Doncaster,Close 
+E06000063,Cumberland,10,E08000016,Barnsley,Close 
+E06000064,Westmorland and Furness,1,E06000019,"Herefordshire, County of",Very close
+E06000064,Westmorland and Furness,2,E06000063,Cumberland,Very close
+E06000064,Westmorland and Furness,3,E10000028,Staffordshire,Very close
+E06000064,Westmorland and Furness,4,E06000051,Shropshire,Very close
+E06000064,Westmorland and Furness,5,E06000011,East Riding of Yorkshire,Very close
+E06000064,Westmorland and Furness,6,E06000065,North Yorkshire,Very close
+E06000064,Westmorland and Furness,7,E10000019,Lincolnshire,Very close
+E06000064,Westmorland and Furness,8,E06000066,Somerset,Very close
+E06000064,Westmorland and Furness,9,E10000029,Suffolk,Close 
+E06000064,Westmorland and Furness,10,E10000007,Derbyshire,Close 
+E06000065,North Yorkshire,1,E06000051,Shropshire,Extremely close
+E06000065,North Yorkshire,2,E06000049,Cheshire East,Very close
+E06000065,North Yorkshire,3,E06000011,East Riding of Yorkshire,Very close
+E06000065,North Yorkshire,4,E10000028,Staffordshire,Very close
+E06000065,North Yorkshire,5,E10000013,Gloucestershire,Very close
+E06000065,North Yorkshire,6,E06000007,Warrington,Very close
+E06000065,North Yorkshire,7,E10000031,Warwickshire,Very close
+E06000065,North Yorkshire,8,E06000019,"Herefordshire, County of",Very close
+E06000065,North Yorkshire,9,E06000054,Wiltshire,Very close
+E06000065,North Yorkshire,10,E06000066,Somerset,Very close
+E06000066,Somerset,1,E10000029,Suffolk,Very close
+E06000066,Somerset,2,E10000007,Derbyshire,Very close
+E06000066,Somerset,3,E06000059,Dorset,Very close
+E06000066,Somerset,4,E06000051,Shropshire,Very close
+E06000066,Somerset,5,E10000034,Worcestershire,Very close
+E06000066,Somerset,6,E10000024,Nottinghamshire,Very close
+E06000066,Somerset,7,E10000008,Devon,Very close
+E06000066,Somerset,8,E10000028,Staffordshire,Very close
+E06000066,Somerset,9,E10000018,Leicestershire,Very close
+E06000066,Somerset,10,E10000012,Essex,Very close
+E08000001,Bolton,1,E08000005,Rochdale,Very close
+E08000001,Bolton,2,E06000015,Derby,Very close
+E08000001,Bolton,3,E08000004,Oldham,Very close
+E08000001,Bolton,4,E08000008,Tameside,Very close
+E08000001,Bolton,5,E08000030,Walsall,Very close
+E08000001,Bolton,6,E08000006,Salford,Close 
+E08000001,Bolton,7,E06000008,Blackburn with Darwen,Close 
+E08000001,Bolton,8,E08000026,Coventry,Close 
+E08000001,Bolton,9,E08000019,Sheffield,Close 
+E08000001,Bolton,10,E06000031,Peterborough,Close 
+E08000002,Bury,1,E10000017,Lancashire,Very close
+E08000002,Bury,2,E06000052,Cornwall,Very close
+E08000002,Bury,3,E08000022,North Tyneside,Very close
+E08000002,Bury,4,E10000016,Kent,Very close
+E08000002,Bury,5,E08000027,Dudley,Very close
+E08000002,Bury,6,E10000024,Nottinghamshire,Very close
+E08000002,Bury,7,E06000004,Stockton-on-Tees,Very close
+E08000002,Bury,8,E10000020,Norfolk,Very close
+E08000002,Bury,9,E06000035,Medway,Very close
+E08000002,Bury,10,E09000004,Bexley,Very close
+E08000003,Manchester,1,E06000018,Nottingham,Very close
+E08000003,Manchester,2,E08000025,Birmingham,Very close
+E08000003,Manchester,3,E08000021,Newcastle upon Tyne,Close 
+E08000003,Manchester,4,E09000010,Enfield,Somewhat close
+E08000003,Manchester,5,E08000032,Bradford,Somewhat close
+E08000003,Manchester,6,E08000006,Salford,Somewhat close
+E08000003,Manchester,7,E06000002,Middlesbrough,Somewhat close
+E08000003,Manchester,8,E06000045,Southampton,Somewhat close
+E08000003,Manchester,9,E09000014,Haringey,Somewhat close
+E08000003,Manchester,10,E08000004,Oldham,Somewhat close
+E08000004,Oldham,1,E06000008,Blackburn with Darwen,Very close
+E08000004,Oldham,2,E08000001,Bolton,Very close
+E08000004,Oldham,3,E08000005,Rochdale,Very close
+E08000004,Oldham,4,E08000032,Bradford,Close 
+E08000004,Oldham,5,E08000030,Walsall,Close 
+E08000004,Oldham,6,E06000015,Derby,Close 
+E08000004,Oldham,7,E06000021,Stoke-on-Trent,Close 
+E08000004,Oldham,8,E08000026,Coventry,Close 
+E08000004,Oldham,9,E08000025,Birmingham,Close 
+E08000004,Oldham,10,E08000028,Sandwell,Close 
+E08000005,Rochdale,1,E08000030,Walsall,Very close
+E08000005,Rochdale,2,E08000008,Tameside,Very close
+E08000005,Rochdale,3,E06000021,Stoke-on-Trent,Very close
+E08000005,Rochdale,4,E08000001,Bolton,Very close
+E08000005,Rochdale,5,E08000024,Sunderland,Very close
+E08000005,Rochdale,6,E08000017,Doncaster,Very close
+E08000005,Rochdale,7,E08000018,Rotherham,Very close
+E08000005,Rochdale,8,E06000015,Derby,Very close
+E08000005,Rochdale,9,E08000004,Oldham,Very close
+E08000005,Rochdale,10,E08000006,Salford,Very close
+E08000006,Salford,1,E08000019,Sheffield,Very close
+E08000006,Salford,2,E08000005,Rochdale,Very close
+E08000006,Salford,3,E06000044,Portsmouth,Very close
+E08000006,Salford,4,E08000021,Newcastle upon Tyne,Very close
+E08000006,Salford,5,E08000037,Gateshead,Close 
+E08000006,Salford,6,E08000001,Bolton,Close 
+E08000006,Salford,7,E08000023,South Tyneside,Close 
+E08000006,Salford,8,E08000008,Tameside,Close 
+E08000006,Salford,9,E06000045,Southampton,Close 
+E08000006,Salford,10,E08000035,Leeds,Close 
+E08000007,Stockport,1,E08000029,Solihull,Very close
+E08000007,Stockport,2,E08000009,Trafford,Very close
+E08000007,Stockport,3,E06000050,Cheshire West and Chester,Very close
+E08000007,Stockport,4,E10000013,Gloucestershire,Very close
+E08000007,Stockport,5,E10000015,Hertfordshire,Very close
+E08000007,Stockport,6,E10000032,West Sussex,Very close
+E08000007,Stockport,7,E10000031,Warwickshire,Very close
+E08000007,Stockport,8,E06000024,North Somerset,Very close
+E08000007,Stockport,9,E06000025,South Gloucestershire,Very close
+E08000007,Stockport,10,E10000003,Cambridgeshire,Very close
+E08000008,Tameside,1,E08000018,Rotherham,Very close
+E08000008,Tameside,2,E08000037,Gateshead,Very close
+E08000008,Tameside,3,E08000005,Rochdale,Very close
+E08000008,Tameside,4,E08000016,Barnsley,Very close
+E08000008,Tameside,5,E08000036,Wakefield,Very close
+E08000008,Tameside,6,E08000027,Dudley,Very close
+E08000008,Tameside,7,E06000020,Telford and Wrekin,Very close
+E08000008,Tameside,8,E06000026,Plymouth,Very close
+E08000008,Tameside,9,E08000024,Sunderland,Very close
+E08000008,Tameside,10,E06000027,Torbay,Very close
+E08000009,Trafford,1,E10000015,Hertfordshire,Very close
+E08000009,Trafford,2,E08000007,Stockport,Very close
+E08000009,Trafford,3,E06000060,Buckinghamshire,Very close
+E08000009,Trafford,4,E10000025,Oxfordshire,Very close
+E08000009,Trafford,5,E10000030,Surrey,Very close
+E08000009,Trafford,6,E09000006,Bromley,Very close
+E08000009,Trafford,7,E06000049,Cheshire East,Very close
+E08000009,Trafford,8,E10000003,Cambridgeshire,Very close
+E08000009,Trafford,9,E10000013,Gloucestershire,Very close
+E08000009,Trafford,10,E08000029,Solihull,Very close
+E08000010,Wigan,1,E10000017,Lancashire,Very close
+E08000010,Wigan,2,E10000019,Lincolnshire,Very close
+E08000010,Wigan,3,E08000014,Sefton,Close 
+E08000010,Wigan,4,E06000007,Warrington,Close 
+E08000010,Wigan,5,E10000028,Staffordshire,Close 
+E08000010,Wigan,6,E08000027,Dudley,Close 
+E08000010,Wigan,7,E06000057,Northumberland,Close 
+E08000010,Wigan,8,E06000019,"Herefordshire, County of",Close 
+E08000010,Wigan,9,E06000004,Stockton-on-Tees,Close 
+E08000010,Wigan,10,E06000051,Shropshire,Close 
+E08000011,Knowsley,1,E08000013,St Helens,Close 
+E08000011,Knowsley,2,E06000006,Halton,Close 
+E08000011,Knowsley,3,E08000024,Sunderland,Close 
+E08000011,Knowsley,4,E06000001,Hartlepool,Close 
+E08000011,Knowsley,5,E06000003,Redcar and Cleveland,Close 
+E08000011,Knowsley,6,E08000014,Sefton,Close 
+E08000011,Knowsley,7,E08000015,Wirral,Close 
+E08000011,Knowsley,8,E08000023,South Tyneside,Close 
+E08000011,Knowsley,9,E06000047,County Durham,Close 
+E08000011,Knowsley,10,E08000012,Liverpool,Close 
+E08000012,Liverpool,1,E06000009,Blackpool,Very close
+E08000012,Liverpool,2,E06000001,Hartlepool,Close 
+E08000012,Liverpool,3,E06000002,Middlesbrough,Close 
+E08000012,Liverpool,4,E08000006,Salford,Close 
+E08000012,Liverpool,5,E08000023,South Tyneside,Close 
+E08000012,Liverpool,6,E08000011,Knowsley,Close 
+E08000012,Liverpool,7,E08000024,Sunderland,Close 
+E08000012,Liverpool,8,E08000021,Newcastle upon Tyne,Close 
+E08000012,Liverpool,9,E06000003,Redcar and Cleveland,Somewhat close
+E08000012,Liverpool,10,E08000005,Rochdale,Somewhat close
+E08000013,St Helens,1,E06000006,Halton,Very close
+E08000013,St Helens,2,E08000014,Sefton,Close 
+E08000013,St Helens,3,E08000011,Knowsley,Close 
+E08000013,St Helens,4,E06000047,County Durham,Close 
+E08000013,St Helens,5,E06000003,Redcar and Cleveland,Close 
+E08000013,St Helens,6,E08000016,Barnsley,Close 
+E08000013,St Helens,7,E08000024,Sunderland,Close 
+E08000013,St Helens,8,E08000015,Wirral,Close 
+E08000013,St Helens,9,E06000004,Stockton-on-Tees,Close 
+E08000013,St Helens,10,E06000020,Telford and Wrekin,Close 
+E08000014,Sefton,1,E08000015,Wirral,Very close
+E08000014,Sefton,2,E08000013,St Helens,Close 
+E08000014,Sefton,3,E08000010,Wigan,Close 
+E08000014,Sefton,4,E10000017,Lancashire,Close 
+E08000014,Sefton,5,E06000006,Halton,Close 
+E08000014,Sefton,6,E06000047,County Durham,Close 
+E08000014,Sefton,7,E06000004,Stockton-on-Tees,Close 
+E08000014,Sefton,8,E08000011,Knowsley,Close 
+E08000014,Sefton,9,E06000005,Darlington,Close 
+E08000014,Sefton,10,E08000002,Bury,Close 
+E08000015,Wirral,1,E06000047,County Durham,Very close
+E08000015,Wirral,2,E08000014,Sefton,Very close
+E08000015,Wirral,3,E06000006,Halton,Very close
+E08000015,Wirral,4,E06000004,Stockton-on-Tees,Very close
+E08000015,Wirral,5,E08000024,Sunderland,Close 
+E08000015,Wirral,6,E08000037,Gateshead,Close 
+E08000015,Wirral,7,E06000003,Redcar and Cleveland,Close 
+E08000015,Wirral,8,E10000017,Lancashire,Close 
+E08000015,Wirral,9,E08000002,Bury,Close 
+E08000015,Wirral,10,E08000023,South Tyneside,Close 
+E08000016,Barnsley,1,E08000018,Rotherham,Very close
+E08000016,Barnsley,2,E08000036,Wakefield,Very close
+E08000016,Barnsley,3,E08000008,Tameside,Very close
+E08000016,Barnsley,4,E08000017,Doncaster,Very close
+E08000016,Barnsley,5,E08000027,Dudley,Very close
+E08000016,Barnsley,6,E06000020,Telford and Wrekin,Very close
+E08000016,Barnsley,7,E06000047,County Durham,Very close
+E08000016,Barnsley,8,E08000037,Gateshead,Very close
+E08000016,Barnsley,9,E06000003,Redcar and Cleveland,Very close
+E08000016,Barnsley,10,E08000024,Sunderland,Very close
+E08000017,Doncaster,1,E08000018,Rotherham,Very close
+E08000017,Doncaster,2,E08000016,Barnsley,Very close
+E08000017,Doncaster,3,E08000036,Wakefield,Very close
+E08000017,Doncaster,4,E06000020,Telford and Wrekin,Very close
+E08000017,Doncaster,5,E08000008,Tameside,Very close
+E08000017,Doncaster,6,E06000012,North East Lincolnshire,Very close
+E08000017,Doncaster,7,E08000030,Walsall,Very close
+E08000017,Doncaster,8,E06000021,Stoke-on-Trent,Very close
+E08000017,Doncaster,9,E08000005,Rochdale,Very close
+E08000017,Doncaster,10,E06000013,North Lincolnshire,Very close
+E08000018,Rotherham,1,E08000016,Barnsley,Very close
+E08000018,Rotherham,2,E08000008,Tameside,Very close
+E08000018,Rotherham,3,E08000017,Doncaster,Very close
+E08000018,Rotherham,4,E08000036,Wakefield,Very close
+E08000018,Rotherham,5,E06000020,Telford and Wrekin,Very close
+E08000018,Rotherham,6,E08000027,Dudley,Very close
+E08000018,Rotherham,7,E06000003,Redcar and Cleveland,Very close
+E08000018,Rotherham,8,E08000024,Sunderland,Very close
+E08000018,Rotherham,9,E08000037,Gateshead,Very close
+E08000018,Rotherham,10,E06000047,County Durham,Very close
+E08000019,Sheffield,1,E08000034,Kirklees,Very close
+E08000019,Sheffield,2,E06000044,Portsmouth,Very close
+E08000019,Sheffield,3,E08000006,Salford,Very close
+E08000019,Sheffield,4,E08000035,Leeds,Very close
+E08000019,Sheffield,5,E06000015,Derby,Very close
+E08000019,Sheffield,6,E08000005,Rochdale,Close 
+E08000019,Sheffield,7,E08000021,Newcastle upon Tyne,Close 
+E08000019,Sheffield,8,E06000045,Southampton,Close 
+E08000019,Sheffield,9,E08000008,Tameside,Close 
+E08000019,Sheffield,10,E08000001,Bolton,Close 
+E08000021,Newcastle upon Tyne,1,E08000006,Salford,Very close
+E08000021,Newcastle upon Tyne,2,E08000019,Sheffield,Close 
+E08000021,Newcastle upon Tyne,3,E06000002,Middlesbrough,Close 
+E08000021,Newcastle upon Tyne,4,E06000044,Portsmouth,Close 
+E08000021,Newcastle upon Tyne,5,E06000018,Nottingham,Close 
+E08000021,Newcastle upon Tyne,6,E08000035,Leeds,Close 
+E08000021,Newcastle upon Tyne,7,E08000025,Birmingham,Close 
+E08000021,Newcastle upon Tyne,8,E06000045,Southampton,Close 
+E08000021,Newcastle upon Tyne,9,E08000003,Manchester,Close 
+E08000021,Newcastle upon Tyne,10,E06000009,Blackpool,Close 
+E08000022,North Tyneside,1,E08000002,Bury,Very close
+E08000022,North Tyneside,2,E10000024,Nottinghamshire,Very close
+E08000022,North Tyneside,3,E06000004,Stockton-on-Tees,Very close
+E08000022,North Tyneside,4,E06000024,North Somerset,Very close
+E08000022,North Tyneside,5,E06000005,Darlington,Close 
+E08000022,North Tyneside,6,E10000017,Lancashire,Close 
+E08000022,North Tyneside,7,E08000029,Solihull,Close 
+E08000022,North Tyneside,8,E06000052,Cornwall,Close 
+E08000022,North Tyneside,9,E08000037,Gateshead,Close 
+E08000022,North Tyneside,10,E10000016,Kent,Close 
+E08000023,South Tyneside,1,E08000024,Sunderland,Very close
+E08000023,South Tyneside,2,E06000003,Redcar and Cleveland,Very close
+E08000023,South Tyneside,3,E08000037,Gateshead,Very close
+E08000023,South Tyneside,4,E06000001,Hartlepool,Very close
+E08000023,South Tyneside,5,E06000047,County Durham,Very close
+E08000023,South Tyneside,6,E08000008,Tameside,Very close
+E08000023,South Tyneside,7,E08000018,Rotherham,Very close
+E08000023,South Tyneside,8,E08000005,Rochdale,Close 
+E08000023,South Tyneside,9,E06000009,Blackpool,Close 
+E08000023,South Tyneside,10,E06000005,Darlington,Close 
+E08000024,Sunderland,1,E06000003,Redcar and Cleveland,Very close
+E08000024,Sunderland,2,E08000023,South Tyneside,Very close
+E08000024,Sunderland,3,E06000001,Hartlepool,Very close
+E08000024,Sunderland,4,E08000018,Rotherham,Very close
+E08000024,Sunderland,5,E08000008,Tameside,Very close
+E08000024,Sunderland,6,E06000027,Torbay,Very close
+E08000024,Sunderland,7,E08000037,Gateshead,Very close
+E08000024,Sunderland,8,E06000047,County Durham,Very close
+E08000024,Sunderland,9,E08000016,Barnsley,Very close
+E08000024,Sunderland,10,E08000005,Rochdale,Very close
+E08000025,Birmingham,1,E06000018,Nottingham,Very close
+E08000025,Birmingham,2,E08000003,Manchester,Very close
+E08000025,Birmingham,3,E08000032,Bradford,Very close
+E08000025,Birmingham,4,E08000021,Newcastle upon Tyne,Close 
+E08000025,Birmingham,5,E08000004,Oldham,Close 
+E08000025,Birmingham,6,E06000008,Blackburn with Darwen,Close 
+E08000025,Birmingham,7,E08000019,Sheffield,Close 
+E08000025,Birmingham,8,E06000002,Middlesbrough,Close 
+E08000025,Birmingham,9,E06000045,Southampton,Close 
+E08000025,Birmingham,10,E08000006,Salford,Close 
+E08000026,Coventry,1,E06000015,Derby,Very close
+E08000026,Coventry,2,E06000045,Southampton,Very close
+E08000026,Coventry,3,E06000031,Peterborough,Very close
+E08000026,Coventry,4,E08000001,Bolton,Close 
+E08000026,Coventry,5,E08000031,Wolverhampton,Close 
+E08000026,Coventry,6,E09000017,Hillingdon,Close 
+E08000026,Coventry,7,E08000005,Rochdale,Close 
+E08000026,Coventry,8,E08000030,Walsall,Close 
+E08000026,Coventry,9,E06000032,Luton,Close 
+E08000026,Coventry,10,E06000021,Stoke-on-Trent,Close 
+E08000027,Dudley,1,E08000036,Wakefield,Very close
+E08000027,Dudley,2,E06000020,Telford and Wrekin,Very close
+E08000027,Dudley,3,E06000004,Stockton-on-Tees,Very close
+E08000027,Dudley,4,E08000018,Rotherham,Very close
+E08000027,Dudley,5,E08000016,Barnsley,Very close
+E08000027,Dudley,6,E06000035,Medway,Very close
+E08000027,Dudley,7,E08000008,Tameside,Very close
+E08000027,Dudley,8,E10000017,Lancashire,Very close
+E08000027,Dudley,9,E06000005,Darlington,Very close
+E08000027,Dudley,10,E10000019,Lincolnshire,Very close
+E08000028,Sandwell,1,E08000031,Wolverhampton,Very close
+E08000028,Sandwell,2,E06000010,"Kingston upon Hull, City of",Very close
+E08000028,Sandwell,3,E06000021,Stoke-on-Trent,Close 
+E08000028,Sandwell,4,E08000030,Walsall,Close 
+E08000028,Sandwell,5,E08000005,Rochdale,Close 
+E08000028,Sandwell,6,E08000032,Bradford,Close 
+E08000028,Sandwell,7,E06000002,Middlesbrough,Close 
+E08000028,Sandwell,8,E08000026,Coventry,Close 
+E08000028,Sandwell,9,E08000004,Oldham,Close 
+E08000028,Sandwell,10,E06000032,Luton,Close 
+E08000029,Solihull,1,E08000007,Stockport,Very close
+E08000029,Solihull,2,E06000050,Cheshire West and Chester,Very close
+E08000029,Solihull,3,E10000031,Warwickshire,Very close
+E08000029,Solihull,4,E06000007,Warrington,Very close
+E08000029,Solihull,5,E10000016,Kent,Very close
+E08000029,Solihull,6,E10000013,Gloucestershire,Very close
+E08000029,Solihull,7,E06000024,North Somerset,Very close
+E08000029,Solihull,8,E06000049,Cheshire East,Very close
+E08000029,Solihull,9,E10000012,Essex,Very close
+E08000029,Solihull,10,E10000015,Hertfordshire,Very close
+E08000030,Walsall,1,E08000005,Rochdale,Very close
+E08000030,Walsall,2,E06000021,Stoke-on-Trent,Very close
+E08000030,Walsall,3,E08000008,Tameside,Very close
+E08000030,Walsall,4,E08000031,Wolverhampton,Very close
+E08000030,Walsall,5,E08000017,Doncaster,Very close
+E08000030,Walsall,6,E06000015,Derby,Very close
+E08000030,Walsall,7,E08000001,Bolton,Very close
+E08000030,Walsall,8,E08000018,Rotherham,Very close
+E08000030,Walsall,9,E06000012,North East Lincolnshire,Close 
+E08000030,Walsall,10,E08000028,Sandwell,Close 
+E08000031,Wolverhampton,1,E08000028,Sandwell,Very close
+E08000031,Wolverhampton,2,E06000021,Stoke-on-Trent,Very close
+E08000031,Wolverhampton,3,E08000030,Walsall,Very close
+E08000031,Wolverhampton,4,E06000010,"Kingston upon Hull, City of",Very close
+E08000031,Wolverhampton,5,E08000005,Rochdale,Close 
+E08000031,Wolverhampton,6,E08000026,Coventry,Close 
+E08000031,Wolverhampton,7,E08000017,Doncaster,Close 
+E08000031,Wolverhampton,8,E06000015,Derby,Close 
+E08000031,Wolverhampton,9,E06000002,Middlesbrough,Close 
+E08000031,Wolverhampton,10,E06000012,North East Lincolnshire,Close 
+E08000032,Bradford,1,E06000008,Blackburn with Darwen,Very close
+E08000032,Bradford,2,E08000025,Birmingham,Very close
+E08000032,Bradford,3,E08000004,Oldham,Close 
+E08000032,Bradford,4,E08000019,Sheffield,Close 
+E08000032,Bradford,5,E06000015,Derby,Close 
+E08000032,Bradford,6,E08000005,Rochdale,Close 
+E08000032,Bradford,7,E08000001,Bolton,Close 
+E08000032,Bradford,8,E08000030,Walsall,Close 
+E08000032,Bradford,9,E08000028,Sandwell,Close 
+E08000032,Bradford,10,E08000034,Kirklees,Close 
+E08000033,Calderdale,1,E06000058,"Bournemouth, Christchurch and Poole",Close 
+E08000033,Calderdale,2,E10000011,East Sussex,Close 
+E08000033,Calderdale,3,E10000008,Devon,Close 
+E08000033,Calderdale,4,E06000046,Isle of Wight,Close 
+E08000033,Calderdale,5,E10000020,Norfolk,Close 
+E08000033,Calderdale,6,E06000033,Southend-on-Sea,Close 
+E08000033,Calderdale,7,E08000001,Bolton,Somewhat close
+E08000033,Calderdale,8,E06000057,Northumberland,Somewhat close
+E08000033,Calderdale,9,E08000035,Leeds,Somewhat close
+E08000033,Calderdale,10,E08000007,Stockport,Somewhat close
+E08000034,Kirklees,1,E08000019,Sheffield,Very close
+E08000034,Kirklees,2,E08000008,Tameside,Very close
+E08000034,Kirklees,3,E06000044,Portsmouth,Very close
+E08000034,Kirklees,4,E06000015,Derby,Very close
+E08000034,Kirklees,5,E06000026,Plymouth,Close 
+E08000034,Kirklees,6,E08000005,Rochdale,Close 
+E08000034,Kirklees,7,E08000002,Bury,Close 
+E08000034,Kirklees,8,E08000036,Wakefield,Close 
+E08000034,Kirklees,9,E06000052,Cornwall,Close 
+E08000034,Kirklees,10,E08000037,Gateshead,Close 
+E08000035,Leeds,1,E06000044,Portsmouth,Very close
+E08000035,Leeds,2,E06000033,Southend-on-Sea,Very close
+E08000035,Leeds,3,E08000019,Sheffield,Very close
+E08000035,Leeds,4,E06000042,Milton Keynes,Close 
+E08000035,Leeds,5,E08000034,Kirklees,Close 
+E08000035,Leeds,6,E08000006,Salford,Close 
+E08000035,Leeds,7,E06000023,"Bristol, City of",Close 
+E08000035,Leeds,8,E06000045,Southampton,Close 
+E08000035,Leeds,9,E09000008,Croydon,Close 
+E08000035,Leeds,10,E06000058,"Bournemouth, Christchurch and Poole",Close 
+E08000036,Wakefield,1,E08000027,Dudley,Very close
+E08000036,Wakefield,2,E08000016,Barnsley,Very close
+E08000036,Wakefield,3,E06000020,Telford and Wrekin,Very close
+E08000036,Wakefield,4,E08000018,Rotherham,Very close
+E08000036,Wakefield,5,E10000019,Lincolnshire,Very close
+E08000036,Wakefield,6,E08000008,Tameside,Very close
+E08000036,Wakefield,7,E08000017,Doncaster,Very close
+E08000036,Wakefield,8,E06000013,North Lincolnshire,Very close
+E08000036,Wakefield,9,E06000005,Darlington,Very close
+E08000036,Wakefield,10,E10000017,Lancashire,Very close
+E08000037,Gateshead,1,E06000005,Darlington,Very close
+E08000037,Gateshead,2,E08000008,Tameside,Very close
+E08000037,Gateshead,3,E08000023,South Tyneside,Very close
+E08000037,Gateshead,4,E08000018,Rotherham,Very close
+E08000037,Gateshead,5,E06000004,Stockton-on-Tees,Very close
+E08000037,Gateshead,6,E06000047,County Durham,Very close
+E08000037,Gateshead,7,E06000003,Redcar and Cleveland,Very close
+E08000037,Gateshead,8,E08000024,Sunderland,Very close
+E08000037,Gateshead,9,E08000027,Dudley,Very close
+E08000037,Gateshead,10,E08000036,Wakefield,Very close
+E09000001,City of London,1,E09000007,Camden,Not close
+E09000001,City of London,2,E09000013,Hammersmith and Fulham,Not close
+E09000001,City of London,3,E09000020,Kensington and Chelsea,Not close
+E09000001,City of London,4,E09000028,Southwark,Not close
+E09000001,City of London,5,E09000022,Lambeth,Not close
+E09000001,City of London,6,E09000019,Islington,Not close
+E09000001,City of London,7,E09000032,Wandsworth,Not close
+E09000001,City of London,8,E09000033,Westminster,Not close
+E09000001,City of London,9,E09000023,Lewisham,Not close
+E09000001,City of London,10,E06000043,Brighton and Hove,Not close
+E09000002,Barking and Dagenham,1,E09000010,Enfield,Close 
+E09000002,Barking and Dagenham,2,E06000032,Luton,Close 
+E09000002,Barking and Dagenham,3,E09000018,Hounslow,Close 
+E09000002,Barking and Dagenham,4,E08000028,Sandwell,Somewhat close
+E09000002,Barking and Dagenham,5,E08000031,Wolverhampton,Somewhat close
+E09000002,Barking and Dagenham,6,E09000009,Ealing,Somewhat close
+E09000002,Barking and Dagenham,7,E09000005,Brent,Somewhat close
+E09000002,Barking and Dagenham,8,E09000017,Hillingdon,Somewhat close
+E09000002,Barking and Dagenham,9,E06000031,Peterborough,Somewhat close
+E09000002,Barking and Dagenham,10,E09000011,Greenwich,Somewhat close
+E09000003,Barnet,1,E09000031,Waltham Forest,Close 
+E09000003,Barnet,2,E06000038,Reading,Close 
+E09000003,Barnet,3,E09000015,Harrow,Close 
+E09000003,Barnet,4,E09000026,Redbridge,Close 
+E09000003,Barnet,5,E09000024,Merton,Close 
+E09000003,Barnet,6,E09000008,Croydon,Close 
+E09000003,Barnet,7,E09000023,Lewisham,Close 
+E09000003,Barnet,8,E09000017,Hillingdon,Close 
+E09000003,Barnet,9,E09000014,Haringey,Close 
+E09000003,Barnet,10,E09000009,Ealing,Close 
+E09000004,Bexley,1,E09000016,Havering,Extremely close
+E09000004,Bexley,2,E06000055,Bedford,Very close
+E09000004,Bexley,3,E10000016,Kent,Very close
+E09000004,Bexley,4,E10000012,Essex,Very close
+E09000004,Bexley,5,E06000034,Thurrock,Very close
+E09000004,Bexley,6,E06000035,Medway,Very close
+E09000004,Bexley,7,E06000042,Milton Keynes,Very close
+E09000004,Bexley,8,E06000030,Swindon,Very close
+E09000004,Bexley,9,E06000058,"Bournemouth, Christchurch and Poole",Very close
+E09000004,Bexley,10,E08000002,Bury,Very close
+E09000005,Brent,1,E09000009,Ealing,Close 
+E09000005,Brent,2,E09000025,Newham,Close 
+E09000005,Brent,3,E09000018,Hounslow,Close 
+E09000005,Brent,4,E09000014,Haringey,Close 
+E09000005,Brent,5,E06000032,Luton,Close 
+E09000005,Brent,6,E06000039,Slough,Somewhat close
+E09000005,Brent,7,E09000002,Barking and Dagenham,Somewhat close
+E09000005,Brent,8,E09000010,Enfield,Somewhat close
+E09000005,Brent,9,E09000031,Waltham Forest,Somewhat close
+E09000005,Brent,10,E09000026,Redbridge,Somewhat close
+E09000006,Bromley,1,E10000015,Hertfordshire,Very close
+E09000006,Bromley,2,E08000009,Trafford,Very close
+E09000006,Bromley,3,E06000060,Buckinghamshire,Very close
+E09000006,Bromley,4,E06000037,West Berkshire,Very close
+E09000006,Bromley,5,E06000036,Bracknell Forest,Close 
+E09000006,Bromley,6,E10000025,Oxfordshire,Close 
+E09000006,Bromley,7,E10000014,Hampshire,Close 
+E09000006,Bromley,8,E06000040,Windsor and Maidenhead,Close 
+E09000006,Bromley,9,E08000029,Solihull,Close 
+E09000006,Bromley,10,E10000030,Surrey,Close 
+E09000007,Camden,1,E09000019,Islington,Close 
+E09000007,Camden,2,E09000033,Westminster,Close 
+E09000007,Camden,3,E09000013,Hammersmith and Fulham,Somewhat close
+E09000007,Camden,4,E09000028,Southwark,Somewhat close
+E09000007,Camden,5,E09000022,Lambeth,Somewhat close
+E09000007,Camden,6,E09000020,Kensington and Chelsea,Somewhat close
+E09000007,Camden,7,E09000023,Lewisham,Somewhat close
+E09000007,Camden,8,E09000014,Haringey,Somewhat close
+E09000007,Camden,9,E09000012,Hackney,Somewhat close
+E09000007,Camden,10,E09000003,Barnet,Not close
+E09000008,Croydon,1,E09000023,Lewisham,Close 
+E09000008,Croydon,2,E09000031,Waltham Forest,Close 
+E09000008,Croydon,3,E08000035,Leeds,Close 
+E09000008,Croydon,4,E06000038,Reading,Close 
+E09000008,Croydon,5,E06000042,Milton Keynes,Close 
+E09000008,Croydon,6,E06000033,Southend-on-Sea,Close 
+E09000008,Croydon,7,E09000003,Barnet,Close 
+E09000008,Croydon,8,E06000045,Southampton,Close 
+E09000008,Croydon,9,E08000006,Salford,Close 
+E09000008,Croydon,10,E09000011,Greenwich,Close 
+E09000009,Ealing,1,E09000018,Hounslow,Very close
+E09000009,Ealing,2,E09000026,Redbridge,Close 
+E09000009,Ealing,3,E09000017,Hillingdon,Close 
+E09000009,Ealing,4,E09000031,Waltham Forest,Close 
+E09000009,Ealing,5,E09000005,Brent,Close 
+E09000009,Ealing,6,E09000014,Haringey,Close 
+E09000009,Ealing,7,E09000015,Harrow,Close 
+E09000009,Ealing,8,E06000039,Slough,Close 
+E09000009,Ealing,9,E06000032,Luton,Close 
+E09000009,Ealing,10,E09000003,Barnet,Close 
+E09000010,Enfield,1,E09000002,Barking and Dagenham,Close 
+E09000010,Enfield,2,E09000014,Haringey,Close 
+E09000010,Enfield,3,E06000032,Luton,Somewhat close
+E09000010,Enfield,4,E08000025,Birmingham,Somewhat close
+E09000010,Enfield,5,E08000003,Manchester,Somewhat close
+E09000010,Enfield,6,E09000009,Ealing,Somewhat close
+E09000010,Enfield,7,E09000031,Waltham Forest,Somewhat close
+E09000010,Enfield,8,E09000011,Greenwich,Somewhat close
+E09000010,Enfield,9,E09000008,Croydon,Somewhat close
+E09000010,Enfield,10,E08000006,Salford,Somewhat close
+E09000011,Greenwich,1,E09000023,Lewisham,Close 
+E09000011,Greenwich,2,E09000022,Lambeth,Close 
+E09000011,Greenwich,3,E09000008,Croydon,Close 
+E09000011,Greenwich,4,E09000028,Southwark,Close 
+E09000011,Greenwich,5,E08000006,Salford,Close 
+E09000011,Greenwich,6,E09000031,Waltham Forest,Close 
+E09000011,Greenwich,7,E06000044,Portsmouth,Somewhat close
+E09000011,Greenwich,8,E06000045,Southampton,Somewhat close
+E09000011,Greenwich,9,E08000021,Newcastle upon Tyne,Somewhat close
+E09000011,Greenwich,10,E06000038,Reading,Somewhat close
+E09000012,Hackney,1,E09000028,Southwark,Somewhat close
+E09000012,Hackney,2,E09000019,Islington,Somewhat close
+E09000012,Hackney,3,E09000014,Haringey,Somewhat close
+E09000012,Hackney,4,E09000022,Lambeth,Somewhat close
+E09000012,Hackney,5,E09000030,Tower Hamlets,Somewhat close
+E09000012,Hackney,6,E09000023,Lewisham,Somewhat close
+E09000012,Hackney,7,E09000007,Camden,Somewhat close
+E09000012,Hackney,8,E08000003,Manchester,Not close
+E09000012,Hackney,9,E09000031,Waltham Forest,Not close
+E09000012,Hackney,10,E09000033,Westminster,Not close
+E09000013,Hammersmith and Fulham,1,E09000022,Lambeth,Very close
+E09000013,Hammersmith and Fulham,2,E09000020,Kensington and Chelsea,Very close
+E09000013,Hammersmith and Fulham,3,E09000023,Lewisham,Close 
+E09000013,Hammersmith and Fulham,4,E09000028,Southwark,Close 
+E09000013,Hammersmith and Fulham,5,E09000032,Wandsworth,Close 
+E09000013,Hammersmith and Fulham,6,E09000007,Camden,Somewhat close
+E09000013,Hammersmith and Fulham,7,E09000003,Barnet,Somewhat close
+E09000013,Hammersmith and Fulham,8,E09000014,Haringey,Somewhat close
+E09000013,Hammersmith and Fulham,9,E09000008,Croydon,Somewhat close
+E09000013,Hammersmith and Fulham,10,E09000019,Islington,Somewhat close
+E09000014,Haringey,1,E09000031,Waltham Forest,Close 
+E09000014,Haringey,2,E09000009,Ealing,Close 
+E09000014,Haringey,3,E09000023,Lewisham,Close 
+E09000014,Haringey,4,E09000022,Lambeth,Close 
+E09000014,Haringey,5,E09000003,Barnet,Close 
+E09000014,Haringey,6,E09000010,Enfield,Close 
+E09000014,Haringey,7,E09000028,Southwark,Close 
+E09000014,Haringey,8,E09000005,Brent,Close 
+E09000014,Haringey,9,E09000018,Hounslow,Somewhat close
+E09000014,Haringey,10,E09000026,Redbridge,Somewhat close
+E09000015,Harrow,1,E09000026,Redbridge,Very close
+E09000015,Harrow,2,E09000017,Hillingdon,Close 
+E09000015,Harrow,3,E09000003,Barnet,Close 
+E09000015,Harrow,4,E09000009,Ealing,Close 
+E09000015,Harrow,5,E09000031,Waltham Forest,Close 
+E09000015,Harrow,6,E06000038,Reading,Close 
+E09000015,Harrow,7,E09000018,Hounslow,Close 
+E09000015,Harrow,8,E09000024,Merton,Close 
+E09000015,Harrow,9,E06000039,Slough,Somewhat close
+E09000015,Harrow,10,E06000042,Milton Keynes,Somewhat close
+E09000016,Havering,1,E09000004,Bexley,Extremely close
+E09000016,Havering,2,E06000055,Bedford,Very close
+E09000016,Havering,3,E06000034,Thurrock,Very close
+E09000016,Havering,4,E10000012,Essex,Very close
+E09000016,Havering,5,E10000016,Kent,Very close
+E09000016,Havering,6,E06000030,Swindon,Very close
+E09000016,Havering,7,E06000062,West Northamptonshire,Very close
+E09000016,Havering,8,E06000042,Milton Keynes,Very close
+E09000016,Havering,9,E06000035,Medway,Close 
+E09000016,Havering,10,E10000032,West Sussex,Close 
+E09000017,Hillingdon,1,E09000018,Hounslow,Very close
+E09000017,Hillingdon,2,E09000026,Redbridge,Very close
+E09000017,Hillingdon,3,E09000031,Waltham Forest,Close 
+E09000017,Hillingdon,4,E06000031,Peterborough,Close 
+E09000017,Hillingdon,5,E09000009,Ealing,Close 
+E09000017,Hillingdon,6,E06000045,Southampton,Close 
+E09000017,Hillingdon,7,E09000015,Harrow,Close 
+E09000017,Hillingdon,8,E06000038,Reading,Close 
+E09000017,Hillingdon,9,E06000039,Slough,Close 
+E09000017,Hillingdon,10,E08000026,Coventry,Close 
+E09000018,Hounslow,1,E09000009,Ealing,Very close
+E09000018,Hounslow,2,E09000017,Hillingdon,Very close
+E09000018,Hounslow,3,E06000039,Slough,Very close
+E09000018,Hounslow,4,E09000026,Redbridge,Close 
+E09000018,Hounslow,5,E09000031,Waltham Forest,Close 
+E09000018,Hounslow,6,E06000032,Luton,Close 
+E09000018,Hounslow,7,E09000005,Brent,Close 
+E09000018,Hounslow,8,E09000015,Harrow,Close 
+E09000018,Hounslow,9,E06000045,Southampton,Close 
+E09000018,Hounslow,10,E09000002,Barking and Dagenham,Close 
+E09000019,Islington,1,E09000007,Camden,Close 
+E09000019,Islington,2,E09000028,Southwark,Close 
+E09000019,Islington,3,E09000022,Lambeth,Close 
+E09000019,Islington,4,E09000033,Westminster,Close 
+E09000019,Islington,5,E09000012,Hackney,Somewhat close
+E09000019,Islington,6,E09000013,Hammersmith and Fulham,Somewhat close
+E09000019,Islington,7,E09000023,Lewisham,Somewhat close
+E09000019,Islington,8,E09000014,Haringey,Somewhat close
+E09000019,Islington,9,E09000011,Greenwich,Not close
+E09000019,Islington,10,E08000003,Manchester,Not close
+E09000020,Kensington and Chelsea,1,E09000013,Hammersmith and Fulham,Very close
+E09000020,Kensington and Chelsea,2,E09000007,Camden,Somewhat close
+E09000020,Kensington and Chelsea,3,E09000022,Lambeth,Somewhat close
+E09000020,Kensington and Chelsea,4,E09000033,Westminster,Somewhat close
+E09000020,Kensington and Chelsea,5,E09000028,Southwark,Somewhat close
+E09000020,Kensington and Chelsea,6,E09000023,Lewisham,Somewhat close
+E09000020,Kensington and Chelsea,7,E09000032,Wandsworth,Somewhat close
+E09000020,Kensington and Chelsea,8,E09000019,Islington,Not close
+E09000020,Kensington and Chelsea,9,E09000003,Barnet,Not close
+E09000020,Kensington and Chelsea,10,E09000011,Greenwich,Not close
+E09000021,Kingston upon Thames,1,E09000029,Sutton,Close 
+E09000021,Kingston upon Thames,2,E09000024,Merton,Close 
+E09000021,Kingston upon Thames,3,E10000015,Hertfordshire,Close 
+E09000021,Kingston upon Thames,4,E09000006,Bromley,Close 
+E09000021,Kingston upon Thames,5,E06000022,Bath and North East Somerset,Close 
+E09000021,Kingston upon Thames,6,E06000040,Windsor and Maidenhead,Close 
+E09000021,Kingston upon Thames,7,E08000009,Trafford,Close 
+E09000021,Kingston upon Thames,8,E09000027,Richmond upon Thames,Close 
+E09000021,Kingston upon Thames,9,E10000030,Surrey,Close 
+E09000021,Kingston upon Thames,10,E06000060,Buckinghamshire,Close 
+E09000022,Lambeth,1,E09000028,Southwark,Very close
+E09000022,Lambeth,2,E09000023,Lewisham,Very close
+E09000022,Lambeth,3,E09000013,Hammersmith and Fulham,Very close
+E09000022,Lambeth,4,E09000011,Greenwich,Close 
+E09000022,Lambeth,5,E09000014,Haringey,Close 
+E09000022,Lambeth,6,E09000019,Islington,Close 
+E09000022,Lambeth,7,E09000008,Croydon,Somewhat close
+E09000022,Lambeth,8,E09000031,Waltham Forest,Somewhat close
+E09000022,Lambeth,9,E09000007,Camden,Somewhat close
+E09000022,Lambeth,10,E09000032,Wandsworth,Somewhat close
+E09000023,Lewisham,1,E09000022,Lambeth,Very close
+E09000023,Lewisham,2,E09000028,Southwark,Close 
+E09000023,Lewisham,3,E09000008,Croydon,Close 
+E09000023,Lewisham,4,E09000013,Hammersmith and Fulham,Close 
+E09000023,Lewisham,5,E09000011,Greenwich,Close 
+E09000023,Lewisham,6,E09000031,Waltham Forest,Close 
+E09000023,Lewisham,7,E09000014,Haringey,Close 
+E09000023,Lewisham,8,E09000003,Barnet,Close 
+E09000023,Lewisham,9,E08000035,Leeds,Somewhat close
+E09000023,Lewisham,10,E08000006,Salford,Somewhat close
+E09000024,Merton,1,E09000029,Sutton,Very close
+E09000024,Merton,2,E09000021,Kingston upon Thames,Close 
+E09000024,Merton,3,E06000038,Reading,Close 
+E09000024,Merton,4,E09000003,Barnet,Close 
+E09000024,Merton,5,E06000042,Milton Keynes,Close 
+E09000024,Merton,6,E06000055,Bedford,Close 
+E09000024,Merton,7,E09000008,Croydon,Close 
+E09000024,Merton,8,E10000015,Hertfordshire,Close 
+E09000024,Merton,9,E09000015,Harrow,Close 
+E09000024,Merton,10,E10000003,Cambridgeshire,Somewhat close
+E09000025,Newham,1,E09000005,Brent,Close 
+E09000025,Newham,2,E09000002,Barking and Dagenham,Somewhat close
+E09000025,Newham,3,E09000010,Enfield,Somewhat close
+E09000025,Newham,4,E06000016,Leicester,Somewhat close
+E09000025,Newham,5,E09000014,Haringey,Somewhat close
+E09000025,Newham,6,E06000032,Luton,Somewhat close
+E09000025,Newham,7,E09000009,Ealing,Somewhat close
+E09000025,Newham,8,E09000018,Hounslow,Not close
+E09000025,Newham,9,E08000003,Manchester,Not close
+E09000025,Newham,10,E06000039,Slough,Not close
+E09000026,Redbridge,1,E09000015,Harrow,Very close
+E09000026,Redbridge,2,E09000017,Hillingdon,Very close
+E09000026,Redbridge,3,E09000031,Waltham Forest,Very close
+E09000026,Redbridge,4,E09000009,Ealing,Close 
+E09000026,Redbridge,5,E09000018,Hounslow,Close 
+E09000026,Redbridge,6,E09000003,Barnet,Close 
+E09000026,Redbridge,7,E06000039,Slough,Close 
+E09000026,Redbridge,8,E06000038,Reading,Close 
+E09000026,Redbridge,9,E06000045,Southampton,Close 
+E09000026,Redbridge,10,E06000032,Luton,Somewhat close
+E09000027,Richmond upon Thames,1,E06000040,Windsor and Maidenhead,Close 
+E09000027,Richmond upon Thames,2,E09000021,Kingston upon Thames,Close 
+E09000027,Richmond upon Thames,3,E10000030,Surrey,Close 
+E09000027,Richmond upon Thames,4,E06000041,Wokingham,Close 
+E09000027,Richmond upon Thames,5,E09000006,Bromley,Somewhat close
+E09000027,Richmond upon Thames,6,E08000009,Trafford,Somewhat close
+E09000027,Richmond upon Thames,7,E06000060,Buckinghamshire,Somewhat close
+E09000027,Richmond upon Thames,8,E10000015,Hertfordshire,Somewhat close
+E09000027,Richmond upon Thames,9,E06000022,Bath and North East Somerset,Somewhat close
+E09000027,Richmond upon Thames,10,E06000037,West Berkshire,Somewhat close
+E09000028,Southwark,1,E09000022,Lambeth,Very close
+E09000028,Southwark,2,E09000023,Lewisham,Close 
+E09000028,Southwark,3,E09000013,Hammersmith and Fulham,Close 
+E09000028,Southwark,4,E09000019,Islington,Close 
+E09000028,Southwark,5,E09000011,Greenwich,Close 
+E09000028,Southwark,6,E09000014,Haringey,Close 
+E09000028,Southwark,7,E09000007,Camden,Somewhat close
+E09000028,Southwark,8,E09000012,Hackney,Somewhat close
+E09000028,Southwark,9,E09000008,Croydon,Somewhat close
+E09000028,Southwark,10,E09000031,Waltham Forest,Somewhat close
+E09000029,Sutton,1,E09000024,Merton,Very close
+E09000029,Sutton,2,E10000015,Hertfordshire,Very close
+E09000029,Sutton,3,E06000042,Milton Keynes,Close 
+E09000029,Sutton,4,E10000003,Cambridgeshire,Close 
+E09000029,Sutton,5,E10000025,Oxfordshire,Close 
+E09000029,Sutton,6,E09000021,Kingston upon Thames,Close 
+E09000029,Sutton,7,E06000055,Bedford,Close 
+E09000029,Sutton,8,E10000032,West Sussex,Close 
+E09000029,Sutton,9,E06000058,"Bournemouth, Christchurch and Poole",Close 
+E09000029,Sutton,10,E06000060,Buckinghamshire,Close 
+E09000030,Tower Hamlets,1,E09000012,Hackney,Somewhat close
+E09000030,Tower Hamlets,2,E09000019,Islington,Not close
+E09000030,Tower Hamlets,3,E09000025,Newham,Not close
+E09000030,Tower Hamlets,4,E08000003,Manchester,Not close
+E09000030,Tower Hamlets,5,E09000007,Camden,Not close
+E09000030,Tower Hamlets,6,E09000014,Haringey,Not close
+E09000030,Tower Hamlets,7,E09000033,Westminster,Not close
+E09000030,Tower Hamlets,8,E09000028,Southwark,Not close
+E09000030,Tower Hamlets,9,E08000025,Birmingham,Not close
+E09000030,Tower Hamlets,10,E09000005,Brent,Not close
+E09000031,Waltham Forest,1,E09000026,Redbridge,Very close
+E09000031,Waltham Forest,2,E09000003,Barnet,Close 
+E09000031,Waltham Forest,3,E09000017,Hillingdon,Close 
+E09000031,Waltham Forest,4,E09000008,Croydon,Close 
+E09000031,Waltham Forest,5,E09000009,Ealing,Close 
+E09000031,Waltham Forest,6,E09000014,Haringey,Close 
+E09000031,Waltham Forest,7,E09000018,Hounslow,Close 
+E09000031,Waltham Forest,8,E09000015,Harrow,Close 
+E09000031,Waltham Forest,9,E09000023,Lewisham,Close 
+E09000031,Waltham Forest,10,E06000045,Southampton,Close 
+E09000032,Wandsworth,1,E09000013,Hammersmith and Fulham,Close 
+E09000032,Wandsworth,2,E09000021,Kingston upon Thames,Somewhat close
+E09000032,Wandsworth,3,E09000024,Merton,Somewhat close
+E09000032,Wandsworth,4,E09000022,Lambeth,Somewhat close
+E09000032,Wandsworth,5,E09000023,Lewisham,Somewhat close
+E09000032,Wandsworth,6,E09000003,Barnet,Somewhat close
+E09000032,Wandsworth,7,E06000038,Reading,Somewhat close
+E09000032,Wandsworth,8,E06000023,"Bristol, City of",Somewhat close
+E09000032,Wandsworth,9,E06000043,Brighton and Hove,Somewhat close
+E09000032,Wandsworth,10,E09000006,Bromley,Somewhat close
+E09000033,Westminster,1,E09000007,Camden,Close 
+E09000033,Westminster,2,E09000019,Islington,Close 
+E09000033,Westminster,3,E09000028,Southwark,Somewhat close
+E09000033,Westminster,4,E09000020,Kensington and Chelsea,Somewhat close
+E09000033,Westminster,5,E09000013,Hammersmith and Fulham,Somewhat close
+E09000033,Westminster,6,E09000022,Lambeth,Somewhat close
+E09000033,Westminster,7,E09000011,Greenwich,Not close
+E09000033,Westminster,8,E08000003,Manchester,Not close
+E09000033,Westminster,9,E09000012,Hackney,Not close
+E09000033,Westminster,10,E09000014,Haringey,Not close
+E10000003,Cambridgeshire,1,E10000025,Oxfordshire,Extremely close
+E10000003,Cambridgeshire,2,E10000015,Hertfordshire,Very close
+E10000003,Cambridgeshire,3,E06000060,Buckinghamshire,Very close
+E10000003,Cambridgeshire,4,E06000025,South Gloucestershire,Very close
+E10000003,Cambridgeshire,5,E10000031,Warwickshire,Very close
+E10000003,Cambridgeshire,6,E10000013,Gloucestershire,Very close
+E10000003,Cambridgeshire,7,E10000032,West Sussex,Very close
+E10000003,Cambridgeshire,8,E06000056,Central Bedfordshire,Very close
+E10000003,Cambridgeshire,9,E10000014,Hampshire,Very close
+E10000003,Cambridgeshire,10,E06000037,West Berkshire,Very close
+E10000007,Derbyshire,1,E10000024,Nottinghamshire,Extremely close
+E10000007,Derbyshire,2,E06000066,Somerset,Very close
+E10000007,Derbyshire,3,E10000029,Suffolk,Very close
+E10000007,Derbyshire,4,E10000020,Norfolk,Very close
+E10000007,Derbyshire,5,E10000028,Staffordshire,Very close
+E10000007,Derbyshire,6,E10000008,Devon,Very close
+E10000007,Derbyshire,7,E06000051,Shropshire,Very close
+E10000007,Derbyshire,8,E06000057,Northumberland,Very close
+E10000007,Derbyshire,9,E06000059,Dorset,Very close
+E10000007,Derbyshire,10,E10000034,Worcestershire,Very close
+E10000008,Devon,1,E10000011,East Sussex,Very close
+E10000008,Devon,2,E06000059,Dorset,Very close
+E10000008,Devon,3,E10000020,Norfolk,Very close
+E10000008,Devon,4,E10000016,Kent,Very close
+E10000008,Devon,5,E06000066,Somerset,Very close
+E10000008,Devon,6,E10000029,Suffolk,Very close
+E10000008,Devon,7,E10000032,West Sussex,Very close
+E10000008,Devon,8,E10000007,Derbyshire,Very close
+E10000008,Devon,9,E10000012,Essex,Very close
+E10000008,Devon,10,E10000034,Worcestershire,Very close
+E10000011,East Sussex,1,E10000008,Devon,Very close
+E10000011,East Sussex,2,E10000016,Kent,Very close
+E10000011,East Sussex,3,E06000052,Cornwall,Very close
+E10000011,East Sussex,4,E10000020,Norfolk,Very close
+E10000011,East Sussex,5,E10000012,Essex,Very close
+E10000011,East Sussex,6,E08000002,Bury,Very close
+E10000011,East Sussex,7,E06000059,Dorset,Very close
+E10000011,East Sussex,8,E10000032,West Sussex,Very close
+E10000011,East Sussex,9,E06000057,Northumberland,Very close
+E10000011,East Sussex,10,E06000058,"Bournemouth, Christchurch and Poole",Close 
+E10000012,Essex,1,E10000016,Kent,Very close
+E10000012,Essex,2,E10000032,West Sussex,Very close
+E10000012,Essex,3,E10000013,Gloucestershire,Very close
+E10000012,Essex,4,E06000024,North Somerset,Very close
+E10000012,Essex,5,E10000029,Suffolk,Very close
+E10000012,Essex,6,E10000014,Hampshire,Very close
+E10000012,Essex,7,E10000031,Warwickshire,Very close
+E10000012,Essex,8,E06000066,Somerset,Very close
+E10000012,Essex,9,E09000004,Bexley,Very close
+E10000012,Essex,10,E06000054,Wiltshire,Very close
+E10000013,Gloucestershire,1,E10000031,Warwickshire,Extremely close
+E10000013,Gloucestershire,2,E10000032,West Sussex,Very close
+E10000013,Gloucestershire,3,E10000014,Hampshire,Very close
+E10000013,Gloucestershire,4,E06000024,North Somerset,Very close
+E10000013,Gloucestershire,5,E06000054,Wiltshire,Very close
+E10000013,Gloucestershire,6,E06000049,Cheshire East,Very close
+E10000013,Gloucestershire,7,E10000018,Leicestershire,Very close
+E10000013,Gloucestershire,8,E10000025,Oxfordshire,Very close
+E10000013,Gloucestershire,9,E10000012,Essex,Very close
+E10000013,Gloucestershire,10,E10000034,Worcestershire,Very close
+E10000014,Hampshire,1,E06000054,Wiltshire,Extremely close
+E10000014,Hampshire,2,E06000024,North Somerset,Very close
+E10000014,Hampshire,3,E10000013,Gloucestershire,Very close
+E10000014,Hampshire,4,E10000032,West Sussex,Very close
+E10000014,Hampshire,5,E06000037,West Berkshire,Very close
+E10000014,Hampshire,6,E06000036,Bracknell Forest,Very close
+E10000014,Hampshire,7,E06000025,South Gloucestershire,Very close
+E10000014,Hampshire,8,E10000031,Warwickshire,Very close
+E10000014,Hampshire,9,E10000025,Oxfordshire,Very close
+E10000014,Hampshire,10,E10000018,Leicestershire,Very close
+E10000015,Hertfordshire,1,E10000025,Oxfordshire,Very close
+E10000015,Hertfordshire,2,E06000060,Buckinghamshire,Very close
+E10000015,Hertfordshire,3,E10000003,Cambridgeshire,Very close
+E10000015,Hertfordshire,4,E06000036,Bracknell Forest,Very close
+E10000015,Hertfordshire,5,E10000032,West Sussex,Very close
+E10000015,Hertfordshire,6,E09000006,Bromley,Very close
+E10000015,Hertfordshire,7,E10000014,Hampshire,Very close
+E10000015,Hertfordshire,8,E08000009,Trafford,Very close
+E10000015,Hertfordshire,9,E10000013,Gloucestershire,Very close
+E10000015,Hertfordshire,10,E06000037,West Berkshire,Very close
+E10000016,Kent,1,E10000012,Essex,Very close
+E10000016,Kent,2,E10000011,East Sussex,Very close
+E10000016,Kent,3,E10000008,Devon,Very close
+E10000016,Kent,4,E09000004,Bexley,Very close
+E10000016,Kent,5,E10000029,Suffolk,Very close
+E10000016,Kent,6,E10000020,Norfolk,Very close
+E10000016,Kent,7,E10000024,Nottinghamshire,Very close
+E10000016,Kent,8,E10000032,West Sussex,Very close
+E10000016,Kent,9,E06000055,Bedford,Very close
+E10000016,Kent,10,E06000066,Somerset,Very close
+E10000017,Lancashire,1,E10000019,Lincolnshire,Very close
+E10000017,Lancashire,2,E08000002,Bury,Very close
+E10000017,Lancashire,3,E08000027,Dudley,Very close
+E10000017,Lancashire,4,E06000019,"Herefordshire, County of",Very close
+E10000017,Lancashire,5,E06000005,Darlington,Very close
+E10000017,Lancashire,6,E06000004,Stockton-on-Tees,Very close
+E10000017,Lancashire,7,E08000036,Wakefield,Very close
+E10000017,Lancashire,8,E10000024,Nottinghamshire,Very close
+E10000017,Lancashire,9,E06000057,Northumberland,Very close
+E10000017,Lancashire,10,E08000010,Wigan,Very close
+E10000018,Leicestershire,1,E10000013,Gloucestershire,Very close
+E10000018,Leicestershire,2,E06000025,South Gloucestershire,Very close
+E10000018,Leicestershire,3,E10000031,Warwickshire,Very close
+E10000018,Leicestershire,4,E06000024,North Somerset,Very close
+E10000018,Leicestershire,5,E10000014,Hampshire,Very close
+E10000018,Leicestershire,6,E06000054,Wiltshire,Very close
+E10000018,Leicestershire,7,E06000066,Somerset,Very close
+E10000018,Leicestershire,8,E10000032,West Sussex,Very close
+E10000018,Leicestershire,9,E06000011,East Riding of Yorkshire,Very close
+E10000018,Leicestershire,10,E10000024,Nottinghamshire,Very close
+E10000019,Lincolnshire,1,E10000017,Lancashire,Very close
+E10000019,Lincolnshire,2,E08000036,Wakefield,Very close
+E10000019,Lincolnshire,3,E06000019,"Herefordshire, County of",Very close
+E10000019,Lincolnshire,4,E06000013,North Lincolnshire,Very close
+E10000019,Lincolnshire,5,E10000020,Norfolk,Very close
+E10000019,Lincolnshire,6,E10000029,Suffolk,Very close
+E10000019,Lincolnshire,7,E08000027,Dudley,Very close
+E10000019,Lincolnshire,8,E06000061,North Northamptonshire,Very close
+E10000019,Lincolnshire,9,E10000007,Derbyshire,Very close
+E10000019,Lincolnshire,10,E06000066,Somerset,Very close
+E10000020,Norfolk,1,E10000029,Suffolk,Very close
+E10000020,Norfolk,2,E06000052,Cornwall,Very close
+E10000020,Norfolk,3,E10000008,Devon,Very close
+E10000020,Norfolk,4,E10000007,Derbyshire,Very close
+E10000020,Norfolk,5,E06000057,Northumberland,Very close
+E10000020,Norfolk,6,E10000016,Kent,Very close
+E10000020,Norfolk,7,E06000066,Somerset,Very close
+E10000020,Norfolk,8,E10000019,Lincolnshire,Very close
+E10000020,Norfolk,9,E10000024,Nottinghamshire,Very close
+E10000020,Norfolk,10,E06000035,Medway,Very close
+E10000024,Nottinghamshire,1,E10000007,Derbyshire,Extremely close
+E10000024,Nottinghamshire,2,E10000029,Suffolk,Very close
+E10000024,Nottinghamshire,3,E06000066,Somerset,Very close
+E10000024,Nottinghamshire,4,E10000016,Kent,Very close
+E10000024,Nottinghamshire,5,E10000020,Norfolk,Very close
+E10000024,Nottinghamshire,6,E10000031,Warwickshire,Very close
+E10000024,Nottinghamshire,7,E10000018,Leicestershire,Very close
+E10000024,Nottinghamshire,8,E06000024,North Somerset,Very close
+E10000024,Nottinghamshire,9,E10000028,Staffordshire,Very close
+E10000024,Nottinghamshire,10,E10000017,Lancashire,Very close
+E10000025,Oxfordshire,1,E10000003,Cambridgeshire,Extremely close
+E10000025,Oxfordshire,2,E10000015,Hertfordshire,Very close
+E10000025,Oxfordshire,3,E06000060,Buckinghamshire,Very close
+E10000025,Oxfordshire,4,E10000031,Warwickshire,Very close
+E10000025,Oxfordshire,5,E10000013,Gloucestershire,Very close
+E10000025,Oxfordshire,6,E10000014,Hampshire,Very close
+E10000025,Oxfordshire,7,E06000036,Bracknell Forest,Very close
+E10000025,Oxfordshire,8,E10000032,West Sussex,Very close
+E10000025,Oxfordshire,9,E06000037,West Berkshire,Very close
+E10000025,Oxfordshire,10,E06000025,South Gloucestershire,Very close
+E10000028,Staffordshire,1,E06000011,East Riding of Yorkshire,Very close
+E10000028,Staffordshire,2,E06000019,"Herefordshire, County of",Very close
+E10000028,Staffordshire,3,E06000051,Shropshire,Very close
+E10000028,Staffordshire,4,E06000065,North Yorkshire,Very close
+E10000028,Staffordshire,5,E06000066,Somerset,Very close
+E10000028,Staffordshire,6,E10000007,Derbyshire,Very close
+E10000028,Staffordshire,7,E06000007,Warrington,Very close
+E10000028,Staffordshire,8,E10000024,Nottinghamshire,Very close
+E10000028,Staffordshire,9,E06000064,Westmorland and Furness,Very close
+E10000028,Staffordshire,10,E10000017,Lancashire,Very close
+E10000029,Suffolk,1,E06000066,Somerset,Very close
+E10000029,Suffolk,2,E10000020,Norfolk,Very close
+E10000029,Suffolk,3,E10000007,Derbyshire,Very close
+E10000029,Suffolk,4,E10000024,Nottinghamshire,Very close
+E10000029,Suffolk,5,E10000008,Devon,Very close
+E10000029,Suffolk,6,E10000012,Essex,Very close
+E10000029,Suffolk,7,E10000016,Kent,Very close
+E10000029,Suffolk,8,E06000059,Dorset,Very close
+E10000029,Suffolk,9,E10000019,Lincolnshire,Very close
+E10000029,Suffolk,10,E06000061,North Northamptonshire,Very close
+E10000030,Surrey,1,E06000040,Windsor and Maidenhead,Very close
+E10000030,Surrey,2,E06000060,Buckinghamshire,Very close
+E10000030,Surrey,3,E08000009,Trafford,Very close
+E10000030,Surrey,4,E10000015,Hertfordshire,Very close
+E10000030,Surrey,5,E06000037,West Berkshire,Close 
+E10000030,Surrey,6,E06000056,Central Bedfordshire,Close 
+E10000030,Surrey,7,E06000041,Wokingham,Close 
+E10000030,Surrey,8,E10000025,Oxfordshire,Close 
+E10000030,Surrey,9,E06000036,Bracknell Forest,Close 
+E10000030,Surrey,10,E10000003,Cambridgeshire,Close 
+E10000031,Warwickshire,1,E10000013,Gloucestershire,Extremely close
+E10000031,Warwickshire,2,E06000049,Cheshire East,Very close
+E10000031,Warwickshire,3,E10000025,Oxfordshire,Very close
+E10000031,Warwickshire,4,E06000024,North Somerset,Very close
+E10000031,Warwickshire,5,E10000018,Leicestershire,Very close
+E10000031,Warwickshire,6,E10000032,West Sussex,Very close
+E10000031,Warwickshire,7,E10000014,Hampshire,Very close
+E10000031,Warwickshire,8,E06000007,Warrington,Very close
+E10000031,Warwickshire,9,E06000054,Wiltshire,Very close
+E10000031,Warwickshire,10,E10000012,Essex,Very close
+E10000032,West Sussex,1,E10000013,Gloucestershire,Very close
+E10000032,West Sussex,2,E10000012,Essex,Very close
+E10000032,West Sussex,3,E10000014,Hampshire,Very close
+E10000032,West Sussex,4,E10000015,Hertfordshire,Very close
+E10000032,West Sussex,5,E10000031,Warwickshire,Very close
+E10000032,West Sussex,6,E06000054,Wiltshire,Very close
+E10000032,West Sussex,7,E06000024,North Somerset,Very close
+E10000032,West Sussex,8,E10000025,Oxfordshire,Very close
+E10000032,West Sussex,9,E06000025,South Gloucestershire,Very close
+E10000032,West Sussex,10,E10000008,Devon,Very close
+E10000034,Worcestershire,1,E06000066,Somerset,Very close
+E10000034,Worcestershire,2,E10000013,Gloucestershire,Very close
+E10000034,Worcestershire,3,E06000059,Dorset,Very close
+E10000034,Worcestershire,4,E10000031,Warwickshire,Very close
+E10000034,Worcestershire,5,E06000051,Shropshire,Very close
+E10000034,Worcestershire,6,E10000032,West Sussex,Very close
+E10000034,Worcestershire,7,E10000008,Devon,Very close
+E10000034,Worcestershire,8,E10000007,Derbyshire,Very close
+E10000034,Worcestershire,9,E10000012,Essex,Very close
+E10000034,Worcestershire,10,E06000065,North Yorkshire,Very close
+
