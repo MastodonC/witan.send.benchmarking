@@ -195,53 +195,6 @@
          [:new_ehc_plans :population]
          (fn [new-plans pop] (* 1000 (/ new-plans pop)))))))
 
-
-#_
-(defn england-new-plans-by-age []
-  (-> @newplans
-      (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
-      (tc/select-rows #(= "National" (% :geographic_level)))))
-
-
-#_
-(defn regional-new-plans-by-age [region-name]
-  (-> @newplans
-      (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
-      (tc/select-rows #(= "Regional" (% :geographic_level)))
-      (tc/select-rows #(= region-name (% :region_name)))))
-
-
-#_
-(defn regional-neigbours-new-plans-by-age [region-name]
-  (-> @newplans
-      (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
-      (tc/select-rows #(= "Local authority" (% :geographic_level)))
-      (tc/select-rows #(= region-name (% :region_name)))))
-
-#_
-(defn la-name->region-name [la-name]
-  (-> @newplans 
-      (tc/select-rows #(= la-name (% :la_name)))
-      :region_name
-      first))
-
-
-#_
-(defn la-regional-neigbours-new-plans-by-age [la-name]
-  (let [region-name (la-name->region-name la-name)]
-    (-> @newplans
-        (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
-        (tc/select-rows #(= "Local authority" (% :geographic_level)))
-        (tc/select-rows #(= region-name (% :region_name))))))
-
-
-#_
-(defn la-new-plans-by-age [la-name]
-  (-> @newplans
-      (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
-      (tc/select-rows #(= "Local authority" (% :geographic_level)))
-      (tc/select-rows #(= la-name (% :la_name)))))
-
 (comment 
 
   (into (sorted-set) (@newplans :geographic_level))
