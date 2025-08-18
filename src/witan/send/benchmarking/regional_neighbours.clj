@@ -41,6 +41,45 @@
   ;;    | :region_code |   :string |      153 |          0 |       |              | E12000007 |       |                     |             |            E12000007 |                E12000003 |
   ;;    | :region_name |   :string |      153 |          0 |       |              |    London |       |                     |             |               London | Yorkshire and The Humber |
 
+  (-> @lookup
+      (tc/select-columns [:region_code :region_name])
+      (tc/unique-by [:region_code :region_name])
+      (tc/order-by [:region_code :region_name]))
+  ;; => ./src-data/lait-2025/la-lookup.csv [9 2]:
+  ;;    | :region_code |             :region_name |
+  ;;    |--------------|--------------------------|
+  ;;    |    E12000001 |               North East |
+  ;;    |    E12000002 |               North West |
+  ;;    |    E12000003 | Yorkshire and The Humber |
+  ;;    |    E12000004 |            East Midlands |
+  ;;    |    E12000005 |            West Midlands |
+  ;;    |    E12000006 |          East of England |
+  ;;    |    E12000007 |                   London |
+  ;;    |    E12000008 |               South East |
+  ;;    |    E12000009 |               South West |
+
+  (-> @lookup
+      (tc/select-rows #(= "Yorkshire and The Humber" (:region_name %))))
+  ;; => ./src-data/lait-2025/la-lookup.csv [15 5]:
+  ;;    |  :la_code | :old_la_code |                    :la_name | :region_code |             :region_name |
+  ;;    |-----------|-------------:|-----------------------------|--------------|--------------------------|
+  ;;    | E08000016 |          370 |                    Barnsley |    E12000003 | Yorkshire and The Humber |
+  ;;    | E08000032 |          380 |                    Bradford |    E12000003 | Yorkshire and The Humber |
+  ;;    | E08000033 |          381 |                  Calderdale |    E12000003 | Yorkshire and The Humber |
+  ;;    | E08000017 |          371 |                   Doncaster |    E12000003 | Yorkshire and The Humber |
+  ;;    | E06000011 |          811 |    East Riding of Yorkshire |    E12000003 | Yorkshire and The Humber |
+  ;;    | E06000010 |          810 | Kingston upon Hull, City of |    E12000003 | Yorkshire and The Humber |
+  ;;    | E08000034 |          382 |                    Kirklees |    E12000003 | Yorkshire and The Humber |
+  ;;    | E08000035 |          383 |                       Leeds |    E12000003 | Yorkshire and The Humber |
+  ;;    | E06000012 |          812 |     North East Lincolnshire |    E12000003 | Yorkshire and The Humber |
+  ;;    | E06000013 |          813 |          North Lincolnshire |    E12000003 | Yorkshire and The Humber |
+  ;;    | E06000065 |          815 |             North Yorkshire |    E12000003 | Yorkshire and The Humber |
+  ;;    | E08000018 |          372 |                   Rotherham |    E12000003 | Yorkshire and The Humber |
+  ;;    | E08000019 |          373 |                   Sheffield |    E12000003 | Yorkshire and The Humber |
+  ;;    | E08000036 |          384 |                   Wakefield |    E12000003 | Yorkshire and The Humber |
+  ;;    | E06000014 |          816 |                        York |    E12000003 | Yorkshire and The Humber |
+
+
   (region-name "Surrey")
   ;; => "South East"
 
