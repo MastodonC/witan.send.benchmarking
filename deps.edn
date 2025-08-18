@@ -4,4 +4,18 @@
          io.github.nextjournal/clerk-slideshow {:git/sha "11a83fea564da04b9d17734f2031a4921d917893"}
          com.github.mastodonc/witan.population {:git/sha "0dcaa57f75fa93f038dcc53ec4c724627d1eb0cf"}
          generateme/fastmath                   {:mvn/version "2.4.0"}
-         scicloj/tablecloth                    {:mvn/version "7.059"}}}
+         scicloj/tablecloth                    {:mvn/version "7.059"}
+
+         ;; https://mvnrepository.com/artifact/com.xtdb/xtdb-api
+         com.xtdb/xtdb-api {:mvn/version "XTDB_VERSION"}
+         ;; xtdb-core for running an in-process (test) node
+         com.xtdb/xtdb-core {:mvn/version "XTDB_VERSION"}
+
+         ;; https://mvnrepository.com/artifact/com/github/seancorfield/next.jdbc
+         ;; other JDBC libraries are available
+         com.github.seancorfield/next.jdbc {:mvn/version "1.3.955"}
+         }
+
+ ;; JVM options required for in-process node
+ :aliases {:xtdb {:jvm-opts ["--add-opens=java.base/java.nio=ALL-UNNAMED"
+                             "-Dio.netty.tryReflectionSetAccessible=true"]}}}
