@@ -239,9 +239,7 @@
 (defn plotly-newplan-neighbour-comparison
   [la-name age neighbours title max-y new-plans-by-age]
   (-> (neighbour-comparison-boxplot
-       (let [neighbours statistical-neighbours-pred
-             max-y new-plans-statistical-neighbours-max-y
-             age-data (-> new-plans-by-age
+       (let [age-data (-> new-plans-by-age
                           (tc/select-rows #(= age (:breakdown %))))]
          {:neighbour-data (tc/concat
                            (-> age-data
@@ -252,6 +250,8 @@
           :title (or title (format "%s w/Statistical Neighbours" (str/capitalize age)))
           :y-field :new-ehcps-per-thousand
           :y-title "New EHCPs per 1,000 CYP"
+          :x-field :time_period
+          :x-title "Calendar Year"
           :max-y max-y}))
       (assoc-in [:layout :height] 375)
       (assoc-in [:layout :width] 500)))
