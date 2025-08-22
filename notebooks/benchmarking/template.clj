@@ -6,19 +6,23 @@
   (:require
    [clojure.java.io :as io]
    [clojure.string :as str]
+   [clojure.tools.build.api :as build]
    [fastmath.core :as m]
    [nextjournal.clerk :as clerk]
    [nextjournal.clerk-slideshow :as slideshow]
    [tablecloth.api :as tc]
+   [tech.v3.dataset.reductions :as dsr]
    [tech.v3.datatype.functional :as dfn]
    [witan.send.benchmarking.assessment-2025 :as assessments]
+   [witan.send.benchmarking.caseload-2025 :as caseload]
    [witan.send.benchmarking.ceased-plans-2025 :as ceasedplans]
    [witan.send.benchmarking.newplans-2025 :as newplans]
-   [witan.send.benchmarking.requests-2025 :as requests]
    [witan.send.benchmarking.regional-neighbours :as rn]
-   [witan.send.benchmarking.statistical-neighbours :as sn]
-   [witan.send.benchmarking.caseload-2025 :as caseload]
-   [tech.v3.dataset.reductions :as dsr]))
+   [witan.send.benchmarking.requests-2025 :as requests]
+   [witan.send.benchmarking.statistical-neighbours :as sn])
+  (:import
+   (java.time LocalDateTime)
+   (java.time.format DateTimeFormatter)))
 
 (def la-name "Kent")
 
@@ -337,11 +341,13 @@
 ;;; Title Page
   {::clerk/width :full}
   [:div.max-w-screen-2xl.font-sans
-   #_[:h1.text-6xl.font-extrabold (format "Benchmarking results for %s" la-name)]
    [:h1.text-6xl.font-extrabold.mb-12
     (format "Benchmarking results for %s" la-name)]
    [:p.text-4xl.font-bold.italic "Presented by Mastodon C"]
-   [:p.text-3xl "Use ⬅️➡️ keys to navigate and ESC to see an overview."]]))
+   [:p (format "Built from commit %s on %s"
+               (build/git-process {:git-args "rev-parse --short HEAD"})
+               (DateTimeFormatter/.format DateTimeFormatter/ISO_LOCAL_DATE (LocalDateTime/now)))]
+   [:p.text-3xl.mt-12 "Use ⬅️➡️ keys to navigate and ESC to see an overview."]]))
 
 ;; ---
 ;;; ## Statistical Nearest Neighbours
@@ -852,6 +858,8 @@
  (clerk/table
   (-> regional-neighbours
       (tc/select-columns [:la_name])
+      (tc/concat (tc/dataset {:la_name [la-name]}))
+      (tc/order-by [:la_name])
       (tc/rename-columns {:la_name "LA Name"}))))
 
 ;; ---
