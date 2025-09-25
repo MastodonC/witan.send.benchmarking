@@ -4,6 +4,9 @@
                       :auto-expand-results? true
                       :budget               nil}
   (:require
+   [tech.v3.datatype.functional :as dfn]
+   [tech.v3.dataset.reductions :as dsr]
+   [witan.send.benchmarking.sen-need-new-plans-2025 :as snnp]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.tools.build.api :as build]
@@ -11,8 +14,7 @@
    [nextjournal.clerk :as clerk]
    [nextjournal.clerk-slideshow :as slideshow]
    [tablecloth.api :as tc]
-   [tech.v3.dataset.reductions :as dsr]
-   [tech.v3.datatype.functional :as dfn]
+   [witan.send.population.england :as pop]
    [witan.send.benchmarking.assessment-2025 :as assessments]
    [witan.send.benchmarking.caseload-2025 :as caseload]
    [witan.send.benchmarking.ceased-plans-2025 :as ceasedplans]
@@ -39,7 +41,10 @@
                                         "-" "_"
                                         "," "_"
                                         " " "_"})
-                          (str ".html")))
+                          (str
+                           "--"
+                           (.format (LocalDateTime/now) DateTimeFormatter/ISO_DATE)
+                           ".html")))
         index-out (str out-dir "index.html")]
     (clerk/build! {:paths    [in-path]
                    :ssr true
@@ -157,7 +162,7 @@
  ;;    :yoy-delta-% [:yoy-delta :ehcplans-start]
  ;;    #(dfn// %1 %2))
  ;; #_(tc/map-columns
- ;;    :ceased-% [:total_ceased :ehcplans-start]
+ ;;    :ceased-%-ehcps [:total_ceased :ehcplans-start]
  ;;    #(dfn// %1 %2))
  ;; #_(tc/map-columns
  ;;    :new-plans-% [:new_ehc_plans :ehcplans-finish]
@@ -172,7 +177,7 @@
  ;;                        :new_la_code :la_name
  ;;                        :ehcplans-start :ehcplans-finish
  ;;                        :yoy-delta :yoy-delta-%
- ;;                        :total_ceased :ceased-%
+ ;;                        :total_ceased :ceased-%-ehcps
  ;;                        :new_ehc_plans :new-plans-% :ehcp-new-plans-rate
  ;;                        :ehcps-transferred-in :ehcps-transferred-in-%])
  ;; #_(tc/map-columns
@@ -183,6 +188,15 @@
 
  )
 
+(def total-pop-by-la
+  (-> (pop/->dataset)
+      (as-> $
+          (dsr/group-by-column-agg
+           [:ctyua23cd :ctyua23nm :year :calendar-year]
+           {:total-pop (dsr/sum :population)}
+           $))
+      (tc/rename-columns {:ctyua23cd :new_la_code})
+      (tc/order-by [:new_la_code :calendar-year])))
 
 (def all-ceased-plans
   (-> @caseload/sen2-2025-caseload-all-ehcps
@@ -193,9 +207,14 @@
            (tc/select-columns [:time_period :new_la_code :total_ceased])
            (tc/rename-columns {:time_period :calendar-year}))
        [:calendar-year :new_la_code])
+      (tc/inner-join total-pop-by-la
+                     [:calendar-year :new_la_code])
       (tc/map-columns
-       :ceased-% [:total_ceased :ehcplans]
-       #(dfn// %1 %2))))
+       :ceased-%-ehcps [:total_ceased :ehcplans]
+       #(dfn// %1 %2))
+      (tc/map-columns
+       :ceased-ehcps-per-10k-pop [:total_ceased :total-pop]
+       #(dfn/* 10000 (dfn// %1 %2)))))
 
 (comment
 
@@ -322,6 +341,24 @@
       (tc/map-columns :other_pc [:other :total_ceased]  #(m/approx (* 100 (dfn// %1 %2)) 2))
       (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))))
 
+(def ceased-plan-per-10k
+  (-> @ceasedplans/ceased-plans
+      (tc/select-rows #(= "All ceased EHC plans" (:breakdown %)))
+      (tc/rename-columns {:time_period :calendar-year})
+      (tc/inner-join total-pop-by-la
+                     [:calendar-year :new_la_code])
+      (tc/map-columns :max_age_rate [:max_age :total-pop] #(m/approx (* 10000 (dfn// %1 %2)) 2))
+      (tc/map-columns :needs_met_rate [:needs_met :total-pop] #(m/approx (* 10000 (dfn// %1 %2)) 2))
+      (tc/map-columns :he_rate [:he :total-pop]  #(m/approx (* 10000 (dfn// %1 %2)) 2))
+      (tc/map-columns :employ_rate [:employ :total-pop]  #(m/approx (* 10000 (dfn// %1 %2)) 2))
+      (tc/map-columns :transfer_rate [:transfer :total-pop]  #(m/approx (* 10000 (dfn// %1 %2)) 2))
+      (tc/map-columns :no_engage_rate [:no_engage :total-pop]  #(m/approx (* 10000 (dfn// %1 %2)) 2))
+      (tc/map-columns :moved_outside_eng_rate [:moved_outside_eng :total-pop]  #(m/approx (* 10000 (dfn// %1 %2)) 2))
+      (tc/map-columns :deceased_rate [:deceased :total-pop]  #(m/approx (* 10000 (dfn// %1 %2)) 2))
+      (tc/map-columns :not_rec_rate [:not_rec :total-pop]  #(m/approx (* 10000 (dfn// %1 %2)) 2))
+      (tc/map-columns :other_rate [:other :total-pop]  #(m/approx (* 10000 (dfn// %1 %2)) 2))
+      (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))))
+
 (
 ;;; TODO
 
@@ -407,6 +444,45 @@
        (tc/rename-columns {:time_period "Year" :new_ehc_plans "Plans Issued"})))))
 
 ;; ---
+;;; ## New Plan Need Rates per 10,000
+
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @snnp/need-new-plans-rate
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/pivot->longer #"^:rate-.+" {:target-columns :need :value-column-name :rate-per-10k :drop-missing? false :coerce-to-number true})
+                        (tc/map-columns :need [:need] (fn [n] (->> n name (re-find #"[^-]+$") str/upper-case)))
+                        (tc/order-by [:need :la_name :year]))
+    :la-name la-name
+    :title "Statistical Neighbours Rate of Need per 10,000 CYP"
+    :y-field :rate-per-10k
+    :y-title "Rate of Need per 10,000 CYP"
+    :x-field :need
+    :x-title "Need"})))
+
+;; ---
+;;; ## New Plan Need Rates per 10,000 National
+
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @snnp/need-new-plans-rate
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/pivot->longer #"^:rate-.+" {:target-columns :need :value-column-name :rate-per-10k :drop-missing? false :coerce-to-number true})
+                        (tc/map-columns :need [:need] (fn [n] (->> n name (re-find #"[^-]+$") str/upper-case)))
+                        (tc/order-by [:need :la_name :year]))
+    :la-name la-name
+    :title "Statistical Neighbours Rate of Need per 10,000 CYP"
+    :y-field :rate-per-10k
+    :y-title "Rate of Need per 10,000 CYP"
+    :x-field :need
+    :x-title "Need"})))
+
+
+;; ---
 ;;; ## Requests to Assess Per 1,000 CYP
 (clerk/row
  {::clerk/width :full}
@@ -432,34 +508,6 @@
        (tc/order-by [:time_period])
        (tc/rename-columns {:time_period "Year" :requests_received_in_year "Requests"})))))
 
-;; ---
-;;; ## Requests vs Decision to Issue Plan
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (neighbour-comparison-boxplot
-   {:neighbour-data (-> @requests/sen2-2025-requests
-                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
-                        (tc/select-rows #(= "All requests for EHC needs assessments" (:breakdown %)))
-                        (tc/inner-join (-> @assessments/sen2-2025-assessments
-                                           (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
-                                           (tc/select-rows #(= "All EHC needs assessments" (:breakdown %)))
-                                           (tc/drop-missing [:assess_issued]))
-                                       [:time_period :la_name])
-                        (tc/drop-missing [:assess_issued :requests_received_in_year])
-                        (tc/map-columns
-                         :pct-request-to-plan [:assess_issued :requests_received_in_year]
-                         #(if (zero? %2)
-                            nil
-                            (-> (dfn// %1 %2)
-                                (dfn/* 100)
-                                (m/approx 2)))))
-    :la-name la-name
-    :title "Statistical Neighbours % of requests vs assessments where a plan was issued"
-    :y-field :pct-request-to-plan
-    :y-title "% Request where Plan Issued"
-    :x-field :time_period
-    :x-title "Calendar Year"})))
 
 ;; ---
 ;;; ## Requests vs New EHC Plans
@@ -569,12 +617,28 @@
   (neighbour-comparison-boxplot
    {:neighbour-data (-> all-ceased-plans
                         (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
-                        (tc/map-columns :ceased-% [:ceased-%] #(-> % (* 100) (m/approx 2))))
+                        (tc/map-columns :ceased-%-ehcps [:ceased-%-ehcps] #(-> % (* 100) (m/approx 2))))
     :la-name la-name
     :title "Statistical Neighbours Total Ceased Plan Rate"
-    :y-field :ceased-%
+    :y-field :ceased-%-ehcps
     :y-title "% of EHCPs"
     :x-title "Calendar Year"})))
+
+;; ---
+;;; ## Rate of EHC Plans Ceased per 10,000 of Population
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> all-ceased-plans
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/map-columns :ceased-ehcps-per-10k-pop [:ceased-ehcps-per-10k-pop] #(-> % (m/approx 2))))
+    :la-name la-name
+    :title "Statistical Neighbours Total Ceased Plan Rate per 10,000 of Population"
+    :y-field :ceased-ehcps-per-10k-pop
+    :y-title "Ceased of EHCPs per 10,000 Population"
+    :x-title "Calendar Year"})))
+
 
 ;; ---
 ;;; ## Ceased Plan Reason Breakdown
@@ -600,7 +664,7 @@
                           :other "Other"}))))
 
 ;; ---
-;;; ## Ceasing Reason Comparison
+;;; ## Ceasing Reason Comparison % of EHCPs
 
 (clerk/row
  {::clerk/width :full}
@@ -661,6 +725,70 @@
         :y-title "% of Ceased Plans"})
       (assoc-in [:layout :height] 375)
       (assoc-in [:layout :width] 500))))
+
+;; ---
+;;; ## Ceasing Reason Comparison Rate per 10,000 Population
+
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data ceased-plan-per-10k
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "Max Age")
+        :y-field :max_age_rate
+        :y-title "Rate of Ceased Plans per 10,000"})
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500)))
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data ceased-plan-per-10k
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "No Engagement")
+        :y-field :no_engage_rate
+        :y-title "Rate of Ceased Plans per 10,000"})
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500)))
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data ceased-plan-per-10k
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "Transferred Out")
+        :y-field :transfer_rate
+        :y-title "Rate of Ceased Plans per 10,000"})
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500))))
+
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data ceased-plan-per-10k
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "Needs Met")
+        :y-field :needs_met_rate
+        :y-title "Rate of Ceased Plans per 10,000"})
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500)))
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data ceased-plan-per-10k
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "Higher Education")
+        :y-field :he_rate
+        :y-title "Rate of Ceased Plans per 10,000"})
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500)))
+ (clerk/plotly
+  (-> (neighbour-comparison-boxplot
+       {:neighbour-data ceased-plan-per-10k
+        :la-name la-name
+        :title (format "Ceasing Reason: %s" "Employed")
+        :y-field :employ_rate
+        :y-title "Rate of Ceased Plans per 10,000"})
+      (assoc-in [:layout :height] 375)
+      (assoc-in [:layout :width] 500))))
+
 
 ;; ---
 ;;; ## Plans Transferred In
@@ -1071,10 +1199,10 @@
   (neighbour-comparison-boxplot
    {:neighbour-data (-> all-ceased-plans
                         (tc/select-rows #((conj regional-neighbours-pred la-name) (:la_name %)))
-                        (tc/map-columns :ceased-% [:ceased-%] #(-> % (* 100) (m/approx 2))))
+                        (tc/map-columns :ceased-%-ehcps [:ceased-%-ehcps] #(-> % (* 100) (m/approx 2))))
     :la-name la-name
     :title "Regional Neighbours Total Ceased Plan Rate"
-    :y-field :ceased-%
+    :y-field :ceased-%-ehcps
     :y-title "% of EHCPs"
     :x-title "Calendar Year"})))
 
@@ -1346,3 +1474,35 @@
  (clerk/plotly
   (plotly-newplan-neighbour-comparison
    la-name "age 20 and over" regional-neighbours-pred "Age 20+ w/Regional Neighbours" new-plans-regional-neighbours-max-y @newplans/new-plans-by-age-by-la)))
+
+;; ---
+;;; # Old Slides
+
+;; ---
+;;; ## Requests vs Decision to Issue Plan
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @requests/sen2-2025-requests
+                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/select-rows #(= "All requests for EHC needs assessments" (:breakdown %)))
+                        (tc/inner-join (-> @assessments/sen2-2025-assessments
+                                           (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                                           (tc/select-rows #(= "All EHC needs assessments" (:breakdown %)))
+                                           (tc/drop-missing [:assess_issued]))
+                                       [:time_period :la_name])
+                        (tc/drop-missing [:assess_issued :requests_received_in_year])
+                        (tc/map-columns
+                         :pct-request-to-plan [:assess_issued :requests_received_in_year]
+                         #(if (zero? %2)
+                            nil
+                            (-> (dfn// %1 %2)
+                                (dfn/* 100)
+                                (m/approx 2)))))
+    :la-name la-name
+    :title "Statistical Neighbours % of requests vs assessments where a plan was issued"
+    :y-field :pct-request-to-plan
+    :y-title "% Request where Plan Issued"
+    :x-field :time_period
+    :x-title "Calendar Year"})))
