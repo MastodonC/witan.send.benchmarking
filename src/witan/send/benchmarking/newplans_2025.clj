@@ -2,7 +2,7 @@
   (:require
    [tablecloth.api :as tc]
    [tech.v3.dataset.reductions :as dsr]
-   [witan.population.england.snpp-2022 :as pop-2022]
+   [witan.send.population.england :as pop]
    [witan.send.benchmarking.newplans-2025 :as newplans]))
 
 (def newplans-path "./src-data/education-health-and-care-plans_2025/data/newplans.csv")
@@ -139,7 +139,7 @@
 
 (def snpp-2025-by-age
   (delay
-    (-> (pop-2022/->witan-send-population)
+    (-> (pop/->dataset)
         (tc/map-columns
          :age-group [:age]
          (fn [age]
@@ -155,16 +155,16 @@
              (<= 20 age-group) "age 20 and over"
              :else (str "age " age-group))))
         (as-> $ (dsr/group-by-column-agg 
-                 [:UTLA22CD :UTLA22NM :snpp-year :calendar-year :age-group :age-group-label]
+                 [:ctyua23cd :ctyua23nm :year :calendar-year :age-group :age-group-label]
                  {:population (dsr/sum :population)}
                  $)))))
 
 (def snpp-2025-send-age-pop
   (delay
     (dsr/group-by-column-agg
-     [:UTLA22CD :UTLA22NM :snpp-year :calendar-year]
+     [:ctyua23cd :ctyua23nm :year :calendar-year]
      {:population (dsr/sum :population)}
-     (pop-2022/->witan-send-population))))
+     (pop/->dataset))))
 
 (def new-plans-by-la
   (delay
@@ -174,7 +174,7 @@
         (tc/update-columns {:time_period (partial map parse-long)})
         (tc/inner-join @snpp-2025-send-age-pop
                        {:left [:new_la_code :time_period]
-                        :right [:UTLA22CD :snpp-year]})
+                        :right [:ctyua23cd :year]})
         (tc/map-columns 
          :new-ehcps-per-thousand
          [:new_ehc_plans :population]
@@ -187,9 +187,9 @@
         (tc/select-rows #(= "Local authority" (% :geographic_level)))
         (tc/inner-join 
          (-> @snpp-2025-by-age
-             (tc/map-columns :snpp-year [:snpp-year] str))
+             (tc/map-columns :year [:year] str))
          {:left [:new_la_code :time_period :breakdown]
-          :right [:UTLA22CD :snpp-year :age-group-label]})
+          :right [:ctyua23cd :year :age-group-label]})
         (tc/map-columns 
          :new-ehcps-per-thousand
          [:new_ehc_plans :population]

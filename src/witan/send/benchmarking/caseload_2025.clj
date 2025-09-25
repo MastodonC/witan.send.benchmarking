@@ -4,7 +4,7 @@
    [tech.v3.datatype.gradient :as dt-grad]
    [tech.v3.datatype.functional :as dfn]
    [tech.v3.dataset.reductions :as dsr]
-   [witan.population.england.snpp-2022 :as pop]))
+   [witan.send.population.england :as pop]))
 
 (defn time_period->calendar-year [time-period]
   (when time-period (-> time-period str (subs 4) parse-long (+ 2000))))
@@ -77,11 +77,6 @@
       (tc/map-columns :calendar-year [:time_period] time_period->calendar-year)
       (delay)))
 
-
-(comment
-
-  )
-
 (defn add-diffs [caseload]
   (apply tc/concat
          (into []
@@ -117,18 +112,20 @@
 
   )
 
+
+
 (def sen2-2025-caseload-all-ehcps
   (delay
     (-> @sen2-2025-caseload
         (tc/select-rows #(#{"All EHC plans"} (% :breakdown_topic)))
         (tc/inner-join
-         (-> (pop/->witan-send-population)
+         (-> (pop/->dataset)
              (as-> $
                  (dsr/group-by-column-agg
-                  [:UTLA22CD :UTLA22NM :calendar-year]
+                  [:ctyua23cd :ctyua23nm :calendar-year]
                   {:total-pop (dsr/sum :population)}
                   $))
-             (tc/rename-columns {:UTLA22CD :new_la_code})
+             (tc/rename-columns {:ctyua23cd :new_la_code})
              (tc/order-by [:new_la_code :calendar-year]))
          [:new_la_code :calendar-year])
         (tc/map-columns :ehcp-rate [:ehcplans :total-pop] dfn//))))

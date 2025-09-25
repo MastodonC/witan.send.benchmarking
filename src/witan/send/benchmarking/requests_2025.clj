@@ -4,7 +4,7 @@
    [tech.v3.datatype.gradient :as dt-grad]
    [tech.v3.datatype.functional :as dfn]
    [tech.v3.dataset.reductions :as dsr]
-   [witan.population.england.snpp-2022 :as pop]))
+   [witan.send.population.england :as pop]))
 
 (def sen2-2025-requests-filename
   "./src-data/education-health-and-care-plans_2025/data/requests.csv")
@@ -36,10 +36,10 @@
         (tc/select-rows #(= "All requests for EHC needs assessments" (:breakdown %)))
         (tc/inner-join 
          (dsr/group-by-column-agg
-          [:UTLA22CD :UTLA22NM :calendar-year]
+          [:ctyua23cd :ctyua23nm :calendar-year]
           {:total-pop (dsr/sum :population)}
-          (pop/->witan-send-population))
-         {:left [:new_la_code :time_period] :right [:UTLA22CD :calendar-year]})
+          (pop/->dataset))
+         {:left [:new_la_code :time_period] :right [:ctyua23cd :calendar-year]})
         (tc/drop-missing [:requests_received_in_year])
         (tc/map-columns :requests-per-1000 [:requests_received_in_year :total-pop]
                         #(* 1000 (dfn// %1 %2))))))

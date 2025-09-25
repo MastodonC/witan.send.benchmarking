@@ -4,7 +4,7 @@
    [tech.v3.datatype.gradient :as dt-grad]
    [tech.v3.datatype.functional :as dfn]
    [tech.v3.dataset.reductions :as dsr]
-   [witan.population.england.snpp-2022 :as pop]))
+   [witan.send.population.england :as pop]))
 
 (def sen2-2025-assessments-filename
   "./src-data/education-health-and-care-plans_2025/data/assessments.csv")

@@ -2,7 +2,8 @@
   (:require
    [tablecloth.api :as tc]
    [tech.v3.datatype.functional :as dfn]
-   [witan.send.benchmarking.caseload-2025 :as caseload]))
+   [witan.send.benchmarking.caseload-2025 :as caseload]
+   [witan.send.population.england :as pop]))
 
 (def sen2-2025-ceased-plans-filename
   "./src-data/education-health-and-care-plans_2025/data/ceased_plans.csv")
@@ -115,6 +116,34 @@
   ;;    |      Years plan held |                                                                    9 years |
   ;;    |      Years plan held |                                                               Under a year |
 
+
+  (tc/info @ceased-plans)
+  ;; => sen2-2025-ceased-plans: descriptive-stats [23 12]:
+  ;;    |          :col-name | :datatype | :n-valid | :n-missing |   :min |         :mean |                :mode |    :max | :standard-deviation |       :skew |               :first |           :last |
+  ;;    |--------------------|-----------|---------:|-----------:|-------:|--------------:|----------------------|--------:|--------------------:|------------:|----------------------|-----------------|
+  ;;    |       :time_period |    :int16 |    21164 |          0 | 2022.0 | 2023.50552826 |                      |  2024.0 |          0.51506406 | -0.19016789 |                 2022 |            2024 |
+  ;;    |   :time_identifier |   :string |    21164 |          0 |        |               |        Calendar year |         |                     |             |        Calendar year |   Calendar year |
+  ;;    |  :geographic_level |   :string |    21164 |          0 |        |               |      Local authority |         |                     |             |             National | Local authority |
+  ;;    |      :country_code |   :string |    21164 |          0 |        |               |            E92000001 |         |                     |             |            E92000001 |       E92000001 |
+  ;;    |      :country_name |   :string |    21164 |          0 |        |               |              England |         |                     |             |              England |         England |
+  ;;    |       :region_code |   :string |    20983 |        181 |        |               |            E12000007 |         |                     |             |                      |       E12000009 |
+  ;;    |       :region_name |   :string |    20983 |        181 |        |               |               London |         |                     |             |                      |      South West |
+  ;;    |       :new_la_code |   :string |    19429 |       1735 |        |               |                      |         |                     |             |                      |       E10000027 |
+  ;;    |       :old_la_code |    :int16 |    19429 |       1735 |  201.0 |  612.55463482 |                      |   943.0 |        279.57904594 | -0.16694852 |                      |             933 |
+  ;;    |           :la_name |   :string |    19429 |       1735 |        |               |                      |         |                     |             |                      |        Somerset |
+  ;;    |   :breakdown_topic |   :string |    21164 |          0 |        |               |    Type of placement |         |                     |             | All ceased EHC plans | Years plan held |
+  ;;    |         :breakdown |   :string |    21164 |          0 |        |               | All ceased EHC plans |         |                     |             | All ceased EHC plans |    Under a year |
+  ;;    |           :max_age |    :int16 |    21164 |          0 |    0.0 |    4.25165375 |                      |  2141.0 |         43.52835242 | 30.77452606 |                 2141 |               0 |
+  ;;    |         :needs_met |    :int16 |    21164 |          0 |    0.0 |    7.74962200 |                      |  4054.0 |         72.25169503 | 32.98932704 |                 4054 |               0 |
+  ;;    |                :he |    :int16 |    21164 |          0 |    0.0 |    4.64812890 |                      |  2579.0 |         41.94285371 | 31.51229698 |                 1454 |               0 |
+  ;;    |            :employ |    :int16 |    21164 |          0 |    0.0 |    7.74168399 |                      |  4053.0 |         73.35911233 | 32.24935748 |                 2734 |               0 |
+  ;;    |          :transfer |    :int16 |    21164 |          0 |    0.0 |   26.16679267 |                      | 13953.0 |        215.41868601 | 36.18164789 |                 9400 |               6 |
+  ;;    |         :no_engage |    :int16 |    21164 |          0 |    0.0 |   32.42378567 |                      | 16091.0 |        306.69467980 | 31.57074164 |                11734 |               0 |
+  ;;    | :moved_outside_eng |    :int16 |    21164 |          0 |    0.0 |    1.81468531 |                      |   928.0 |         15.05716430 | 33.69865677 |                  490 |               0 |
+  ;;    |          :deceased |    :int16 |    21164 |          0 |    0.0 |    0.97637498 |                      |   519.0 |          8.46560144 | 36.84608583 |                  519 |               0 |
+  ;;    |           :not_rec |    :int16 |    21164 |          0 |    0.0 |    0.00070875 |                      |     5.0 |          0.04908527 | 77.87593497 |                    5 |               0 |
+  ;;    |             :other |    :int16 |    21164 |          0 |    0.0 |    2.27395577 |                      |  2193.0 |         28.52639174 | 35.57120861 |                 2193 |               0 |
+  ;;    |      :total_ceased |    :int32 |    21164 |          0 |    1.0 |   88.05334530 |                      | 44862.0 |        760.51047024 | 34.51875094 |                34724 |               6 |
 
 
   )
