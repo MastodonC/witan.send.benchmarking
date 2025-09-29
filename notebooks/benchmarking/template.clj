@@ -398,7 +398,7 @@
                           :sn_prox "Statistical Proximity"}))))
 
 ;; ---
-;;; ## Caseload
+;;; ## Caseload vs Statistical Neighbours
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
@@ -420,7 +420,29 @@
        (tc/rename-columns {:calendar-year "SEN2 Census Year" :ehcplans "EHC Plans"})))))
 
 ;; ---
-;;; ## New Plans
+;;; ## Caseload vs National
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @caseload/sen2-2025-caseload-all-ehcps
+                        (tc/map-columns :ehcp-rate [:ehcp-rate] #(-> % (* 100) (m/approx 2))))
+    :la-name la-name
+    :title "Statistical Neighbours Total Caseload"
+    :y-field :ehcp-rate
+    :y-title "% of EHCPs"}))
+ (clerk/col
+  (clerk/md "### Number of EHCPs")
+  (clerk/table
+   (-> @caseload/sen2-2025-caseload-all-ehcps
+       (tc/select-rows #(= la-name (:la_name %)))
+       (tc/select-columns [:calendar-year :ehcplans])
+       (tc/order-by [:calendar-year])
+       (tc/rename-columns {:calendar-year "SEN2 Census Year" :ehcplans "EHC Plans"})))))
+
+
+;; ---
+;;; ## New Plans vs Neighbours
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
@@ -442,6 +464,30 @@
        (tc/select-columns [:time_period :new_ehc_plans])
        (tc/order-by [:time_period])
        (tc/rename-columns {:time_period "Year" :new_ehc_plans "Plans Issued"})))))
+
+;; ---
+;;; ## New Plans vs National
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @newplans/new-plans-by-la
+                        (tc/map-columns :new-ehcps-per-thousand [:new-ehcps-per-thousand] #(m/approx % 2)))
+    :la-name la-name
+    :title "Statistical Neighbours Total New Plan Rate"
+    :y-field :new-ehcps-per-thousand
+    :y-title "EHCPs per 1,000"
+    :x-field :time_period
+    :x-title "Calendar Year"}))
+ (clerk/col
+  (clerk/md "### New Plans Issued")
+  (clerk/table
+   (-> @newplans/new-plans-by-la
+       (tc/select-rows #(= la-name (:la_name %)))
+       (tc/select-columns [:time_period :new_ehc_plans])
+       (tc/order-by [:time_period])
+       (tc/rename-columns {:time_period "Year" :new_ehc_plans "Plans Issued"})))))
+
 
 ;; ---
 ;;; ## New Plan Need Rates per 10,000
@@ -470,7 +516,7 @@
  (clerk/plotly
   (neighbour-comparison-boxplot
    {:neighbour-data (-> @snnp/need-new-plans-rate
-                        (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        ;; (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
                         (tc/pivot->longer #"^:rate-.+" {:target-columns :need :value-column-name :rate-per-10k :drop-missing? false :coerce-to-number true})
                         (tc/map-columns :need [:need] (fn [n] (->> n name (re-find #"[^-]+$") str/upper-case)))
                         (tc/order-by [:need :la_name :year]))
@@ -483,13 +529,39 @@
 
 
 ;; ---
-;;; ## Requests to Assess Per 1,000 CYP
+;;; ## Requests to Assess Per 1,000 CYP vs Neighbours
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
   (neighbour-comparison-boxplot
    {:neighbour-data (-> @requests/sen2-2025-request-rate
                         (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                        (tc/map-columns
+                         :requests-per-1000 [:requests-per-1000]
+                         #(m/approx % 2)))
+    :la-name la-name
+    :title "Statistical Neighbours % of requests per 1,000 CYP"
+    :y-field :requests-per-1000
+    :y-title "Requests per 1,000 CYP"
+    :x-field :time_period
+    :x-title "Calendar Year"}))
+ (clerk/col
+  (clerk/md "### Requests Received")
+  (clerk/table
+   (-> @requests/sen2-2025-request-rate
+       (tc/select-rows #(= la-name (:la_name %)))
+       (tc/select-columns [:time_period :requests_received_in_year])
+       (tc/order-by [:time_period])
+       (tc/rename-columns {:time_period "Year" :requests_received_in_year "Requests"})))))
+
+
+;; ---
+;;; ## Requests to Assess Per 1,000 CYP vs National
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data (-> @requests/sen2-2025-request-rate
                         (tc/map-columns
                          :requests-per-1000 [:requests-per-1000]
                          #(m/approx % 2)))
