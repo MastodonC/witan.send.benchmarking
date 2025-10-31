@@ -1,21 +1,23 @@
 {:paths ["src" "resources" "notebooks"]
  :deps  {org.clojure/clojure                   {:mvn/version "1.12.0"}
+         io.github.clojure/tools.build         {:git/tag "v0.10.10" :git/sha "deedd62"}
          io.github.nextjournal/clerk           {:mvn/version "0.18.1142"}
          io.github.nextjournal/clerk-slideshow {:git/sha "11a83fea564da04b9d17734f2031a4921d917893"}
-         com.github.mastodonc/witan.population {:git/sha "0dcaa57f75fa93f038dcc53ec4c724627d1eb0cf"}
+         com.github.mastodonc/witan.population {:git/sha "ef31688b40d191f52fab997ca7b40afd3454390a" #_"78070098dfa78592ce1a78785142260448337fac"} 
          generateme/fastmath                   {:mvn/version "2.4.0"}
          scicloj/tablecloth                    {:mvn/version "7.059"}
 
          ;; https://mvnrepository.com/artifact/com.xtdb/xtdb-api
-         com.xtdb/xtdb-api {:mvn/version "XTDB_VERSION"}
+         com.xtdb/xtdb-api                     {:mvn/version "2.0.0"}
          ;; xtdb-core for running an in-process (test) node
-         com.xtdb/xtdb-core {:mvn/version "XTDB_VERSION"}
+         com.xtdb/xtdb-core                    {:mvn/version "2.0.0"}
 
          ;; https://mvnrepository.com/artifact/com/github/seancorfield/next.jdbc
          ;; other JDBC libraries are available
          com.github.seancorfield/next.jdbc {:mvn/version "1.3.955"}
+         ;; com.github.seancorfield/next.jdbc {:mvn/version "1.3.1048"}
          }
 
  ;; JVM options required for in-process node
- :aliases {:xtdb {:jvm-opts ["--add-opens=java.base/java.nio=ALL-UNNAMED"
+ :aliases {:xtdb {:jvm-opts ["--add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED"
                              "-Dio.netty.tryReflectionSetAccessible=true"]}}}

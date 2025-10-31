@@ -26,7 +26,19 @@
    (java.time LocalDateTime)
    (java.time.format DateTimeFormatter)))
 
-(def la-name "Kent")
+(def la-name "South Gloucestershire")
+
+(def mc-logo-url "https://www.mastodonc.com/wp-content/themes/MastodonC-2018/dist/images/logo_mastodonc.png")
+
+(defn mc-logo []
+  (clerk/html
+   {::clerk/width :full}
+   [:div.fixed.bottom-0.right-12 [:img {:src mc-logo-url}]]))
+
+(defn watermark []
+  (clerk/html
+   {::clerk/width :full}
+   [:div.fixed.bottom-0.left-12 [:p.font-sans.italic la-name]]))
 
 (def out-dir "doc/")
 
@@ -51,6 +63,12 @@
                    :bundle   true
                    :out-path out-dir})
     [(.renameTo (io/file index-out) (io/file out-path)) index-out out-path]))
+
+^::clerk/no-cache
+(def build-string 
+  (format "Built from commit %s on %s"
+          (build/git-process {:git-args "rev-parse --short HEAD"})
+          (DateTimeFormatter/.format DateTimeFormatter/ISO_LOCAL_DATE (LocalDateTime/now))))
 
 (comment
 ;;; Output NS
@@ -381,10 +399,10 @@
    [:h1.text-6xl.font-extrabold.mb-12
     (format "Benchmarking results for %s" la-name)]
    [:p.text-4xl.font-bold.italic "Presented by Mastodon C"]
-   [:p (format "Built from commit %s on %s"
-               (build/git-process {:git-args "rev-parse --short HEAD"})
-               (DateTimeFormatter/.format DateTimeFormatter/ISO_LOCAL_DATE (LocalDateTime/now)))]
+   [:p build-string]
    [:p.text-3xl.mt-12 "Use ⬅️➡️ keys to navigate and ESC to see an overview."]]))
+
+(mc-logo)
 
 ;; ---
 ;;; ## Statistical Nearest Neighbours
@@ -396,6 +414,9 @@
       (tc/rename-columns {:sn_name "Neighbour Name"
                           :sn "Neighbour Rank"
                           :sn_prox "Statistical Proximity"}))))
+
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Caseload vs Statistical Neighbours
@@ -419,6 +440,9 @@
        (tc/order-by [:calendar-year])
        (tc/rename-columns {:calendar-year "SEN2 Census Year" :ehcplans "EHC Plans"})))))
 
+(watermark)
+(mc-logo)
+
 ;; ---
 ;;; ## Caseload vs National
 (clerk/row
@@ -440,6 +464,8 @@
        (tc/order-by [:calendar-year])
        (tc/rename-columns {:calendar-year "SEN2 Census Year" :ehcplans "EHC Plans"})))))
 
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## New Plans vs Neighbours
@@ -465,6 +491,9 @@
        (tc/order-by [:time_period])
        (tc/rename-columns {:time_period "Year" :new_ehc_plans "Plans Issued"})))))
 
+(watermark)
+(mc-logo)
+
 ;; ---
 ;;; ## New Plans vs National
 (clerk/row
@@ -488,6 +517,8 @@
        (tc/order-by [:time_period])
        (tc/rename-columns {:time_period "Year" :new_ehc_plans "Plans Issued"})))))
 
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## New Plan Need Rates per 10,000
@@ -508,6 +539,9 @@
     :x-field :need
     :x-title "Need"})))
 
+(watermark)
+(mc-logo)
+
 ;; ---
 ;;; ## New Plan Need Rates per 10,000 National
 
@@ -516,7 +550,6 @@
  (clerk/plotly
   (neighbour-comparison-boxplot
    {:neighbour-data (-> @snnp/need-new-plans-rate
-                        ;; (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
                         (tc/pivot->longer #"^:rate-.+" {:target-columns :need :value-column-name :rate-per-10k :drop-missing? false :coerce-to-number true})
                         (tc/map-columns :need [:need] (fn [n] (->> n name (re-find #"[^-]+$") str/upper-case)))
                         (tc/order-by [:need :la_name :year]))
@@ -527,6 +560,54 @@
     :x-field :need
     :x-title "Need"})))
 
+(watermark)
+(mc-logo)
+
+;; ---
+;;; ## New Plan Needs by Primary Phase
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (let [phase "Primary"]
+    (neighbour-comparison-boxplot
+     {:neighbour-data (-> @snnp/need-new-plans-rate-by-phase
+                          (tc/select-rows #(= (:phase %) phase))
+                          (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                          (tc/pivot->longer #"^:pc_.+" {:target-columns :need :value-column-name :percent-new-plans :drop-missing? false :coerce-to-number true})
+                          (tc/map-columns :need [:need] (fn [n] (->> n name (re-find #"[^_]+$") str/upper-case)))
+                          (tc/order-by [:need :la_name :year]))
+      :la-name la-name
+      :title (format "%s w/Statistical Neighbours" phase)
+      :y-field :percent-new-plans
+      :y-title "Need as % of New Plans"
+      :x-field :need
+      :x-title "Calendar Year"}))))
+
+(watermark)
+(mc-logo)
+
+;; ---
+;;; ## New Plan Needs by Secondary Phase
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (let [phase "Secondary"]
+    (neighbour-comparison-boxplot
+     {:neighbour-data (-> @snnp/need-new-plans-rate-by-phase
+                          (tc/select-rows #(= (:phase %) phase))
+                          (tc/select-rows #((conj statistical-neighbours-pred la-name) (:la_name %)))
+                          (tc/pivot->longer #"^:pc_.+" {:target-columns :need :value-column-name :percent-new-plans :drop-missing? false :coerce-to-number true})
+                          (tc/map-columns :need [:need] (fn [n] (->> n name (re-find #"[^_]+$") str/upper-case)))
+                          (tc/order-by [:need :la_name :year]))
+      :la-name la-name
+      :title (format "%s w/Statistical Neighbours" phase)
+      :y-field :percent-new-plans
+      :y-title "Need as % of New Plans"
+      :x-field :need
+      :x-title "Calendar Year"}))))
+
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Requests to Assess Per 1,000 CYP vs Neighbours
@@ -554,6 +635,8 @@
        (tc/order-by [:time_period])
        (tc/rename-columns {:time_period "Year" :requests_received_in_year "Requests"})))))
 
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Requests to Assess Per 1,000 CYP vs National
@@ -580,6 +663,8 @@
        (tc/order-by [:time_period])
        (tc/rename-columns {:time_period "Year" :requests_received_in_year "Requests"})))))
 
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Requests vs New EHC Plans
@@ -610,6 +695,8 @@
     :x-field :time_period
     :x-title "Calendar Year"})))
 
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Percentage Requests where LA Decided to Proceed with an Assessment
@@ -628,6 +715,8 @@
     :x-field :time_period
     :x-title "Calendar Year"})))
 
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Percentage Requests where the LA Decided to not Assess
@@ -646,6 +735,8 @@
     :x-field :time_period
     :x-title "Calendar Year"})))
 
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Percentage Requests where the Request Outcome Took Over 6 Weeks
@@ -664,6 +755,9 @@
     :x-field :time_period
     :x-title "Calendar Year"})))
 
+(watermark)
+(mc-logo)
+
 ;; ---
 ;;; ## Percentage Assessments where a Plan was Issued
 (clerk/row
@@ -681,6 +775,9 @@
     :x-field :time_period
     :x-title "Calendar Year"})))
 
+(watermark)
+(mc-logo)
+
 ;; ---
 ;;; ## Percentage of EHC Plans Ceased
 (clerk/row
@@ -695,6 +792,9 @@
     :y-field :ceased-%-ehcps
     :y-title "% of EHCPs"
     :x-title "Calendar Year"})))
+
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Rate of EHC Plans Ceased per 10,000 of Population
@@ -711,6 +811,8 @@
     :y-title "Ceased of EHCPs per 10,000 Population"
     :x-title "Calendar Year"})))
 
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Ceased Plan Reason Breakdown
@@ -734,6 +836,9 @@
                           :deceased "Deceased"
                           :not_rec "Not Recorded"
                           :other "Other"}))))
+
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Ceasing Reason Comparison % of EHCPs
@@ -798,6 +903,9 @@
       (assoc-in [:layout :height] 375)
       (assoc-in [:layout :width] 500))))
 
+(watermark)
+(mc-logo)
+
 ;; ---
 ;;; ## Ceasing Reason Comparison Rate per 10,000 Population
 
@@ -861,6 +969,8 @@
       (assoc-in [:layout :height] 375)
       (assoc-in [:layout :width] 500))))
 
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## Plans Transferred In
@@ -878,6 +988,9 @@
                           :net-transfer "Net Transfer"
                           :year-end-ehcplans "Year End EHC Plans"}))))
 
+(watermark)
+(mc-logo)
+
 ;; ---
 ;;; ## Net Transferred per 1,000 CYP
 (clerk/row
@@ -890,6 +1003,9 @@
         :title "Net Transferred Plans Per 1,000"
         :y-field :net-transfer-per-thousand
         :y-title "Net Transferred Plans Per 1,000"}))))
+
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## New Plans by Phase
@@ -952,6 +1068,8 @@
         (assoc-in [:layout :height] 375)
         (assoc-in [:layout :width] 500)))))
 
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## New Plans in Early Years
@@ -969,6 +1087,9 @@
  (clerk/plotly
   (plotly-newplan-neighbour-comparison
    la-name "age 4" statistical-neighbours-pred "Age 4 w/Statistical Neighbours" new-plans-statistical-neighbours-max-y @newplans/new-plans-by-age-by-la)))
+
+(watermark)
+(mc-logo)
 
 ;; ---
 ;;; ## New Plans in Primary Ages
@@ -997,6 +1118,9 @@
   (plotly-newplan-neighbour-comparison
    la-name "age 10" statistical-neighbours-pred "Age 10 w/Statistical Neighbours" new-plans-statistical-neighbours-max-y @newplans/new-plans-by-age-by-la)))
 
+(watermark)
+(mc-logo)
+
 ;; ---
 ;;; ## New Plans in Secondary Ages
 (clerk/row
@@ -1023,6 +1147,9 @@
   (plotly-newplan-neighbour-comparison
    la-name "age 16" statistical-neighbours-pred "Age 16 w/Statistical Neighbours" new-plans-statistical-neighbours-max-y @newplans/new-plans-by-age-by-la)))
 
+(watermark)
+(mc-logo)
+
 ;; ---
 ;;; ## New Plans in Post 16 Ages
 (clerk/row
@@ -1042,6 +1169,9 @@
  (clerk/plotly
   (plotly-newplan-neighbour-comparison
    la-name "age 20 and over" statistical-neighbours-pred "Age 20+ w/Statistical Neighbours" new-plans-statistical-neighbours-max-y @newplans/new-plans-by-age-by-la)))
+
+(watermark)
+(mc-logo)
 
 ;; ---
 {::clerk/visibility {:result :hide}}

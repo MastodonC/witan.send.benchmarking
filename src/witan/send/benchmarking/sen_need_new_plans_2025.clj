@@ -3,6 +3,7 @@
    [tablecloth.api :as tc]
    [tech.v3.dataset.reductions :as dsr]
    [witan.send.population.england :as pop]
+   [fastmath.core :as m]
    [tech.v3.datatype.functional :as dfn]))
 
 (def path "./src-data/education-health-and-care-plans_2025/data/sen_need_newplans.csv")
@@ -51,9 +52,10 @@
         (tc/rename-columns {:ctyua23cd :new_la_code})
         (tc/order-by [:new_la_code :calendar-year]))))
 
-
-(tc/info @total-pop-by-la)
-(tc/info @data)
+(comment 
+  (tc/info @total-pop-by-la)
+  (tc/info @data)
+  )
 
 (def need-new-plans-rate
   (delay
@@ -76,3 +78,54 @@
         (tc/map-columns :rate-vi [:number_vi :total-pop] #(when %1 (dfn/* 10000 (dfn// %1 %2)))) ;; vi
         (tc/map-columns :rate-need_unknown [:number_need_unknown :total-pop] #(when %1 (dfn/* 10000 (dfn// %1 %2)))) ;; need_unknown
         )))
+
+(defn phase-from-age-label [age]
+  (cond
+    (#{ "age 2 and under" "age 3"} age) "Early Years"
+    (#{ "age 4" "age 5" "age 6" "age 7" "age 8" "age 9" "age 10"} age) "Primary"
+    (#{ "age 11" "age 12" "age 13" "age 14" "age 15" "age 16"} age) "Secondary"
+    (#{ "age 17" "age 18" "age 19"} age) "Post 16"
+    (= "age 20 and over" age) "Post 19"))
+
+(defn fail-to-zero-divide [m d]
+  (if (and m d)
+    (dfn// m d)
+    0))
+
+(def need-new-plans-rate-by-phase
+  (delay
+    (-> @data
+        (tc/rename-columns {:time_period :year})
+        (tc/select-rows #(= "Child or young persons age" (:breakdown_topic %)))
+        (tc/map-columns :phase [:breakdown] phase-from-age-label)
+        (as-> $ 
+            (dsr/group-by-column-agg
+             [:year :la_name :new_la_code :phase]
+             {:ehc_plans           (dsr/sum :ehc_plans)
+              :number_asd          (dsr/sum :number_asd)
+              :number_hi           (dsr/sum :number_hi)
+              :number_mld          (dsr/sum :number_mld)
+              :number_msi          (dsr/sum :number_msi)
+              :number_oth          (dsr/sum :number_oth)
+              :number_pd           (dsr/sum :number_pd)
+              :number_pmld         (dsr/sum :number_pmld)
+              :number_semh         (dsr/sum :number_semh)
+              :number_slcn         (dsr/sum :number_slcn)
+              :number_sld          (dsr/sum :number_sld)
+              :number_spld         (dsr/sum :number_spld)
+              :number_vi           (dsr/sum :number_vi)
+              :number_need_unknown (dsr/sum :number_need_unknown)}
+             $))
+        (tc/map-columns :pc_asd [:number_asd :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_hi [:number_hi :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_mld [:number_mld :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_msi [:number_msi :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_need_unknown [:number_need_unknown :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_oth [:number_oth :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_pd [:number_pd :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_pmld [:number_pmld :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_semh [:number_semh :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_slcn [:number_slcn :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_sld [:number_sld :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_spld [:number_spld :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2))
+        (tc/map-columns :pc_vi [:number_vi :ehc_plans] #(m/approx (* 100 (fail-to-zero-divide %1 %2)) 2)))))
