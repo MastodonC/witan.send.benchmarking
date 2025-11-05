@@ -72,8 +72,10 @@
 
 (comment
 ;;; Output NS
-  (output-ns *ns*)
-
+  (when-let [path (output-ns *ns*)]
+    (clerk/show! *file*)
+    path)
+  
   )
 
 (clerk/add-viewers! [slideshow/viewer])
