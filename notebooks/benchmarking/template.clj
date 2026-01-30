@@ -26,19 +26,8 @@
    (java.time LocalDateTime)
    (java.time.format DateTimeFormatter)))
 
-(def la-name "South Gloucestershire")
 
-(def mc-logo-url "https://www.mastodonc.com/wp-content/themes/MastodonC-2018/dist/images/logo_mastodonc.png")
-
-(defn mc-logo []
-  (clerk/html
-   {::clerk/width :full}
-   [:div.fixed.bottom-0.right-12 [:img {:src mc-logo-url}]]))
-
-(defn watermark []
-  (clerk/html
-   {::clerk/width :full}
-   [:div.fixed.bottom-0.left-12 [:p.font-sans.italic la-name]]))
+(def la-name "Suffolk")
 
 (def out-dir "doc/")
 
@@ -71,14 +60,30 @@
           (DateTimeFormatter/.format DateTimeFormatter/ISO_LOCAL_DATE (LocalDateTime/now))))
 
 (comment
+
+  (do 
+    (clerk/clear-cache!)
+    (when-let [path (output-ns *ns*)]
+      (clerk/show! *file*)
+      path))
+
 ;;; Output NS
-  (when-let [path (output-ns *ns*)]
-    (clerk/show! *file*)
-    path)
   
   )
 
 (clerk/add-viewers! [slideshow/viewer])
+
+(def mc-logo-url "https://www.mastodonc.com/wp-content/themes/MastodonC-2018/dist/images/logo_mastodonc.png")
+
+(defn mc-logo []
+  (clerk/html
+   {::clerk/width :full}
+   [:div.fixed.bottom-0.right-12 [:img {:src mc-logo-url}]]))
+
+(defn watermark []
+  (clerk/html
+   {::clerk/width :full}
+   [:div.fixed.bottom-0.left-12 [:p.font-sans.italic la-name]]))
 
 (def region (rn/region-name la-name))
 (def regional-neighbours (rn/neighbours la-name))
@@ -421,7 +426,7 @@
 (mc-logo)
 
 ;; ---
-;;; ## Caseload vs Statistical Neighbours
+;;; ## Total EHCP Rate vs Statistical Neighbours
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
@@ -446,7 +451,7 @@
 (mc-logo)
 
 ;; ---
-;;; ## Caseload vs National
+;;; ## Total EHCP Rate vs National
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
