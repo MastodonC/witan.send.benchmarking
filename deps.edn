@@ -3,7 +3,7 @@
          io.github.clojure/tools.build         {:git/tag "v0.10.10" :git/sha "deedd62"}
          io.github.nextjournal/clerk           {:mvn/version "0.18.1142"}
          io.github.nextjournal/clerk-slideshow {:git/sha "11a83fea564da04b9d17734f2031a4921d917893"}
-         com.github.mastodonc/witan.population {:git/sha "ef31688b40d191f52fab997ca7b40afd3454390a" #_"78070098dfa78592ce1a78785142260448337fac"} 
+         com.github.mastodonc/witan.population {:git/sha "ef31688b40d191f52fab997ca7b40afd3454390a" #_ "78070098dfa78592ce1a78785142260448337fac"} 
          generateme/fastmath                   {:mvn/version "2.4.0"}
          scicloj/tablecloth                    {:mvn/version "7.059"}
 
