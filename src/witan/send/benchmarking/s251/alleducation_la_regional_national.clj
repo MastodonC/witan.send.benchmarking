@@ -132,6 +132,10 @@
         :parser-fn parser-fn})
       (cond-> pipeline-fn pipeline-fn)))
 
+(defn format-financial-year [fy-int]
+  (let [[_ y1 y2] (re-find #"([0-9]{4})([0-9]{2})" (str fy-int))]
+    (format "FY %s/%s" y1 y2)))
+
 (def geocode-columns [:country_code :region_code :old_la_code :new_la_code])
 (defn tidy-geocodes [ds]
   (-> ds
