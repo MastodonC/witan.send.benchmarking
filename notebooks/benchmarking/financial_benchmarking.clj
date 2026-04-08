@@ -176,8 +176,9 @@
   (-> (total-pop-by-la-financial-year send-age-pop-by-la-calendar-year)
       (tc/select-rows #(la-and-stat-neighbours-pred (:geo-name %)))))
 
-
+(
 ;;; ## Calculation Helper
+ )
 
 (defn calculate [& {:keys [numerator-ds
                            denominator-ds
@@ -195,46 +196,8 @@
  )
 {::clerk/visibility {:result :show}}
 
-;; ---
-;;; ## Placeholder: 1.0.2 High needs place funding within Individual Schools Budget - Net Expenditure Per 0-25 Head
+
 ^{::clerk/visibility {:code :hide :result :hide}}
-(def net-high-needs-place-funding-within-individual-schools-budget
-  (-> (calculate
-       :numerator-ds
-       (s251/table
-        :pipeline-fn
-        (fn [ds]
-          (-> ds
-              (tc/select-rows (fn [r] (= "1.0.2 High needs place funding within Individual Schools Budget"
-                                         (:category_of_expenditure r))))
-              (tc/select-rows (fn [r] (la-and-stat-neighbours-pred (:la_name r))))
-              (s251/tidy-table)
-              (tc/map-columns :time_period [:time_period] s251/format-financial-year)
-              #_(tc/select-rows (fn [r] (= :gross_expenditure (:setting r))))
-              (tc/select-rows (fn [r] (= :net_expenditure (:setting r)))))))
-       :denominator-ds
-       send-age-pop-by-la-per-financial-year
-       :join-keys
-       {:left [:time_period :geo-code]
-        :right [:financial-year :geo-code]}
-       :input-fields [:amount :financial-year-pop]
-       :output-field :net-expenditure-per-send-age-cyp)
-      (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
-
-(clerk/row
- {::clerk/width :full}
- (clerk/plotly
-  (neighbour-comparison-boxplot
-   {:neighbour-data net-high-needs-place-funding-within-individual-schools-budget
-    :la-name la-name
-    :title "1.0.2 High needs place funding within Individual Schools Budget - Net Expenditure Per 0-25 Head"
-    :series-name :geo-name
-    :x-field :time_period
-    :x-title "Financial Year"
-    :y-field :net-expenditure-per-send-age-cyp
-    :y-title "Net Expenditure per SEND age CYP (£s)"})))
-
 (comment
 
 ;;; # Section 251 Sandbox
