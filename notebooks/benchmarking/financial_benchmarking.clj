@@ -325,3 +325,53 @@
     :x-title "Financial Year"
     :y-field :net-expenditure-per-send-age-cyp
     :y-title "Gross Expenditure per SEND age CYP (£s)"})))
+
+;; ---
+;;; ## Top up funding (non-maintained and independent schools and colleges)
+;;
+;; Source: Source: Section 251 (2024/2025), Line 1.2.3 using gross_expenditure column
+^{::clerk/visibility {:code :hide :result :hide}}
+(def top-up-funding-non-maintained-and-independent-schools-and-colleges
+  (-> (calculate
+       :numerator-ds
+       (-> (s251/table
+            :pipeline-fn
+            (fn [ds]
+              (-> ds
+                  (tc/select-rows (fn [r]
+                                    (re-find #"1.2.3 " (:category_of_expenditure r))))
+                  (tc/select-rows (fn [r] (la-and-stat-neighbours-pred (:la_name r))))
+                  (s251/tidy-table)
+                  (tc/map-columns :time_period [:time_period] s251/format-financial-year)
+                  (tc/select-rows (fn [r]
+                                    (#{:gross_expenditure}
+                                     (:setting r))))
+                  (as-> $
+                      (dsr/group-by-column-agg
+                       [:time_period :geo-code :geo-name]
+                       {:amount (dsr/sum :amount)}
+                       $))))))
+       :denominator-ds
+       send-age-pop-by-la-per-financial-year
+       :join-keys
+       {:left [:time_period :geo-code]
+        :right [:financial-year :geo-code]}
+       :input-fields [:amount :financial-year-pop]
+       :output-field :net-expenditure-per-send-age-cyp)
+      (tc/drop-columns #":inner.*")
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
+
+(clerk/row
+ {::clerk/width :full}
+ (clerk/plotly
+  (neighbour-comparison-boxplot
+   {:neighbour-data top-up-funding-non-maintained-and-independent-schools-and-colleges
+    :la-name la-name
+    :title "Top up funding (non-maintained and independent schools and colleges)"
+    :series-name :geo-name
+    :x-field :time_period
+    :x-title "Financial Year"
+    :y-field :net-expenditure-per-send-age-cyp
+    :y-title "Gross Expenditure per SEND age CYP (£s)"})))
+
