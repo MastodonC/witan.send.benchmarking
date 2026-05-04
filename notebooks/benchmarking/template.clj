@@ -4,9 +4,6 @@
                       :auto-expand-results? true
                       :budget               nil}
   (:require
-   [tech.v3.datatype.functional :as dfn]
-   [tech.v3.dataset.reductions :as dsr]
-   [witan.send.benchmarking.sen-need-new-plans-2025 :as snnp]
    [clojure.java.io :as io]
    [clojure.string :as str]
    [clojure.tools.build.api :as build]
@@ -46,6 +43,7 @@
                                         "," "_"
                                         " " "_"})
                           (str
+                           "-benchmarking"
                            "--"
                            (.format (LocalDateTime/now) DateTimeFormatter/ISO_DATE)
                            ".html")))
@@ -76,7 +74,7 @@
 
 (clerk/add-viewers! [slideshow/viewer])
 
-(def mc-logo-url "https://www.mastodonc.com/wp-content/themes/MastodonC-2018/dist/images/logo_mastodonc.png")
+(def mc-logo-url "https://mastodonc.com/assets/images/logo_mastodonc.png")
 
 (defn mc-logo []
   (clerk/html
