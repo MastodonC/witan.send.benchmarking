@@ -688,7 +688,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -733,7 +734,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -778,7 +780,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -823,7 +826,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -884,7 +888,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -939,7 +944,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -995,7 +1001,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -1051,7 +1058,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -1107,7 +1115,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -1121,8 +1130,6 @@
     :x-title "Financial Year"
     :y-field :net-expenditure-per-cyp
     :y-title "Gross Expenditure per SEND age CYP (£s)"})))
-
-
 
 (watermark)
 (mc-logo)
@@ -1165,7 +1172,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -1220,7 +1228,8 @@
        :input-fields [:amount :financial-year-pop]
        :output-field :net-expenditure-per-cyp)
       (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+      (tc/order-by [:geo-code :time_period])))
 
 (clerk/row
  {::clerk/width :full}
@@ -1400,8 +1409,6 @@
     :y-field :net-expenditure-per-send-age-cyp
     :y-title "Gross Expenditure per Secondary age CYP (£s)"})))
 
-
-
 (watermark)
 (mc-logo)
 
@@ -1509,9 +1516,6 @@
     :y-field :net-expenditure-per-send-age-cyp
     :y-title "Gross Expenditure per SEND age CYP (£s)"})))
 
-
-
-
 (watermark)
 (mc-logo)
 
@@ -1565,7 +1569,6 @@
     :y-field :net-expenditure-per-send-age-cyp
     :y-title "Gross Expenditure per Post School age CYP (£s)"})))
 
-
 (watermark)
 (mc-logo)
 
@@ -1618,7 +1621,6 @@
     :x-title "Financial Year"
     :y-field :net-expenditure-per-send-age-cyp
     :y-title "Income per SEND age CYP (£s)"})))
-
 
 (watermark)
 (mc-logo)
