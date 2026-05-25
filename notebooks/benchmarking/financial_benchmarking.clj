@@ -1469,7 +1469,6 @@
 ;;; ## Alternative provision top up funding per pupil (non-maintained)
 ;;
 ;; Source: Section 251 (2024/2025), Line 1.2.3
-:pupil_referral_units_and_alt_provision
 
 ^{::clerk/visibility {:code :hide :result :hide}}
 (def alternative-provision-top-up-funding-non-maintained-and-independent-schools-and-colleges
