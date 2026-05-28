@@ -2,69 +2,77 @@
   (:require
    [tablecloth.api :as tc]))
 
-(def input-path "./src-data/education-health-and-care-plans_2025/data/newplans.csv")
+;;; FIXME: get the tidying code from benchmarking.quick-stats and make
+;;; this look like
+;;; witan.send.benchmarking.s251.alleducation-la-regional-national
+
+(def dataset-name "newplans")
+
+(def input-path 
+  (format "./src-data/education-health-and-care-plans_2025/data/%s.csv"
+          dataset-name))
 
 (def parser-map
-  {:time_period :string
-   :time_identifier :string
-   :geographic_level :string
-   :country_code :string
-   :country_name :string
-   :region_code :string
-   :region_name :string
-   :new_la_code :string
-   :old_la_code :string
-   :la_name :string
-   :breakdown_topic :string
-   :breakdown :string
-   :new_ehc_plans [:int32 :relaxed?]
-   :mainstream_la_maintained [:int32 :relaxed?]
+  {:time_period                                  :int32
+   :time_identifier                              :string
+   :geographic_level                             :string
+   :country_code                                 :string
+   :country_name                                 :string
+   :region_code                                  :string
+   :region_name                                  :string
+   :new_la_code                                  :string
+   :old_la_code                                  :string
+   :la_name                                      :string
+   :breakdown_topic                              :string
+   :breakdown                                    :string
+   :new_ehc_plans                                [:int32 :relaxed?]
+   :mainstream_la_maintained                     [:int32 :relaxed?]
    :mainstream_la_maintained_resourced_provision [:int32 :relaxed?]
-   :mainstream_la_maintained_senunit [:int32 :relaxed?]
-   :mainstream_academy [:int32 :relaxed?]
-   :mainstream_academy_resourced_provision [:int32 :relaxed?]
-   :mainstream_academy_senunit [:int32 :relaxed?]
-   :mainstream_free_school [:int32 :relaxed?]
-   :mainstream_free_school_resourced_provision [:int32 :relaxed?]
-   :mainstream_free_school_senunit [:int32 :relaxed?]
-   :mainstream_independent [:int32 :relaxed?]
-   :mainstream_total [:int32 :relaxed?]
-   :mainstream_total_pc [:float32 :relaxed?]
-   :special_la_maintained [:int32 :relaxed?]
-   :special_academy_free [:int32 :relaxed?]
-   :special_independent [:int32 :relaxed?]
-   :special_non_maintained [:int32 :relaxed?]
-   :special_total [:int32 :relaxed?]
-   :special_total_pc [:float32 :relaxed?]
-   :ap_pru_academy [:int32 :relaxed?]
-   :ap_pru_free_school [:int32 :relaxed?]
-   :ap_pru_la_maintained [:int32 :relaxed?]
-   :ap_pru_total [:int32 :relaxed?]
-   :AP_PRU_total_pc [:float32 :relaxed?]
-   :general_fe_tertiary_colleges [:int32 :relaxed?]
-   :specialist_post_16_institutions [:int32 :relaxed?]
-   :ukrlp_provider [:int32 :relaxed?]
-   :fe_total [:int32 :relaxed?]
-   :fe_total_pc [:float32 :relaxed?]
-   :elective_home_education [:int32 :relaxed?]
-   :other_arrangements_la [:int32 :relaxed?]
-   :other_arrangements_parents [:int32 :relaxed?]
-   :online_provider [:int32 :relaxed?]
-   :w_settings [:int32 :relaxed?]
-   :other_schools [:int32 :relaxed?]
-   :other_placement_settings [:int32 :relaxed?]
-   :neet [:int32 :relaxed?]
-   :neet_ntci [:int32 :relaxed?]
-   :neet_other [:int32 :relaxed?]
-   :neet_other_csa [:int32 :relaxed?]
-   :ed_elsewhere [:int32 :relaxed?]
-   :ed_elsewhere_pc [:float32 :relaxed?]
-   :nm_early_years [:int32 :relaxed?]
-   :nm_early_years_pc [:float32 :relaxed?]
-   :placement_unknown [:int32 :relaxed?]
-   :placement_unknown_pc [:float32 :relaxed?]
-   :await_prov_2022 [:int32 :relaxed?]
-   :perm_ex_2022 [:int32 :relaxed?]})
+   :mainstream_la_maintained_senunit             [:int32 :relaxed?]
+   :mainstream_academy                           [:int32 :relaxed?]
+   :mainstream_academy_resourced_provision       [:int32 :relaxed?]
+   :mainstream_academy_senunit                   [:int32 :relaxed?]
+   :mainstream_free_school                       [:int32 :relaxed?]
+   :mainstream_free_school_resourced_provision   [:int32 :relaxed?]
+   :mainstream_free_school_senunit               [:int32 :relaxed?]
+   :mainstream_independent                       [:int32 :relaxed?]
+   :mainstream_total                             [:int32 :relaxed?]
+   :mainstream_total_pc                          [:float32 :relaxed?]
+   :special_la_maintained                        [:int32 :relaxed?]
+   :special_academy_free                         [:int32 :relaxed?]
+   :special_independent                          [:int32 :relaxed?]
+   :special_non_maintained                       [:int32 :relaxed?]
+   :special_total                                [:int32 :relaxed?]
+   :special_total_pc                             [:float32 :relaxed?]
+   :ap_pru_academy                               [:int32 :relaxed?]
+   :ap_pru_free_school                           [:int32 :relaxed?]
+   :ap_pru_la_maintained                         [:int32 :relaxed?]
+   :ap_pru_total                                 [:int32 :relaxed?]
+   :AP_PRU_total_pc                              [:float32 :relaxed?]
+   :general_fe_tertiary_colleges                 [:int32 :relaxed?]
+   :specialist_post_16_institutions              [:int32 :relaxed?]
+   :ukrlp_provider                               [:int32 :relaxed?]
+   :fe_total                                     [:int32 :relaxed?]
+   :fe_total_pc                                  [:float32 :relaxed?]
+   :elective_home_education                      [:int32 :relaxed?]
+   :other_arrangements_la                        [:int32 :relaxed?]
+   :other_arrangements_parents                   [:int32 :relaxed?]
+   :online_provider                              [:int32 :relaxed?]
+   :w_settings                                   [:int32 :relaxed?]
+   :other_schools                                [:int32 :relaxed?]
+   :other_placement_settings                     [:int32 :relaxed?]
+   :neet                                         [:int32 :relaxed?]
+   :neet_ntci                                    [:int32 :relaxed?]
+   :neet_other                                   [:int32 :relaxed?]
+   :neet_other_csa                               [:int32 :relaxed?]
+   :ed_elsewhere                                 [:int32 :relaxed?]
+   :ed_elsewhere_pc                              [:float32 :relaxed?]
+   :nm_early_years                               [:int32 :relaxed?]
+   :nm_early_years_pc                            [:float32 :relaxed?]
+   :placement_unknown                            [:int32 :relaxed?]
+   :placement_unknown_pc                         [:float32 :relaxed?]
+   :await_prov_2022                              [:int32 :relaxed?]
+   :perm_ex_2022                                 [:int32 :relaxed?]})
 
 (defn table [& {:keys [input-path pipeline-fn dataset-name parser-fn key-fn]
                 :or {input-path input-path
@@ -80,106 +88,98 @@
       (cond-> pipeline-fn pipeline-fn)))
 
 ;;; Data Helpers for Other Sources
-(defn age->age-group
-  "This is handy for converting ages in other datasets to match the age groups here."
-  [age]
-  (cond 
-    (<= age 2) "age 2 and under"
-    (<= 20 age 25) "age 20 and over"
-    (< 25 age) "Outside of SEND"
-    :else (str "age " age)))
+(defn age->lsrp-age-groups [age-string]
+  ({"age 2 and under" "Under 5"
+    "age 3"           "Under 5"
+    "age 4"           "Under 5"
 
-;;; Geography
-(defn by-geographic-level [ds geographic-level]
-  (tc/select-rows ds #(= geographic-level (% :geographic_level))))
+    "age 5"           "Age 5 to 10"
+    "age 6"           "Age 5 to 10"
+    "age 7"           "Age 5 to 10"
+    "age 8"           "Age 5 to 10"
+    "age 9"           "Age 5 to 10"
+    "age 10"          "Age 5 to 10"
 
-(defn national [ds]
-  (by-geographic-level ds "National")  )
+    "age 11"          "Age 11 to 15"
+    "age 12"          "Age 11 to 15"
+    "age 13"          "Age 11 to 15"
+    "age 14"          "Age 11 to 15"
+    "age 15"          "Age 11 to 15"
 
-(defn regional [ds]
-  (by-geographic-level ds "Regional"))
+    "age 16"          "Age 16 to 19"
+    "age 17"          "Age 16 to 19"
+    "age 18"          "Age 16 to 19"
+    "age 19"          "Age 16 to 19"
 
-(defn local-authority [ds]
-  (by-geographic-level ds "Local authority"))
+    "age 20 and over" "Age 20 to 25"} 
+   age-string))
 
-;;; Breakdown Topics
-(defn breakdown-topics [& {:keys [ds]
-                           :or {ds (table)}}]
+(defn tidy-dates [ds]
   (-> ds
-      (tc/select-columns [:breakdown_topic])
-      (tc/unique-by [:breakdown_topic])
-      (tc/order-by [:breakdown_topic])))
+      (tc/map-columns :calendar-year [:time_period] identity)
+      (tc/drop-columns [:time_period :time_identifier])))
+
+(defn tidy-geocodes [ds]
+  (-> ds
+      (tc/map-columns :geo-code [:country_code :region_code :new_la_code]  (fn [c r l] (or l r c)))
+      (tc/drop-columns [:country_code :region_code :new_la_code :old_la_code])))
+
+(defn tidy-geonames [ds]
+  (-> ds
+      (tc/map-columns :geo-name [:country_name :region_name :la_name] (fn [c r l] (or l r c)))
+      (tc/drop-columns [:country_name :region_name :la_name])))
+
+(def gather-columns
+  [:new_ehc_plans
+   :mainstream_la_maintained :mainstream_la_maintained_resourced_provision :mainstream_la_maintained_senunit
+   :mainstream_academy :mainstream_academy_resourced_provision :mainstream_academy_senunit
+   :mainstream_free_school :mainstream_free_school_resourced_provision :mainstream_free_school_senunit
+   :mainstream_independent
+   :mainstream_total :mainstream_total_pc
+   :special_la_maintained :special_academy_free :special_independent :special_non_maintained 
+   :special_total :special_total_pc
+   :ap_pru_academy :ap_pru_free_school :ap_pru_la_maintained
+   :ap_pru_total :AP_PRU_total_pc
+   :general_fe_tertiary_colleges :specialist_post_16_institutions :ukrlp_provider
+   :fe_total :fe_total_pc
+   :elective_home_education :other_arrangements_la :other_arrangements_parents :online_provider
+   :w_settings :other_schools :other_placement_settings
+   :neet :neet_ntci :neet_other :neet_other_csa
+   :ed_elsewhere :ed_elsewhere_pc
+   :nm_early_years :nm_early_years_pc
+   :placement_unknown :placement_unknown_pc
+   :await_prov_2022
+   :perm_ex_2022])
+
+(defn tidy-table 
+  ([dataset]
+   (-> dataset
+       tidy-dates
+       tidy-geocodes
+       tidy-geonames
+       (tc/pivot->longer gather-columns {:value-column-name :amount
+                                         :target-columns :setting})))
+  ([]
+   (-> (table)
+       tidy-table)))
 
 (comment
-
-  (breakdown-topics)
-  ;; => sen2-newplans-2025 [4 1]:
-  ;;    |      :breakdown_topic |
-  ;;    |-----------------------|
-  ;;    | Age when plan started |
-  ;;    |             Ethnicity |
-  ;;    |         New EHC plans |
-  ;;    |                   Sex |
-  
-  )
-
-(defn breakdown-topic
-  "Topics available are: Age when plan started, Ethnicity, New EHC plans, Sex"
-  [ds & {:keys [breakdown-topic]
-         :as _opts}]
-  (tc/select-rows ds #(= breakdown-topic (% :breakdown_topic))))
-
-(defn breakdown-topic-age-when-plan-started [ds]
-  (breakdown-topic ds {:breakdown-topic "Age when plan started"}))
-
-(defn breakdown-topic-ethnicity [ds]
-  (breakdown-topic ds {:breakdown-topic "Ethnicity"}))
-
-(defn breakdown-topic-new-ehc-plans [ds]
-  (breakdown-topic ds {:breakdown-topic "New EHC plans"}))
-
-(defn breakdown-topic-sex [ds]
-  (breakdown-topic ds {:breakdown-topic "Sex"}))
-
-(comment
-
-  (age->age-group 0)
-  ;; => "age 2 and under"
-
-  (age->age-group 2)
-  ;; => "age 2 and under"
-
-  (age->age-group 3)
-  ;; => "age 3"
-  
-  (age->age-group 19)
-  ;; => "age 19"
-
-  (age->age-group 20)
-  ;; => "age 20 and over"
-  
-  (age->age-group 25)
-  ;; => "age 20 and over"
-
-  (age->age-group 26)
-  ;; => "Outside of SEND"
-
-  (table 
-   :pipeline
-   (fn [ds] 
-     (-> ds
-         (tc/select-rows #(= "Age when plan started" (% :breakdown_topic)))
-         (tc/select-rows #(= "Local authority" (% :geographic_level))))))
 
   (-> (table)
-      local-authority
-      breakdown-topic-age-when-plan-started)
+      tidy-dates
+      (tidy-geocodes)
+      (tidy-geonames)
+      (tc/column-names))
 
-  (table 
-   :pipeline
-   #(-> % local-authority breakdown-topic-age-when-plan-started))
+  (table :pipeline-fn tidy-table)
 
-  (table
-   :pipeline (comp local-authority breakdown-topic-age-when-plan-started))
+  (into (sorted-set)
+        (-> (table :pipeline-fn tidy-table)
+            (tc/select-columns [:breakdown_topic :breakdown])
+            (tc/unique-by [:breakdown_topic :breakdown])
+            (tc/order-by [:breakdown_topic :breakdown])
+            (tc/select-rows (fn [r] (= "Age when plan started" (:breakdown_topic r))))
+            :breakdown))
+  
 
   )

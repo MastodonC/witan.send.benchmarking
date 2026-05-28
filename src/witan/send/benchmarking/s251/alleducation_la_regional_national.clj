@@ -90,9 +90,12 @@
   (:require
    [tablecloth.api :as tc]))
 
-(def input-path "./src-data/la-and-school-expenditure_2024-25/data/s251_alleducation_la_regional_national.csv")
-
 (def dataset-name "s251_alleducation_la_regional_national")
+
+(def input-path 
+  (format "./src-data/la-and-school-expenditure_2024-25/data/%s.csv"
+          dataset-name))
+
 
 (def parser-map
   {:time_period                            :string ; Financial Year
