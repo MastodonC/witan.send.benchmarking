@@ -137,6 +137,13 @@
 
   )
 
+(def breakdowns-and-topics
+  (delay
+    (-> @newplans
+        (tc/select-columns [:breakdown_topic :breakdown])
+        (tc/unique-by [:breakdown_topic :breakdown])
+        (tc/order-by [:breakdown_topic :breakdown]))))
+
 (def snpp-2025-by-age
   (delay
     (-> (pop/->dataset)

@@ -76,7 +76,7 @@
 
 (defn table [& {:keys [input-path pipeline-fn dataset-name parser-fn key-fn]
                 :or {input-path input-path
-                     dataset-name "sen2-newplans-2025"
+                     dataset-name dataset-name
                      parser-fn parser-map
                      key-fn keyword}
                 :as _opts}]

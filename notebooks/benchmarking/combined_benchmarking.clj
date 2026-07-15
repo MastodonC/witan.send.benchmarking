@@ -17,12 +17,13 @@
    [tech.v3.datatype.functional :as dfn]
    [witan.send.benchmarking.s251.alleducation-la-regional-national :as s251]
    [witan.send.benchmarking.sen2-2025.newplans :as newplans]
+   [witan.send.benchmarking.population-2025.population :as pop2025]
    [witan.send.population.england :as pop])
   (:import
    (java.time LocalDateTime)
    (java.time.format DateTimeFormatter)))
 
-(def la-name "Portsmouth")
+(def la-name "South Gloucestershire")
 (def statistical-neighbours (sn/neighbours la-name))
 (def statistical-neighbours-pred (sn/neighbours-name-pred la-name))
 (def la-and-stat-neighbours-pred (conj statistical-neighbours-pred la-name))
@@ -149,7 +150,7 @@
 
  ;; DECISION: We're going to use 0-25 population as our denominator for
  ;; benchmarking comparison of SEND Spending
- 
+
  ;; So, the 2024/25 Financial year covers April, May, June, July,
  ;; August, September, October, November, December in 2024, which is 9
  ;; months and January, February, March in 2025 which is 3 months, so
@@ -163,48 +164,45 @@
   (format "FY %d/%d" year (-> year (rem 100) inc)))
 
 (def send-age-pop-by-la-calendar-year
-  (-> (pop/->dataset)
-      (as-> $
-          (dsr/group-by-column-agg
-           [:ctyua23cd :ctyua23nm :year :calendar-year]
-           {:total-pop (dsr/sum :population)}
-           $))
-      (tc/rename-columns {:ctyua23cd :geo-code
-                          :ctyua23nm :geo-name})
-      (tc/order-by [:geo-code :calendar-year])))
-
-(defn total-pop-by-la-financial-year [population-by-cy]
-  (-> (tc/inner-join
-       (-> population-by-cy
-           (tc/map-columns :y1-pop [:total-pop] #(* (/ 9 12) %))
-           (tc/map-columns :financial-year [:calendar-year]
-                           year-to-financial-year))
-       (-> population-by-cy
-           (tc/map-columns :y2-pop [:total-pop] #(* (/ 3 12) %))
-           (tc/map-columns :financial-year [:calendar-year]
-                           #(-> % dec year-to-financial-year)))
-       [:geo-code :financial-year])
-      (tc/select-columns [:geo-code :geo-name
-                          #_:calendar-year #_:right.calendar-year
-                          :financial-year #_:right.financial-year
-                          #_:total-pop #_:right.total-pop
-                          :y1-pop :y2-pop])
-      (tc/map-columns :financial-year-pop [:y1-pop :y2-pop] #(int (+ %1 %2)))))
+  (pop2025/table
+   :la-name-fn la-and-stat-neighbours-pred
+   :pipeline-fn
+   #(-> %
+        pop2025/pop-by-age-per-financial-year
+        (tc/order-by [:geo-name :financial-year]))))
 
 (def send-age-pop-by-la-per-financial-year
-  (-> (total-pop-by-la-financial-year send-age-pop-by-la-calendar-year)
-      (tc/select-rows #(la-and-stat-neighbours-pred (:geo-name %)))))
+  (pop2025/table
+   :la-name-fn la-and-stat-neighbours-pred
+   :pipeline-fn
+   #(-> %
+        pop2025/pop-by-age-per-financial-year
+        (pop2025/pop-total-by-year :financial-year :financial-year-pop)
+        (tc/order-by [:geo-name :financial-year]))))
 
 (def total-pop-by-phase-by-la-calendar-year
-  (-> (pop/->dataset)
-      (tc/map-columns :phase [:age] phase-from-integer-age)
-      (tc/rename-columns {:ctyua23cd :geo-code
-                          :ctyua23nm :geo-name})
-      (as-> $
-          (dsr/group-by-column-agg
-           [:geo-code :geo-name :year :calendar-year :phase]
-           {:total-pop (dsr/sum :population)}
-           $))))
+  (pop2025/table
+   :la-name-fn la-and-stat-neighbours-pred
+   :pipeline-fn
+   #(-> %
+        pop2025/pop-by-age-per-financial-year
+        pop2025/pop-by-phase-per-financial-year
+        (as-> $
+            (dsr/group-by-column-agg
+             [:geo-code :geo-name :financial-year :phase]
+             {:total-financial-year-pop (dsr/sum :financial-year-pop)}
+             $))
+        (tc/order-by [:geo-name :financial-year :phase])))
+;;; NEXT
+  #_(-> (pop/->dataset)
+        (tc/map-columns :phase [:age] phase-from-integer-age)
+        (tc/rename-columns {:ctyua23cd :geo-code
+                            :ctyua23nm :geo-name})
+        (as-> $
+            (dsr/group-by-column-agg
+             [:geo-code :geo-name :year :calendar-year :phase]
+             {:total-pop (dsr/sum :population)}
+             $))))
 
 (defn total-pop-by-phase-by-la-financial-year [population-by-cy]
   (-> (tc/inner-join
@@ -228,7 +226,7 @@
 (def send-age-pop-by-phase-by-la-per-financial-year
   (-> total-pop-by-phase-by-la-calendar-year
       total-pop-by-phase-by-la-financial-year
-      (tc/select-rows #(la-and-stat-neighbours-pred (:geo-name %)))))
+      #_(tc/select-rows #(la-and-stat-neighbours-pred (:geo-name %)))))
 
 (
 ;;; ## Calculation Helper
@@ -239,11 +237,45 @@
                            join-keys
                            input-fields
                            value-fn
-                           output-field]
+                           output-field
+                           finalise-f]
                     :or {value-fn #(m/approx (dfn// %1 %2))}}]
   (-> numerator-ds
       (tc/inner-join denominator-ds join-keys)
-      (tc/map-columns output-field input-fields value-fn)))
+      (tc/map-columns output-field input-fields value-fn)
+      (cond-> 
+          finalise-f (finalise-f))))
+
+^{::clerk/visibility {:code :hide :result :hide}}
+(defn financial-dimensions-f [category-of-expenditure-f setting-f]
+  (fn [ds]
+    (-> ds
+        (tc/select-rows (fn [r] (category-of-expenditure-f (:category_of_expenditure r))))
+        (tc/select-rows (fn [r] (la-and-stat-neighbours-pred (:la_name r))))
+        (s251/tidy-table)
+        (tc/map-columns :time_period [:time_period] s251/format-financial-year)
+        (tc/select-rows (fn [r] (setting-f (:setting r))))
+        (as-> $
+            (dsr/group-by-column-agg
+             [:time_period :geo-code :geo-name]
+             {:amount (dsr/sum :amount)}
+             $)))))
+
+^{::clerk/visibility {:code :hide :result :hide}}
+(def default-financial-calc-map
+  {:denominator-ds
+   send-age-pop-by-la-per-financial-year
+   :join-keys
+   {:left [:time_period :geo-code]
+    :right [:financial-year :geo-code]}
+   :input-fields [:amount :financial-year-pop]
+   :output-field :net-expenditure-per-send-age-cyp
+   :finalise-f (fn [ds]
+                 (-> ds
+                     (tc/drop-columns #":right.*")
+                     (tc/drop-columns [:financial-year :time_identifier :geographic_level])
+                     (tc/order-by [:geo-code :time_period])))})
+
 
 (
 ;;; Deck
@@ -278,7 +310,6 @@
 (watermark)
 (mc-logo)
 
-
 ;; ---
 ;;; # High Needs Amount per CYP of SEND Age (0-25)
 
@@ -291,49 +322,39 @@
 ;; Source: Section 251 (2024/2025), Line 1.0.2,
 ;; sen_and_special_schools and pupil_referral_units_and_alt_provision
 ;; columns.
+
+
 ^{::clerk/visibility {:code :hide :result :hide}}
 (def total-funding-for-schools-and-ap-prus
-  (-> (calculate
-       :numerator-ds
-       (s251/table
-        :pipeline-fn
-        (fn [ds]
-          (-> ds
-              (tc/select-rows (fn [r] (#{"1.0.2 High needs place funding within Individual Schools Budget"}
-                                       (:category_of_expenditure r))))
-              (tc/select-rows (fn [r] (la-and-stat-neighbours-pred (:la_name r))))
-              (s251/tidy-table)
-              (tc/map-columns :time_period [:time_period] s251/format-financial-year)
-              (tc/select-rows (fn [r]
-                                (#{:sen_and_special_schools :pupil_referral_units_and_alt_provision}
-                                 (:setting r))))
-              (as-> $
-                  (dsr/group-by-column-agg
-                   [:time_period :geo-code :geo-name]
-                   {:amount (dsr/sum :amount)}
-                   $)))))
-       :denominator-ds
-       send-age-pop-by-la-per-financial-year
-       :join-keys
-       {:left [:time_period :geo-code]
-        :right [:financial-year :geo-code]}
-       :input-fields [:amount :financial-year-pop]
-       :output-field :net-expenditure-per-send-age-cyp)
-      (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])))
+  (calculate
+   (assoc default-financial-calc-map
+          :numerator-ds 
+          (s251/table
+           :pipeline-fn
+           (financial-dimensions-f
+            #{"1.0.2 High needs place funding within Individual Schools Budget"}
+            #{:sen_and_special_schools :pupil_referral_units_and_alt_provision})))))
 
 (clerk/row
  {::clerk/width :full}
  (clerk/plotly
   (neighbour-comparison-boxplot
    {:neighbour-data total-funding-for-schools-and-ap-prus
+    :title "Total Place Funding for Special Schools and AP/PRUs per SEND age CYP"
     :la-name la-name
-    :title "Total Place Funding for Special Schools and AP/PRUs"
     :series-name :geo-name
     :x-field :time_period
     :x-title "Financial Year"
     :y-field :net-expenditure-per-send-age-cyp
-    :y-title "Net Expenditure per SEND age CYP (£s)"})))
+    :y-title "Net Expenditure per SEND age CYP (£s)"}))
+ (clerk/col 
+  (clerk/md (format "#### Amount for %s" la-name))
+  (clerk/table
+   (-> total-funding-for-schools-and-ap-prus
+       (tc/select-rows (fn [r] (= (:geo-name r) la-name)))
+       (tc/select-columns [:time_period :amount])
+       (tc/map-columns :amount [:amount] #(format "£%,12.0f" %))
+       (tc/rename-columns {:time_period "Time Period" :amount "Amount"})))))
 
 (watermark)
 (mc-logo)
@@ -344,40 +365,18 @@
 ;; Source: Section 251 (2024/2025), Lines 1.2.1, 1.2.2, 1.2.4, 1.2.11 using gross_expenditure column
 ^{::clerk/visibility {:code :hide :result :hide}}
 (def top-up-funding-maintained-schools
-  (-> (calculate
-       :numerator-ds
-       (-> (s251/table
-            :pipeline-fn
-            (fn [ds]
-              (-> ds
-                  (tc/select-rows (fn [r]
-                                    ((some-fn
-                                      (fn [s] (re-find #"^1.2.1 " s))
-                                      (fn [s] (re-find #"^1.2.2 " s))
-                                      (fn [s] (re-find #"^1.2.4 " s))
-                                      (fn [s] (re-find #"^1.2.11 " s)))
-                                     (:category_of_expenditure r))))
-                  (tc/select-rows (fn [r] (la-and-stat-neighbours-pred (:la_name r))))
-                  (s251/tidy-table)
-                  (tc/map-columns :time_period [:time_period] s251/format-financial-year)
-                  (tc/select-rows (fn [r]
-                                    (#{:gross_expenditure}
-                                     (:setting r))))
-                  (as-> $
-                      (dsr/group-by-column-agg
-                       [:time_period :geo-code :geo-name]
-                       {:amount (dsr/sum :amount)}
-                       $))))))
-       :denominator-ds
-       send-age-pop-by-la-per-financial-year
-       :join-keys
-       {:left [:time_period :geo-code]
-        :right [:financial-year :geo-code]}
-       :input-fields [:amount :financial-year-pop]
-       :output-field :net-expenditure-per-send-age-cyp)
-      (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
-      (tc/order-by [:geo-code :time_period])))
+  (calculate
+   (assoc default-financial-calc-map
+          :numerator-ds 
+          (s251/table
+           :pipeline-fn
+           (financial-dimensions-f
+            (some-fn
+             (fn [s] (re-find #"^1.2.1 " s))
+             (fn [s] (re-find #"^1.2.2 " s))
+             (fn [s] (re-find #"^1.2.4 " s))
+             (fn [s] (re-find #"^1.2.11 " s)))
+            #{:gross_expenditure})))))
 
 (clerk/row
  {::clerk/width :full}
@@ -385,12 +384,20 @@
   (neighbour-comparison-boxplot
    {:neighbour-data top-up-funding-maintained-schools
     :la-name la-name
-    :title "Top up funding (maintained schools, academies, free schools and colleges)"
+    :title "Top up funding (maintained schools, academies, free schools and colleges) per SEND age CYP"
     :series-name :geo-name
     :x-field :time_period
     :x-title "Financial Year"
     :y-field :net-expenditure-per-send-age-cyp
-    :y-title "Gross Expenditure per SEND age CYP (£s)"})))
+    :y-title "Gross Expenditure per SEND age CYP (£s)"}))
+ (clerk/col 
+  (clerk/md (format "#### Amount for %s" la-name))
+  (clerk/table
+   (-> top-up-funding-maintained-schools
+       (tc/select-rows (fn [r] (= (:geo-name r) la-name)))
+       (tc/select-columns [:time_period :amount])
+       (tc/map-columns :amount [:amount] #(format "£%,12.0f" %))
+       (tc/rename-columns {:time_period "Time Period" :amount "Amount"})))))
 
 (watermark)
 (mc-logo)
@@ -401,35 +408,14 @@
 ;; Source: Section 251 (2024/2025), Line 1.2.3 using gross_expenditure column
 ^{::clerk/visibility {:code :hide :result :hide}}
 (def top-up-funding-non-maintained-and-independent-schools-and-colleges
-  (-> (calculate
-       :numerator-ds
-       (-> (s251/table
-            :pipeline-fn
-            (fn [ds]
-              (-> ds
-                  (tc/select-rows (fn [r]
-                                    (re-find #"1.2.3 " (:category_of_expenditure r))))
-                  (tc/select-rows (fn [r] (la-and-stat-neighbours-pred (:la_name r))))
-                  (s251/tidy-table)
-                  (tc/map-columns :time_period [:time_period] s251/format-financial-year)
-                  (tc/select-rows (fn [r]
-                                    (#{:gross_expenditure}
-                                     (:setting r))))
-                  (as-> $
-                      (dsr/group-by-column-agg
-                       [:time_period :geo-code :geo-name]
-                       {:amount (dsr/sum :amount)}
-                       $))))))
-       :denominator-ds
-       send-age-pop-by-la-per-financial-year
-       :join-keys
-       {:left [:time_period :geo-code]
-        :right [:financial-year :geo-code]}
-       :input-fields [:amount :financial-year-pop]
-       :output-field :net-expenditure-per-send-age-cyp)
-      (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
-      (tc/order-by [:geo-code :time_period])))
+  (calculate
+   (assoc default-financial-calc-map
+          :numerator-ds 
+          (s251/table
+           :pipeline-fn
+           (financial-dimensions-f
+            #(re-find #"1.2.3 " %)
+            #{:gross_expenditure})))))
 
 (clerk/row
  {::clerk/width :full}
@@ -437,12 +423,20 @@
   (neighbour-comparison-boxplot
    {:neighbour-data top-up-funding-non-maintained-and-independent-schools-and-colleges
     :la-name la-name
-    :title "Top up funding (non-maintained and independent schools and colleges)"
+    :title "Top up funding (non-maintained and independent schools and colleges) per SEND age CYP"
     :series-name :geo-name
     :x-field :time_period
     :x-title "Financial Year"
     :y-field :net-expenditure-per-send-age-cyp
-    :y-title "Gross Expenditure per SEND age CYP (£s)"})))
+    :y-title "Gross Expenditure per SEND age CYP (£s)"}))
+ (clerk/col 
+  (clerk/md (format "#### Amount for %s" la-name))
+  (clerk/table
+   (-> top-up-funding-maintained-schools
+       (tc/select-rows (fn [r] (= (:geo-name r) la-name)))
+       (tc/select-columns [:time_period :amount])
+       (tc/map-columns :amount [:amount] #(format "£%,12.0f" %))
+       (tc/rename-columns {:time_period "Time Period" :amount "Amount"})))))
 
 (watermark)
 (mc-logo)
@@ -453,40 +447,18 @@
 ;; Source: Section 251 (2024/2025), Lines 1.2.5, 1.2.8, and 1.2.9 using gross_expenditure column
 ^{::clerk/visibility {:code :hide :result :hide}}
 (def sen-support-and-inclusion-services
-  (-> (calculate
-       :numerator-ds
-       (-> (s251/table
-            :pipeline-fn
-            (fn [ds]
-              (-> ds
-                  (tc/select-rows (fn [r]
-                                    ((some-fn
-                                      (fn [s] (re-find #"^1.2.1 " s))
-                                      (fn [s] (re-find #"^1.2.2 " s))
-                                      (fn [s] (re-find #"^1.2.4 " s))
-                                      (fn [s] (re-find #"^1.2.11 " s)))
-                                     (:category_of_expenditure r))))
-                  (tc/select-rows (fn [r] (la-and-stat-neighbours-pred (:la_name r))))
-                  (s251/tidy-table)
-                  (tc/map-columns :time_period [:time_period] s251/format-financial-year)
-                  (tc/select-rows (fn [r]
-                                    (#{:gross_expenditure}
-                                     (:setting r))))
-                  (as-> $
-                      (dsr/group-by-column-agg
-                       [:time_period :geo-code :geo-name]
-                       {:amount (dsr/sum :amount)}
-                       $))))))
-       :denominator-ds
-       send-age-pop-by-la-per-financial-year
-       :join-keys
-       {:left [:time_period :geo-code]
-        :right [:financial-year :geo-code]}
-       :input-fields [:amount :financial-year-pop]
-       :output-field :net-expenditure-per-send-age-cyp)
-      (tc/drop-columns #":inner.*")
-      (tc/drop-columns [:financial-year :time_identifier :geographic_level])
-      (tc/order-by [:geo-code :time_period])))
+  (calculate
+   (assoc default-financial-calc-map
+          :numerator-ds 
+          (s251/table
+           :pipeline-fn
+           (financial-dimensions-f
+            (some-fn
+             (fn [s] (re-find #"^1.2.1 " s))
+             (fn [s] (re-find #"^1.2.2 " s))
+             (fn [s] (re-find #"^1.2.4 " s))
+             (fn [s] (re-find #"^1.2.11 " s)))
+            #{:gross_expenditure})))))
 
 (clerk/row
  {::clerk/width :full}
@@ -494,12 +466,20 @@
   (neighbour-comparison-boxplot
    {:neighbour-data sen-support-and-inclusion-services
     :la-name la-name
-    :title "SEN support and inclusion services"
+    :title "SEN support and inclusion services per SEND age CYP"
     :series-name :geo-name
     :x-field :time_period
     :x-title "Financial Year"
     :y-field :net-expenditure-per-send-age-cyp
-    :y-title "Gross Expenditure per SEND age CYP (£s)"})))
+    :y-title "Gross Expenditure per SEND age CYP (£s)"}))
+ (clerk/col 
+  (clerk/md (format "#### Amount for %s" la-name))
+  (clerk/table
+   (-> sen-support-and-inclusion-services
+       (tc/select-rows (fn [r] (= (:geo-name r) la-name)))
+       (tc/select-columns [:time_period :amount])
+       (tc/map-columns :amount [:amount] #(format "£%,12.0f" %))
+       (tc/rename-columns {:time_period "Time Period" :amount "Amount"})))))
 
 (watermark)
 (mc-logo)
@@ -665,7 +645,7 @@
 
 ;; ---
 ;;; ## Primary place funding per pupil
-;; 
+;;
 ;; Source: Section 251 (2024/2025), Line 1.0.2, primary_schools column
 
 ^{::clerk/visibility {:code :hide :result :hide}}
@@ -682,7 +662,7 @@
               (s251/tidy-table)
               (tc/map-columns :time_period [:time_period] s251/format-financial-year)
               (tc/select-rows (fn [r] (#{:primary_schools} (:setting r)))))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-phase-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code :setting]
@@ -711,7 +691,7 @@
 
 ;; ---
 ;;; ## Secondary place funding per pupil
-;; 
+;;
 ;; Source: Section 251 (2024/2025), Line 1.0.2, secondary_schools column
 
 ^{::clerk/visibility {:code :hide :result :hide}}
@@ -728,7 +708,7 @@
               (s251/tidy-table)
               (tc/map-columns :time_period [:time_period] s251/format-financial-year)
               (tc/select-rows (fn [r] (#{:secondary_schools} (:setting r)))))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-phase-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code :setting]
@@ -757,7 +737,7 @@
 
 ;; ---
 ;;; ## Special place funding per pupil
-;; 
+;;
 ;; Source: Section 251 (2024/2025), Line 1.0.2, sen_and_special_schools column
 
 ^{::clerk/visibility {:code :hide :result :hide}}
@@ -774,7 +754,7 @@
               (s251/tidy-table)
               (tc/map-columns :time_period [:time_period] s251/format-financial-year)
               (tc/select-rows (fn [r] (#{:sen_and_special_schools} (:setting r)))))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code]
@@ -803,7 +783,7 @@
 
 ;; ---
 ;;; ## PRU and AP place funding per pupil
-;; 
+;;
 ;; Source: Section 251 (2024/2025), Line 1.0.2, pupil_referral_units_and_alt_provision column
 
 ^{::clerk/visibility {:code :hide :result :hide}}
@@ -820,7 +800,7 @@
               (s251/tidy-table)
               (tc/map-columns :time_period [:time_period] s251/format-financial-year)
               (tc/select-rows (fn [r] (#{:pupil_referral_units_and_alt_provision} (:setting r)))))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code]
@@ -882,7 +862,7 @@
                    [:time_period :geo-code :geo-name :setting]
                    {:amount (dsr/sum :amount)}
                    $)))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-phase-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code :setting]
@@ -938,7 +918,7 @@
                    [:time_period :geo-code :geo-name :setting]
                    {:amount (dsr/sum :amount)}
                    $)))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-phase-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code :setting]
@@ -995,7 +975,7 @@
                    [:time_period :geo-code :geo-name :setting]
                    {:amount (dsr/sum :amount)}
                    $)))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-phase-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code :setting]
@@ -1052,7 +1032,7 @@
                    [:time_period :geo-code :geo-name]
                    {:amount (dsr/sum :amount)}
                    $)))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code]
@@ -1109,7 +1089,7 @@
                    [:time_period :geo-code :geo-name]
                    {:amount (dsr/sum :amount)}
                    $)))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code]
@@ -1166,7 +1146,7 @@
                    [:time_period :geo-code :geo-name :setting]
                    {:amount (dsr/sum :amount)}
                    $)))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-phase-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code :setting]
@@ -1222,7 +1202,7 @@
                    [:time_period :geo-code :geo-name]
                    {:amount (dsr/sum :amount)}
                    $)))))
-       :denominator-ds 
+       :denominator-ds
        send-age-pop-by-la-per-financial-year
        :join-keys
        {:left [:time_period :geo-code :setting]
@@ -1634,7 +1614,7 @@
 
 ^{::clerk/visibility {:code :hide :result :hide}}
 (def new-echps-total
-  (-> (calculate 
+  (-> (calculate
        :numerator-ds
        (let [setting :new_ehc_plans]
          (newplans/table
@@ -1668,7 +1648,7 @@
     :x-title "Calendar Year (Jan-Dec)"
     :y-field :new-ehcps-per-thousand
     :y-title "New EHCPs per 1,000"}))
- (clerk/col 
+ (clerk/col
   (clerk/md "### Number of New EHCPs")
   (clerk/table
    (-> new-echps-total
@@ -1687,7 +1667,7 @@
 
 ^{::clerk/visibility {:code :hide :result :hide}}
 (def new-echps-mainstream-total
-  (-> (calculate 
+  (-> (calculate
        :numerator-ds
        (let [setting :mainstream_total]
          (newplans/table
@@ -1730,7 +1710,7 @@
 
 ^{::clerk/visibility {:code :hide :result :hide}}
 (def new-echps-special-total
-  (-> (calculate 
+  (-> (calculate
        :numerator-ds
        (let [setting :special_total]
          (newplans/table
@@ -1774,7 +1754,7 @@
 
 ^{::clerk/visibility {:code :hide :result :hide}}
 (def new-echps-ap_pru-total
-  (-> (calculate 
+  (-> (calculate
        :numerator-ds
        (let [setting :ap_pru_total]
          (newplans/table
@@ -1817,7 +1797,7 @@
 
 ^{::clerk/visibility {:code :hide :result :hide}}
 (def new-echps-fe-total
-  (-> (calculate 
+  (-> (calculate
        :numerator-ds
        (let [setting :fe_total]
          (newplans/table
@@ -1852,7 +1832,52 @@
     :y-field :new-ehcps-per-thousand
     :y-title "New EHCPs per 1,000"})))
 
+(watermark)
+(mc-logo)
+
+;; ---
+;;; ## Timeliness - Within 20 weeks (timeliness_20_week.csv)
 
 (watermark)
 (mc-logo)
+
+;; ---
+;;; ## Timeliness - 20 weeks to 1 year (timeliness_20_week.csv)
+
+(watermark)
+(mc-logo)
+
+;; ---
+;;; ## Timeliness - Over 1 Year (timeliness_20_week.csv)
+
+(watermark)
+(mc-logo)
+
+;; ---
+;;; ## Plans Ceaased (ceased_plans.csv)
+
+;; ---
+;;; ## Plans at January Census Point (get this from sen_needs_all_plans.csv)
+
+;; ---
+;;; ## Plans by Primary Need (get this from sen_needs_all_plans.csv)
+
+;; ---
+;;; ## Needs Assessment Requests (requests.csv)
+
+;; ---
+;;; ## Needs Assessments Performed (assessments.csv)
+
+;; ---
+;;; ## Needs Assessments leading to EHCP issued (assessments.csv)
+
+;; ---
+;;; ## Annual Reviews Performed (annual_reviews.csv)
+
+;; ---
+;;; ## TODO
+
+;; - Create an Academic Year Population
+;; - Create a Jan-Dec Population (not a MYE)
+;; - Create a Financial Year Population
 

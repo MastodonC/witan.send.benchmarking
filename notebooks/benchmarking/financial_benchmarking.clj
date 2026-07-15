@@ -21,8 +21,8 @@
    (java.time LocalDateTime)
    (java.time.format DateTimeFormatter)))
 
-(def la-name "South Gloucestershire")
-(def stat-neighbours (sn/neighbours la-name))
+(def la-name "East Riding of Yorkshire")
+(def statistical-neighbours (sn/neighbours la-name))
 (def statistical-neighbours-pred (sn/neighbours-name-pred la-name))
 (def la-and-stat-neighbours-pred (conj statistical-neighbours-pred la-name))
 
@@ -276,6 +276,21 @@
    [:p.text-3xl.mt-12 "Use ⬅️➡️ keys to navigate and ESC to see an overview."]]))
 
 (mc-logo)
+
+;; ---
+;;; ## Statistical Nearest Neighbours
+(clerk/row
+ {::clerk/width :full}
+ (clerk/table
+  (-> statistical-neighbours
+      (tc/select-columns [:sn :sn_name :sn_prox])
+      (tc/rename-columns {:sn_name "Neighbour Name"
+                          :sn "Neighbour Rank"
+                          :sn_prox "Statistical Proximity"}))))
+
+(watermark)
+(mc-logo)
+
 
 ;; ---
 ;;; # High Needs Amount per CYP of SEND Age (0-25)

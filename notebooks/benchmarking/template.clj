@@ -27,7 +27,7 @@
    (java.time.format DateTimeFormatter)))
 
 
-(def la-name "Suffolk")
+(def la-name "East Riding of Yorkshire")
 
 (def out-dir "doc/")
 

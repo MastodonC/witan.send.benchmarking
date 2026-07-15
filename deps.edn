@@ -5,8 +5,7 @@
          io.github.nextjournal/clerk-slideshow {:git/sha "11a83fea564da04b9d17734f2031a4921d917893"}
          com.github.mastodonc/witan.population {:git/sha "ef31688b40d191f52fab997ca7b40afd3454390a" #_ "78070098dfa78592ce1a78785142260448337fac"} 
          generateme/fastmath                   {:mvn/version "2.4.0"}
-         scicloj/tablecloth                    {:mvn/version "8.016"}
-         ;; scicloj/tablecloth                    {:mvn/version "7.059"}
+         scicloj/tablecloth {:mvn/version "8.021"}
 
          ;; https://mvnrepository.com/artifact/com.xtdb/xtdb-api
          com.xtdb/xtdb-api                     {:mvn/version "2.0.0"}
