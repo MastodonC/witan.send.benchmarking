@@ -1,7 +1,9 @@
 {:paths ["src" "resources" "notebooks"]
- :deps  {org.clojure/clojure                   {:mvn/version "1.12.0"}
-         io.github.nextjournal/clerk           {:mvn/version "0.18.1142"}
-         io.github.nextjournal/clerk-slideshow {:git/sha "11a83fea564da04b9d17734f2031a4921d917893"}
-         com.github.mastodonc/witan.population {:git/sha "0dcaa57f75fa93f038dcc53ec4c724627d1eb0cf"}
-         generateme/fastmath                   {:mvn/version "2.4.0"}
-         scicloj/tablecloth                    {:mvn/version "7.059"}}}
+ :deps  {org.clojure/clojure                   {:mvn/version "1.12.5"}
+         scicloj/tablecloth                    {:mvn/version "7.067"}
+         ;; scicloj/tablecloth                    {:mvn/version "8.024"}
+         ;; org.scicloj/clay                      {:mvn/version "2.0.20"}
+         org.scicloj/clay                      {:mvn/version "2.0.21"}
+         ;; org.scicloj/plotje                    {:mvn/version "0.7.0"}
+         org.scicloj/plotje                    {:mvn/version "0.8.0"}
+         com.github.mastodonc/witan.population {:git/sha "b7c75b7e41406c6e56fa5ce4cec025a917100612"}}}
