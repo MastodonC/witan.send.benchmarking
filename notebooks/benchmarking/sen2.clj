@@ -44,20 +44,27 @@
     (pj/lay-point "Calendar Year" "0-25 Population" {:color :geo-name :shape :geo-name})
     (pj/options {:title "0-25 Population" :title-font-size 26 :tooltip true}))
 
-;; (pj/config)
-
 ^:kindly/hide-code
 (-> population-total
     (tc/drop-rows #(= (:geo-name %) la-name))
     (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population" :geo-name "Local Authority"})
     (pj/lay-boxplot "Calendar Year" "0-25 Population" {:x-type :categorical :color "orange"})
-    ;; (pj/lay-point {:data (-> population-total
-    ;;                          (tc/select-rows #(= (:geo-name %) la-name))
-    ;;                          (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population" :geo-name "Local Authority"}))
-    ;;                ;; :alpha 0.3 
-    ;;                ;; :color "blue" :shape :circle
-    ;;                :x-type :categorical})
-    (pj/options {:height 600 :width 1600}))
+    #_(pj/lay-point {:data (-> population-total
+                               (tc/select-rows #(= (:geo-name %) la-name))
+                               (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population" :geo-name "Local Authority"}))
+                     :x "Calendar Year" :y "0-25 Population"
+                     ;; :alpha 0.3
+                     :color "blue" ;; :shape "circle"
+                     :x-type :categorical})
+    (pj/lay-point {:data (-> population-total
+                             #_(tc/drop-rows #(= (:geo-name %) la-name))
+                             (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population" :geo-name "Local Authority"}))
+                   :x "Calendar Year" :y "0-25 Population"
+                   ;; :alpha 0.3
+                   :color "Local Authority" :shape "Local Authority"
+                   :jitter true
+                   :x-type :categorical})
+    (pj/options {:height 600 :width 1400}))
 
 ^:kindly/hide-code
 (def population-by-age-group
