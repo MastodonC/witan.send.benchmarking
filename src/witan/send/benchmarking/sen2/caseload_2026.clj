@@ -15,7 +15,7 @@
   (io/as-file
    (io/resource "./education-health-and-care-plans_2026/data/caseload.csv")))
 
-(def sen2-2026-caseload
+(def table
   (-> sen2-2026-caseload-file
       (tc/dataset {:dataset-name "sen2-2026-caseload" :key-fn keyword
                    :parser-fn {:time_period :int32

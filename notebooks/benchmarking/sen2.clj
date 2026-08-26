@@ -9,7 +9,8 @@
    [tablecloth.api :as tc]
    [tech.v3.datatype.functional :as dfn]
    [witan.send.benchmarking.population :as population]
-   [witan.send.benchmarking.neighbours.statistical :as sn]))
+   [witan.send.benchmarking.neighbours.statistical :as sn]
+   [witan.send.benchmarking.sen2.caseload-2026 :as caseload]))
 
 ^:kindly/hide-code
 (def la-name "Dorset")
@@ -22,7 +23,8 @@
    :la_code "LA Code"
    :sn "Neighbour Rank"
    :sn_name "Local Authority"
-   :sn_prox "Proximity"})
+   :sn_prox "Proximity"
+   :ehcplans "EHC Plans"})
 
 
 ^:kindly/hide-code
@@ -100,7 +102,7 @@
    :la-name-f (conj neighbours-pred la-name)
    :pipeline-f
    #(-> %
-        (tc/select-rows (fn [r] (< 2016 (:calendar-year r) 2027)))
+        (tc/select-rows (fn [r] (< 2018 (:calendar-year r) 2027)))
         (tc/order-by [:geo-name :age :calendar-year]))))
 
 ^:kindly/hide-code
@@ -236,7 +238,93 @@
                            input-fields
                            value-fn
                            output-field]
-                    :or {value-fn #(m/approx (dfn// %1 %2))}}]
+                    :or {value-fn #(m/approx (dfn/* 10000 (dfn// %1 %2)))}}]
   (-> numerator-ds
       (tc/inner-join denominator-ds join-keys)
       (tc/map-columns output-field input-fields value-fn)))
+
+;;; # EHCP analysis
+
+^:kindly/hide-code
+(defn caseload-by-setting [setting]
+  (calculate
+   :numerator-ds 
+   (-> @caseload/table
+       (tc/map-columns :calendar-year [:time_period] caseload/time_period->calendar-year)
+       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+       (tc/rename-columns {:la_name :geo-name})
+       (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
+       (tc/select-columns [:time_period :calendar-year :geo-name setting]))
+   :denominator-ds
+   population-total
+   :join-keys [:geo-name :calendar-year]
+   :output-field "EHCPs per 10k"
+   :input-fields [setting :population]))
+
+^:kindly/hide-code
+(defn caseload-by-setting-chart [ds title]
+  (-> ds
+      (tc/rename-columns sweet-column-names)
+      (tc/drop-rows #(= (% "Local Authority") la-name))
+      (pj/lay-boxplot "Calendar Year" "EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
+      (pj/lay-point {:data (-> ds
+                               (tc/rename-columns sweet-column-names)
+                               (tc/drop-rows #(= (% "Local Authority") la-name)))
+                     :x "Calendar Year" :y "EHCPs per 10k"
+                     :color "Local Authority" :shape "Local Authority"
+                     ;; :jitter 4
+                     :alpha 1.0
+                     :size 5
+                     :offset-x -40
+                     :x-type :categorical})
+      (pj/lay-point {:data (-> ds
+                               (tc/rename-columns sweet-column-names)
+                               (tc/select-rows #(= (% "Local Authority") la-name)))
+                     :x "Calendar Year" :y "EHCPs per 10k"
+                     :color "Local Authority" :shape "Local Authority"
+                     :size 9
+                     :alpha 1.0
+                     :x-type :categorical})
+      (pj/scale :shape {:domain (:domain geo-domain-lookup)
+                        :values (:shapes geo-domain-lookup)})
+      (pj/scale :color {:domain (:domain geo-domain-lookup)
+                        :values (:colors geo-domain-lookup)})
+      (pj/scale :y {:include 0})
+      (pj/options {:title title})
+      (pj/options {:title-font-size 26 :tooltip true :thousands-separator ","})
+      (pj/options {:height 900 :width 1400})))
+
+^:kindly/hide-code
+(def overall-ehcp-per-10k (caseload-by-setting :ehcplans))
+
+^:kindly/hide-code
+(caseload-by-setting-chart overall-ehcp-per-10k "Overall Rate of EHCPs")
+
+^:kindly/hide-code
+(def special-ehcp-per-10k
+  (caseload-by-setting :special_total))
+
+^:kindly/hide-code
+(caseload-by-setting-chart special-ehcp-per-10k "Specialist Rate of EHCPs")
+
+^:kindly/hide-code
+(def mainstream-ehcp-per-10k
+  (caseload-by-setting :mainstream_total))
+
+^:kindly/hide-code
+(caseload-by-setting-chart mainstream-ehcp-per-10k "Mainstream Rate of EHCPs")
+
+
+^:kindly/hide-code
+(def ap_pru-ehcp-per-10k
+  (caseload-by-setting :ap_pru_total))
+
+^:kindly/hide-code
+(caseload-by-setting-chart ap_pru-ehcp-per-10k "AP and PRU Rate of EHCPs")
+
+^:kindly/hide-code
+(def fe-ehcp-per-10k
+  (caseload-by-setting :fe_total))
+
+^:kindly/hide-code
+(caseload-by-setting-chart fe-ehcp-per-10k "Further Education Rate of EHCPs")
