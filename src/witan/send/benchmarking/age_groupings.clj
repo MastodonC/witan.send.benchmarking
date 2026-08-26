@@ -27,9 +27,4 @@
 (defn sen2-age-group [^long age]
   (age->lsrp-age-group age))
 
-(def age-group-order
-  {"Under 5" 0
-   "Age 5 to 10" 1
-   "Age 11 to 15" 2
-   "Age 16 to 19" 3
-   "Age 20 to 25" 4})
+

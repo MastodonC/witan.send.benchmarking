@@ -24,8 +24,7 @@
     (dsr/group-by-column-agg
      [:geo-code :geo-name year-column age-group-column]
      {population-column (dsr/sum population-column)}
-     $)
-    (tc/map-columns $ :age-group-order [age-group-column] #(age/age-group-order %))))
+     $)))
 
 (defn table [& {:keys [population-f
                        min-age

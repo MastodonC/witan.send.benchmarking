@@ -1,26 +1,97 @@
+^{:clay {:title "SEN2 Benchmarking" :hide-ui-header true}}
+
 ^:kindly/hide-code
 (ns benchmarking.sen2
-  (:require [scicloj.plotje.api :as pj]
-            [tablecloth.api :as tc]
-            [witan.send.benchmarking.population :as population]
-            [witan.send.benchmarking.neighbours.statistical :as sn]))
+  (:require
+   [fastmath.core :as m]
+   [scicloj.plotje.api :as pj]
+   [scicloj.kindly.v4.kind :as kind]
+   [tablecloth.api :as tc]
+   [tech.v3.datatype.functional :as dfn]
+   [witan.send.benchmarking.population :as population]
+   [witan.send.benchmarking.neighbours.statistical :as sn]))
 
-;;; # SEN2 Benchmarking
+^:kindly/hide-code
+(def la-name "Dorset")
+
+^:kindly/hide-code
+(def sweet-column-names
+  {:geo-name "Local Authority"
+   :calendar-year "Calendar Year"
+   :population "0-25 Population"
+   :la_code "LA Code"
+   :sn "Neighbour Rank"
+   :sn_name "Local Authority"
+   :sn_prox "Proximity"})
+
+
+^:kindly/hide-code
+(kind/hiccup [:h1 (format "SEN2 Benchmarking for %s" la-name)])
 
 ;;; ## LA and Neighbours
-^:kindly/hide-code
-(def la-name "Barking and Dagenham")
 
 ^:kindly/hide-code
 (def neighbours (sn/neighbours la-name))
 ^:kindly/hide-code
 (def neighbours-pred (sn/neighbours-name-pred la-name))
 
-;;; ### Statistical Neighbours
 ^:kindly/hide-code
-(-> neighbours
-    (tc/select-columns [:sn :sn_name :sn_prox])
-    (tc/rename-columns {:sn "Rank" :sn_name "Name" :sn_prox "Proximity"}))
+(def geo-domain
+  (into [la-name] (:sn_name neighbours)))
+
+^:kindly/hide-code
+(kind/hiccup [:h3 (format "Statistical Neighbours for %s" la-name)])
+
+^:kindly/hide-code
+(kind/table
+ (-> neighbours
+     (tc/select-columns [:sn :sn_name :sn_prox])
+     (tc/rename-columns sweet-column-names)))
+
+^:kindly/hide-code
+(def colors
+  "Tableau 20 palette, excluding the red."
+  [
+   ;; tableau 10
+   "#1f77b4"                            ; [ 31 119 180 255]
+   "#ff7f0e"                            ; [255 127  14 255]
+   "#2ca02c"                            ; [ 44 160  44 255]
+   #_"#d62728"                          ; [214  39  40 255]
+   "#9467bd"                            ; [148 103 189 255]
+   "#8c564b"                            ; [140  86  75 255]
+   "#e377c2"                            ; [227 119 194 255]
+   ;; "#7f7f7f"                            ; [127 127 127 255]
+   "#bcbd22"                            ; [188 189  34 255]
+   "#17becf"                            ; [ 23 190 207 255]
+   ;; tableau 20 lighter shades
+   "#aec7e8"                            ; [174 199 232 255]
+   "#ffbb78"                            ; [255 187 120 255]
+   "#98df8a"                            ; [152 223 138 255]
+   "#ff9896"                            ; [255 152 150 255]
+   "#c5b0d5"                            ; [197 176 213 255]
+   "#c49c94"                            ; [196 156 148 255]
+   "#f7b6d2"                            ; [247 182 210 255]
+   "#c7c7c7"                            ; [199 199 199 255]
+   "#dbdb8d"                            ; [219 219 141 255]
+   "#9edae5"                            ; [158 218 229 255]
+   ])
+
+^:kindly/hide-code
+(def shapes [:diamond :circle :square :triangle :cross])
+
+^:kindly/hide-code
+(def geo-domain-lookup
+  (tc/dataset
+   {:domain geo-domain
+    :shapes (cycle shapes)
+    :colors (cycle colors)}))
+
+^:kindly/hide-code
+(def age-group-domain
+  (tc/dataset
+   {:domain ["Under 5" "Age 5 to 10" "Age 11 to 15" "Age 16 to 19" "Age 20 to 25"]
+    :shapes (cycle shapes)
+    :colors (cycle colors)}))
 
 ;;; ## Total Population
 ^:kindly/hide-code
@@ -29,6 +100,7 @@
    :la-name-f (conj neighbours-pred la-name)
    :pipeline-f
    #(-> %
+        (tc/select-rows (fn [r] (< 2016 (:calendar-year r) 2027)))
         (tc/order-by [:geo-name :age :calendar-year]))))
 
 ^:kindly/hide-code
@@ -36,36 +108,57 @@
   (-> (population/pop-total-by-year population-by-age :calendar-year :population)
       (tc/order-by [:geo-name :calendar-year])))
 
+
 ^:kindly/hide-code
 (-> population-total
     (tc/select-rows #(= (:geo-name %) la-name))
-    (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population"})
-    (pj/lay-line "Calendar Year" "0-25 Population" {:color :geo-name})
-    (pj/lay-point "Calendar Year" "0-25 Population" {:color :geo-name :shape :geo-name})
-    (pj/options {:title "0-25 Population" :title-font-size 26 :tooltip true}))
+    (tc/rename-columns sweet-column-names)
+    (pj/lay-line "Calendar Year" "0-25 Population" {:color "Local Authority"
+                                                    :x-type :categorical})
+    (pj/lay-point "Calendar Year" "0-25 Population" 
+                  {:color "Local Authority" :shape "Local Authority"
+                   :size 7
+                   :alpha 1.0
+                   :x-type :categorical})
+    (pj/scale :shape {:domain (:domain geo-domain-lookup)
+                      :values (:shapes geo-domain-lookup)})
+    (pj/scale :color {:domain (:domain geo-domain-lookup)
+                      :values (:colors geo-domain-lookup)})
+    (pj/options {:title-font-size 26 :tooltip true :thousands-separator "," :width 1400})
+    (pj/options {:title "0-25 Population"}))
 
 ^:kindly/hide-code
 (-> population-total
-    (tc/drop-rows #(= (:geo-name %) la-name))
-    (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population" :geo-name "Local Authority"})
-    (pj/lay-boxplot "Calendar Year" "0-25 Population" {:x-type :categorical :color "orange"})
-    #_(pj/lay-point {:data (-> population-total
-                               (tc/select-rows #(= (:geo-name %) la-name))
-                               (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population" :geo-name "Local Authority"}))
-                     :x "Calendar Year" :y "0-25 Population"
-                     ;; :alpha 0.3
-                     :color "blue" ;; :shape "circle"
-                     :x-type :categorical})
+    (tc/rename-columns sweet-column-names)
+    (tc/drop-rows #(= (% "Local Authority") la-name))
+    (pj/lay-boxplot "Calendar Year" "0-25 Population" {:x-type :categorical :alpha 0.2 :box-width 0.3})
     (pj/lay-point {:data (-> population-total
-                             #_(tc/drop-rows #(= (:geo-name %) la-name))
-                             (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population" :geo-name "Local Authority"}))
+                             (tc/rename-columns sweet-column-names)
+                             (tc/drop-rows #(= (% "Local Authority") la-name)))
                    :x "Calendar Year" :y "0-25 Population"
-                   ;; :alpha 0.3
                    :color "Local Authority" :shape "Local Authority"
-                   :jitter true
+                   ;; :jitter true
+                   :alpha 0.7
+                   :size 3
+                   :offset-x -30
                    :x-type :categorical})
-    (pj/options {:height 600 :width 1400}))
+    (pj/lay-point {:data (-> population-total
+                             (tc/rename-columns sweet-column-names)
+                             (tc/select-rows #(= (% "Local Authority") la-name)))
+                   :x "Calendar Year" :y "0-25 Population"
+                   :color "Local Authority" :shape "Local Authority"
+                   :size 9
+                   :alpha 1.0
+                   :x-type :categorical})
+    (pj/scale :shape {:domain (:domain geo-domain-lookup)
+                      :values (:shapes geo-domain-lookup)})
+    (pj/scale :color {:domain (:domain geo-domain-lookup)
+                      :values (:colors geo-domain-lookup)})
+    (pj/scale :y {:include 0})
+    (pj/options {:title "0-25 Population"})
+    (pj/options {:title-font-size 26 :tooltip true :thousands-separator "," :width 1400}))
 
+;;; ## Population by Age Group
 ^:kindly/hide-code
 (def population-by-age-group
   (-> (population/pop-total-by-age-group population-by-age :calendar-year :population :age :age-group)
@@ -75,6 +168,75 @@
 (-> population-by-age-group
     (tc/select-rows #(= (:geo-name %) la-name))
     (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population" :age-group "Age Group"})
-    (pj/lay-line "Calendar Year" "0-25 Population" {:color "Age Group"})
-    (pj/lay-point {:shape "Age Group" :color "Age Group"})
-    (pj/options {:title "0-25 Population"}))
+    (pj/lay-line "Calendar Year" "0-25 Population" {:color "Age Group" :x-type :categorical})
+    (pj/lay-point {:shape "Age Group" :color "Age Group" :x-type :categorical
+                   :alpha 1.0
+                   :size 5})
+    (pj/scale :shape {:domain (:domain age-group-domain)
+                      :values (:shapes age-group-domain)})
+    (pj/scale :color {:domain (:domain age-group-domain)
+                      :values (:colors age-group-domain)})
+    (pj/options {:title-font-size 26 :tooltip true :thousands-separator "," :width 1400})
+    (pj/options {:width 1400 :thousands-separator "," :tooltip true})
+    (pj/options {:title "0-25 Population by Age Group"}))
+
+^:kindly/hide-code
+(defn population-by-age-group-chart [age-group]
+  (-> population-by-age-group
+      (tc/select-rows #(#{age-group} (:age-group %)))
+      (tc/rename-columns {:calendar-year "Calendar Year" :population "Population" :geo-name "Local Authority"})
+      (pj/lay-boxplot "Calendar Year" "Population" {:x-type :categorical :alpha 0.2 :box-width 0.3})
+      (pj/lay-point {:data (-> population-by-age-group
+                               (tc/rename-columns sweet-column-names)
+                               (tc/select-rows #(#{age-group} (:age-group %)))
+                               (tc/drop-rows #(= (% "Local Authority") la-name)))
+                     :x "Calendar Year" :y "0-25 Population"
+                     :color "Local Authority" :shape "Local Authority"
+                     ;; :jitter true
+                     :alpha 0.7
+                     :size 3
+                     :offset-x -30
+                     :x-type :categorical})
+      (pj/lay-point {:data (-> population-by-age-group
+                               (tc/rename-columns sweet-column-names)
+                               (tc/select-rows #(#{age-group} (:age-group %)))
+                               (tc/select-rows #(= (% "Local Authority") la-name)))
+                     :x "Calendar Year" :y "0-25 Population"
+                     :color "Local Authority" :shape "Local Authority"
+                     :size 9
+                     :alpha 1.0
+                     :x-type :categorical})
+      (pj/scale :shape {:domain (:domain geo-domain-lookup)
+                        :values (:shapes geo-domain-lookup)})
+      (pj/scale :color {:domain (:domain geo-domain-lookup)
+                        :values (:colors geo-domain-lookup)})
+      (pj/options {:title-font-size 26 :tooltip true :thousands-separator "," :width 1400})
+      (pj/options {:title (format "%s Population" age-group)})
+      (pj/options {:width 1400 :thousands-separator "," :tooltip true})))
+
+^:kindly/hide-code
+(population-by-age-group-chart "Under 5")
+
+^:kindly/hide-code
+(population-by-age-group-chart "Age 5 to 10")
+
+^:kindly/hide-code
+(population-by-age-group-chart "Age 11 to 15")
+
+^:kindly/hide-code
+(population-by-age-group-chart "Age 16 to 19")
+
+^:kindly/hide-code
+(population-by-age-group-chart "Age 20 to 25")
+
+^:kindly/hide-code
+(defn calculate [& {:keys [numerator-ds
+                           denominator-ds
+                           join-keys
+                           input-fields
+                           value-fn
+                           output-field]
+                    :or {value-fn #(m/approx (dfn// %1 %2))}}]
+  (-> numerator-ds
+      (tc/inner-join denominator-ds join-keys)
+      (tc/map-columns output-field input-fields value-fn)))
