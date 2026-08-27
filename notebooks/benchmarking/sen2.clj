@@ -10,7 +10,8 @@
    [tech.v3.datatype.functional :as dfn]
    [witan.send.benchmarking.population :as population]
    [witan.send.benchmarking.neighbours.statistical :as sn]
-   [witan.send.benchmarking.sen2.caseload-2026 :as caseload]))
+   [witan.send.benchmarking.sen2.caseload-2026 :as caseload]
+   [witan.send.benchmarking.sen2.newplans-2026 :as newplans]))
 
 ^:kindly/hide-code
 (def la-name "Dorset")
@@ -328,3 +329,85 @@
 
 ^:kindly/hide-code
 (caseload-by-setting-chart fe-ehcp-per-10k "Further Education Rate of EHCPs")
+
+;;; ## New Plan Analysis
+
+^:kindly/hide-code
+(defn newplans-by-setting [setting]
+  (calculate
+   :numerator-ds 
+   (-> @newplans/table
+       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+       (tc/rename-columns {:la_name :geo-name :time_period :calendar-year})
+       (tc/select-rows (fn [r] (= "All new EHC plans" (:breakdown_topic r))))
+       (tc/select-columns [:calendar-year :geo-name setting]))
+   :denominator-ds
+   population-total
+   :join-keys [:geo-name :calendar-year]
+   :output-field "New EHCPs per 10k"
+   :input-fields [setting :population]))
+
+^:kindly/hide-code
+(defn newplans-by-setting-chart [ds title]
+  (-> ds
+      (tc/rename-columns sweet-column-names)
+      (tc/drop-rows #(= (% "Local Authority") la-name))
+      (pj/lay-boxplot "Calendar Year" "New EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
+      (pj/lay-point {:data (-> ds
+                               (tc/rename-columns sweet-column-names)
+                               (tc/drop-rows #(= (% "Local Authority") la-name)))
+                     :x "Calendar Year" :y "New EHCPs per 10k"
+                     :color "Local Authority" :shape "Local Authority"
+                     ;; :jitter 4
+                     :alpha 1.0
+                     :size 5
+                     :offset-x -40
+                     :x-type :categorical})
+      (pj/lay-point {:data (-> ds
+                               (tc/rename-columns sweet-column-names)
+                               (tc/select-rows #(= (% "Local Authority") la-name)))
+                     :x "Calendar Year" :y "New EHCPs per 10k"
+                     :color "Local Authority" :shape "Local Authority"
+                     :size 9
+                     :alpha 1.0
+                     :x-type :categorical})
+      (pj/scale :shape {:domain (:domain geo-domain-lookup)
+                        :values (:shapes geo-domain-lookup)})
+      (pj/scale :color {:domain (:domain geo-domain-lookup)
+                        :values (:colors geo-domain-lookup)})
+      (pj/scale :y {:include 0})
+      (pj/options {:title title})
+      (pj/options {:title-font-size 26 :tooltip true :thousands-separator ","})
+      (pj/options {:height 900 :width 1400})))
+
+^:kindly/hide-code
+(def overall-new-ehcp-per-10k (newplans-by-setting :new_ehc_plans))
+
+^:kindly/hide-code
+(newplans-by-setting-chart overall-new-ehcp-per-10k "Overall Rate of New EHCPs")
+
+^:kindly/hide-code
+(def special-new-ehcp-per-10k (newplans-by-setting :special_total))
+
+^:kindly/hide-code
+(newplans-by-setting-chart special-new-ehcp-per-10k "Overall Rate of New EHCPs in Specialist Settings")
+
+^:kindly/hide-code
+(def mainstream-new-ehcp-per-10k (newplans-by-setting :mainstream_total))
+
+^:kindly/hide-code
+(newplans-by-setting-chart mainstream-new-ehcp-per-10k "Overall Rate of New EHCPs in Mainstream Settings")
+
+^:kindly/hide-code
+(def ap_pru-new-ehcp-per-10k (newplans-by-setting :ap_pru_total))
+
+^:kindly/hide-code
+(newplans-by-setting-chart ap_pru-new-ehcp-per-10k "Overall Rate of New EHCPs in AP & PRU Settings")
+
+^:kindly/hide-code
+(def fe-new-ehcp-per-10k (newplans-by-setting :fe_total))
+
+^:kindly/hide-code
+(newplans-by-setting-chart fe-new-ehcp-per-10k "Overall Rate of New EHCPs in Further Education Settings")
+
+
