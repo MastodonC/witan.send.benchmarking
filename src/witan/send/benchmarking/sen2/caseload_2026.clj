@@ -11,12 +11,12 @@
 (defn time_period->calendar-year [time-period]
   (when time-period (-> time-period str (subs 4) parse-long (+ 2000))))
 
-(def sen2-2026-caseload-file
+(def file
   (io/as-file
    (io/resource "./education-health-and-care-plans_2026/data/caseload.csv")))
 
 (def table
-  (-> sen2-2026-caseload-file
+  (-> file
       (tc/dataset {:dataset-name "sen2-2026-caseload" :key-fn keyword
                    :parser-fn {:time_period :int32
                                :time_identifier :string
