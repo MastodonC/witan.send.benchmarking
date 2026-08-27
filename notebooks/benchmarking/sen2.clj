@@ -11,7 +11,8 @@
    [witan.send.benchmarking.population :as population]
    [witan.send.benchmarking.neighbours.statistical :as sn]
    [witan.send.benchmarking.sen2.caseload-2026 :as caseload]
-   [witan.send.benchmarking.sen2.newplans-2026 :as newplans]))
+   [witan.send.benchmarking.sen2.newplans-2026 :as newplans]
+   [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]))
 
 ^:kindly/hide-code
 (def la-name "Dorset")
@@ -118,7 +119,7 @@
     (tc/rename-columns sweet-column-names)
     (pj/lay-line "Calendar Year" "0-25 Population" {:color "Local Authority"
                                                     :x-type :categorical})
-    (pj/lay-point "Calendar Year" "0-25 Population" 
+    (pj/lay-point "Calendar Year" "0-25 Population"
                   {:color "Local Authority" :shape "Local Authority"
                    :size 7
                    :alpha 1.0
@@ -249,7 +250,7 @@
 ^:kindly/hide-code
 (defn caseload-by-setting [setting]
   (calculate
-   :numerator-ds 
+   :numerator-ds
    (-> @caseload/table
        (tc/map-columns :calendar-year [:time_period] caseload/time_period->calendar-year)
        (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
@@ -335,7 +336,7 @@
 ^:kindly/hide-code
 (defn newplans-by-setting [setting]
   (calculate
-   :numerator-ds 
+   :numerator-ds
    (-> @newplans/table
        (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
        (tc/rename-columns {:la_name :geo-name :time_period :calendar-year})
@@ -411,3 +412,59 @@
 (newplans-by-setting-chart fe-new-ehcp-per-10k "Overall Rate of New EHCPs in Further Education Settings")
 
 
+;;; ## Ceased Plan Analysis
+
+^:kindly/hide-code
+(defn ceasedplans-by-reason [reason]
+  (calculate
+   :numerator-ds
+   (-> @ceased-plans/table
+       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+       (tc/rename-columns {:la_name :geo-name :time_period :calendar-year})
+       (tc/select-rows (fn [r] (= "All ceased EHC plans" (:breakdown_topic r))))
+       (tc/select-columns [:calendar-year :geo-name reason]))
+   :denominator-ds
+   population-total
+   :join-keys [:geo-name :calendar-year]
+   :output-field "Ceased EHCPs per 10k"
+   :input-fields [reason :population]))
+
+^:kindly/hide-code
+(defn ceasedplans-by-setting-chart [ds title]
+  (-> ds
+      (tc/rename-columns sweet-column-names)
+      (tc/drop-rows #(= (% "Local Authority") la-name))
+      (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
+      (pj/lay-point {:data (-> ds
+                               (tc/rename-columns sweet-column-names)
+                               (tc/drop-rows #(= (% "Local Authority") la-name)))
+                     :x "Calendar Year" :y "Ceased EHCPs per 10k"
+                     :color "Local Authority" :shape "Local Authority"
+                     ;; :jitter 4
+                     :alpha 1.0
+                     :size 5
+                     :offset-x -40
+                     :x-type :categorical})
+      (pj/lay-point {:data (-> ds
+                               (tc/rename-columns sweet-column-names)
+                               (tc/select-rows #(= (% "Local Authority") la-name)))
+                     :x "Calendar Year" :y "Ceased EHCPs per 10k"
+                     :color "Local Authority" :shape "Local Authority"
+                     :size 9
+                     :alpha 1.0
+                     :x-type :categorical})
+      (pj/scale :shape {:domain (:domain geo-domain-lookup)
+                        :values (:shapes geo-domain-lookup)})
+      (pj/scale :color {:domain (:domain geo-domain-lookup)
+                        :values (:colors geo-domain-lookup)})
+      (pj/scale :y {:include 0})
+      (pj/options {:title title})
+      (pj/options {:title-font-size 26 :tooltip true :thousands-separator ","})
+      (pj/options {:height 900 :width 1400})))
+
+^:kindly/hide-code
+(def overall-ceased-ehcp-per-10k
+  (ceasedplans-by-reason :total_ceased))
+
+^:kindly/hide-code
+(ceasedplans-by-setting-chart overall-ceased-ehcp-per-10k "Overall Rate of Ceased Plans")
