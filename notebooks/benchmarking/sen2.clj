@@ -1,5 +1,4 @@
 ^{:clay {:title "SEN2 Benchmarking" :hide-ui-header true}}
-
 ^:kindly/hide-code
 (ns benchmarking.sen2
   (:require
@@ -12,10 +11,11 @@
    [witan.send.benchmarking.neighbours.statistical :as sn]
    [witan.send.benchmarking.sen2.caseload-2026 :as caseload]
    [witan.send.benchmarking.sen2.newplans-2026 :as newplans]
-   [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]))
+   [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]
+   [witan.send.benchmarking.sen2.timeliness-20-week :as timeliness]))
 
 ^:kindly/hide-code
-(def la-name "Dorset")
+(def la-name "Cornwall")
 
 ^:kindly/hide-code
 (def sweet-column-names
@@ -54,31 +54,44 @@
 
 ^:kindly/hide-code
 (def colors
-  "Tableau 20 palette, excluding the red."
-  [
-   ;; tableau 10
-   "#1f77b4"                            ; [ 31 119 180 255]
-   "#ff7f0e"                            ; [255 127  14 255]
-   "#2ca02c"                            ; [ 44 160  44 255]
-   #_"#d62728"                          ; [214  39  40 255]
-   "#9467bd"                            ; [148 103 189 255]
-   "#8c564b"                            ; [140  86  75 255]
-   "#e377c2"                            ; [227 119 194 255]
-   ;; "#7f7f7f"                            ; [127 127 127 255]
-   "#bcbd22"                            ; [188 189  34 255]
-   "#17becf"                            ; [ 23 190 207 255]
-   ;; tableau 20 lighter shades
-   "#aec7e8"                            ; [174 199 232 255]
-   "#ffbb78"                            ; [255 187 120 255]
-   "#98df8a"                            ; [152 223 138 255]
-   "#ff9896"                            ; [255 152 150 255]
-   "#c5b0d5"                            ; [197 176 213 255]
-   "#c49c94"                            ; [196 156 148 255]
-   "#f7b6d2"                            ; [247 182 210 255]
-   "#c7c7c7"                            ; [199 199 199 255]
-   "#dbdb8d"                            ; [219 219 141 255]
-   "#9edae5"                            ; [158 218 229 255]
-   ])
+  ;; "Tableau 20 palette, excluding the red."
+  ;; [
+  ;;  ;; tableau 10
+  ;;  "#1f77b4"                            ; [ 31 119 180 255]
+  ;;  "#ff7f0e"                            ; [255 127  14 255]
+  ;;  "#2ca02c"                            ; [ 44 160  44 255]
+  ;;  #_"#d62728"                          ; [214  39  40 255]
+  ;;  "#9467bd"                            ; [148 103 189 255]
+  ;;  "#8c564b"                            ; [140  86  75 255]
+  ;;  "#e377c2"                            ; [227 119 194 255]
+  ;;  ;; "#7f7f7f"                            ; [127 127 127 255]
+  ;;  "#bcbd22"                            ; [188 189  34 255]
+  ;;  "#17becf"                            ; [ 23 190 207 255]
+  ;;  ;; tableau 20 lighter shades
+  ;;  "#aec7e8"                            ; [174 199 232 255]
+  ;;  "#ffbb78"                            ; [255 187 120 255]
+  ;;  "#98df8a"                            ; [152 223 138 255]
+  ;;  "#ff9896"                            ; [255 152 150 255]
+  ;;  "#c5b0d5"                            ; [197 176 213 255]
+  ;;  "#c49c94"                            ; [196 156 148 255]
+  ;;  "#f7b6d2"                            ; [247 182 210 255]
+  ;;  "#c7c7c7"                            ; [199 199 199 255]
+  ;;  "#dbdb8d"                            ; [219 219 141 255]
+  ;;  "#9edae5"                            ; [158 218 229 255]
+  ;;  ]
+  ;; Partial lcars_series
+  ;; (sort (map clojure2d.color/format-hex (clojure2d.color/palette :trekcolors/lcars_series)))
+  #_["#000088" "#ffcc99" "#006699" "#ff9933" "#4455bb" "#cc99cc" "#664466" "#cc6666" "#9999ff" "#bbaa55" "#99ccff" "#bb4411"]
+
+  ;; (map clojure2d.color/format-hex (clojure2d.color/palette :MoMAColors/Warhol))
+  ["#ff0066" "#328c97"
+   (-> "#d1aac2" (clojure2d.color/darken 0.5) clojure2d.color/format-hex)
+   "#a5506d" 
+   (-> "#b3e0bf" (clojure2d.color/darken 0.5) clojure2d.color/format-hex)
+   "#2a9d3d"
+   (-> "#edf181" (clojure2d.color/darken 2.0) clojure2d.color/format-hex)
+   "#db7003" "#fba600" "#f8c1a6" "#a30000" "#ff3200" "#011a51" "#97d1d9" "#916c37"]
+  )
 
 ^:kindly/hide-code
 (def shapes [:diamond :circle :square :triangle :cross])
@@ -91,11 +104,53 @@
     :colors (cycle colors)}))
 
 ^:kindly/hide-code
-(def age-group-domain
+(defn geo-color-and-shape-scale [pose]
+  (-> pose
+      (pj/scale :shape {:domain (:domain geo-domain-lookup)
+                        :values (:shapes geo-domain-lookup)})
+      (pj/scale :color {:domain (:domain geo-domain-lookup)
+                        :values (:colors geo-domain-lookup)})))
+
+^:kindly/hide-code
+(def age-group-domain-lookup
   (tc/dataset
    {:domain ["Under 5" "Age 5 to 10" "Age 11 to 15" "Age 16 to 19" "Age 20 to 25"]
     :shapes (cycle shapes)
-    :colors (cycle colors)}))
+    :colors (cycle (drop 1 colors))}))
+
+^:kindly/hide-code
+(defn age-color-and-shape-scale [pose]
+  (-> pose
+      (pj/scale :shape {:domain (:domain age-group-domain-lookup)
+                        :values (:shapes age-group-domain-lookup)})
+      (pj/scale :color {:domain (:domain age-group-domain-lookup)
+                        :values (:colors age-group-domain-lookup)})))
+
+^:kindly/hide-code
+(def default-chart-options
+  {:title-font-size 26 
+   :label-font-size 18
+   :label-offset 50
+   ;; :legend-entry-height 50 ; this doesn't work here
+   :tooltip true
+   :thousands-separator ","
+   :point-opacity 1.0
+   :width 1400
+   :theme {:bg "#fff" :grid "#ddd" :font-size 14}})
+
+;;; FIXME: this isn't quite right
+^:kindly/hide-code
+(def default-home-point-options
+  {:color "Local Authority"
+   :x-type :categorical})
+
+;;; FIXME: this isn't quite right
+^:kindly/hide-code
+(def default-neighbour-point-options
+  {:color "Local Authority" :shape "Local Authority"
+   :size 7
+   :alpha 1.0
+   :x-type :categorical})
 
 ;;; ## Total Population
 ^:kindly/hide-code
@@ -117,18 +172,12 @@
 (-> population-total
     (tc/select-rows #(= (:geo-name %) la-name))
     (tc/rename-columns sweet-column-names)
-    (pj/lay-line "Calendar Year" "0-25 Population" {:color "Local Authority"
-                                                    :x-type :categorical})
+    (pj/lay-line "Calendar Year" "0-25 Population" 
+                 default-home-point-options)
     (pj/lay-point "Calendar Year" "0-25 Population"
-                  {:color "Local Authority" :shape "Local Authority"
-                   :size 7
-                   :alpha 1.0
-                   :x-type :categorical})
-    (pj/scale :shape {:domain (:domain geo-domain-lookup)
-                      :values (:shapes geo-domain-lookup)})
-    (pj/scale :color {:domain (:domain geo-domain-lookup)
-                      :values (:colors geo-domain-lookup)})
-    (pj/options {:title-font-size 26 :tooltip true :thousands-separator "," :width 1400})
+                  default-neighbour-point-options)
+    geo-color-and-shape-scale
+    (pj/options default-chart-options)
     (pj/options {:title "0-25 Population"}))
 
 ^:kindly/hide-code
@@ -142,9 +191,9 @@
                    :x "Calendar Year" :y "0-25 Population"
                    :color "Local Authority" :shape "Local Authority"
                    ;; :jitter true
-                   :alpha 0.7
-                   :size 3
-                   :offset-x -30
+                   :alpha 0.9
+                   :size 5
+                   :offset-x -40
                    :x-type :categorical})
     (pj/lay-point {:data (-> population-total
                              (tc/rename-columns sweet-column-names)
@@ -154,13 +203,10 @@
                    :size 9
                    :alpha 1.0
                    :x-type :categorical})
-    (pj/scale :shape {:domain (:domain geo-domain-lookup)
-                      :values (:shapes geo-domain-lookup)})
-    (pj/scale :color {:domain (:domain geo-domain-lookup)
-                      :values (:colors geo-domain-lookup)})
     (pj/scale :y {:include 0})
-    (pj/options {:title "0-25 Population"})
-    (pj/options {:title-font-size 26 :tooltip true :thousands-separator "," :width 1400}))
+    geo-color-and-shape-scale
+    (pj/options default-chart-options)
+    (pj/options {:title "0-25 Population"}))
 
 ;;; ## Population by Age Group
 ^:kindly/hide-code
@@ -176,12 +222,11 @@
     (pj/lay-point {:shape "Age Group" :color "Age Group" :x-type :categorical
                    :alpha 1.0
                    :size 5})
-    (pj/scale :shape {:domain (:domain age-group-domain)
-                      :values (:shapes age-group-domain)})
-    (pj/scale :color {:domain (:domain age-group-domain)
-                      :values (:colors age-group-domain)})
-    (pj/options {:title-font-size 26 :tooltip true :thousands-separator "," :width 1400})
-    (pj/options {:width 1400 :thousands-separator "," :tooltip true})
+    (pj/scale :shape {:domain (:domain age-group-domain-lookup)
+                      :values (:shapes age-group-domain-lookup)})
+    (pj/scale :color {:domain (:domain age-group-domain-lookup)
+                      :values (:colors age-group-domain-lookup)})
+    (pj/options default-chart-options)
     (pj/options {:title "0-25 Population by Age Group"}))
 
 ^:kindly/hide-code
@@ -197,9 +242,9 @@
                      :x "Calendar Year" :y "0-25 Population"
                      :color "Local Authority" :shape "Local Authority"
                      ;; :jitter true
-                     :alpha 0.7
-                     :size 3
-                     :offset-x -30
+                     :alpha 0.9
+                     :size 5
+                     :offset-x -40
                      :x-type :categorical})
       (pj/lay-point {:data (-> population-by-age-group
                                (tc/rename-columns sweet-column-names)
@@ -210,13 +255,9 @@
                      :size 9
                      :alpha 1.0
                      :x-type :categorical})
-      (pj/scale :shape {:domain (:domain geo-domain-lookup)
-                        :values (:shapes geo-domain-lookup)})
-      (pj/scale :color {:domain (:domain geo-domain-lookup)
-                        :values (:colors geo-domain-lookup)})
-      (pj/options {:title-font-size 26 :tooltip true :thousands-separator "," :width 1400})
+      geo-color-and-shape-scale
       (pj/options {:title (format "%s Population" age-group)})
-      (pj/options {:width 1400 :thousands-separator "," :tooltip true})))
+      (pj/options default-chart-options)))
 
 ^:kindly/hide-code
 (population-by-age-group-chart "Under 5")
@@ -287,14 +328,10 @@
                      :size 9
                      :alpha 1.0
                      :x-type :categorical})
-      (pj/scale :shape {:domain (:domain geo-domain-lookup)
-                        :values (:shapes geo-domain-lookup)})
-      (pj/scale :color {:domain (:domain geo-domain-lookup)
-                        :values (:colors geo-domain-lookup)})
-      (pj/scale :y {:include 0})
+      geo-color-and-shape-scale
       (pj/options {:title title})
-      (pj/options {:title-font-size 26 :tooltip true :thousands-separator ","})
-      (pj/options {:height 900 :width 1400})))
+      (pj/scale :y {:include 0})
+      (pj/options default-chart-options)))
 
 ^:kindly/hide-code
 (def overall-ehcp-per-10k (caseload-by-setting :ehcplans))
@@ -372,14 +409,10 @@
                      :size 9
                      :alpha 1.0
                      :x-type :categorical})
-      (pj/scale :shape {:domain (:domain geo-domain-lookup)
-                        :values (:shapes geo-domain-lookup)})
-      (pj/scale :color {:domain (:domain geo-domain-lookup)
-                        :values (:colors geo-domain-lookup)})
+      geo-color-and-shape-scale
       (pj/scale :y {:include 0})
       (pj/options {:title title})
-      (pj/options {:title-font-size 26 :tooltip true :thousands-separator ","})
-      (pj/options {:height 900 :width 1400})))
+      (pj/options default-chart-options)))
 
 ^:kindly/hide-code
 (def overall-new-ehcp-per-10k (newplans-by-setting :new_ehc_plans))
@@ -434,7 +467,7 @@
   (-> ds
       (tc/rename-columns sweet-column-names)
       (tc/drop-rows #(= (% "Local Authority") la-name))
-      (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
+      (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.15})
       (pj/lay-point {:data (-> ds
                                (tc/rename-columns sweet-column-names)
                                (tc/drop-rows #(= (% "Local Authority") la-name)))
@@ -453,14 +486,10 @@
                      :size 9
                      :alpha 1.0
                      :x-type :categorical})
-      (pj/scale :shape {:domain (:domain geo-domain-lookup)
-                        :values (:shapes geo-domain-lookup)})
-      (pj/scale :color {:domain (:domain geo-domain-lookup)
-                        :values (:colors geo-domain-lookup)})
+      geo-color-and-shape-scale
       (pj/scale :y {:include 0})
       (pj/options {:title title})
-      (pj/options {:title-font-size 26 :tooltip true :thousands-separator ","})
-      (pj/options {:height 900 :width 1400})))
+      (pj/options default-chart-options)))
 
 ^:kindly/hide-code
 (def overall-ceased-ehcp-per-10k
@@ -468,3 +497,69 @@
 
 ^:kindly/hide-code
 (ceasedplans-by-setting-chart overall-ceased-ehcp-per-10k "Overall Rate of Ceased Plans")
+
+;;; ## Timeliness Analysis
+
+^:kindly/hide-code
+(defn timeliness-by-category [category]
+  (calculate
+   :numerator-ds
+   (-> @timeliness/table
+       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+       (tc/rename-columns {:la_name :geo-name :time_period :calendar-year})
+       (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
+       (tc/select-columns [:calendar-year :geo-name category])
+       (tc/drop-missing [category]))
+   :denominator-ds
+   population-total
+   :join-keys [:geo-name :calendar-year]
+   :output-field "EHCPs per 10k"
+   :input-fields [category :population]))
+
+^:kindly/hide-code
+(defn timeliness-by-category-chart [ds title]
+  (-> ds
+      (tc/rename-columns sweet-column-names)
+      (tc/drop-rows #(= (% "Local Authority") la-name))
+      (pj/lay-boxplot "Calendar Year" "EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
+      (pj/lay-point {:data (-> ds
+                               (tc/rename-columns sweet-column-names)
+                               (tc/drop-rows #(= (% "Local Authority") la-name)))
+                     :x "Calendar Year" :y "EHCPs per 10k"
+                     :color "Local Authority" :shape "Local Authority"
+                     ;; :jitter 4
+                     :alpha 1.0
+                     :size 5
+                     :offset-x -40
+                     :x-type :categorical})
+      (pj/lay-point {:data (-> ds
+                               (tc/rename-columns sweet-column-names)
+                               (tc/select-rows #(= (% "Local Authority") la-name)))
+                     :x "Calendar Year" :y "EHCPs per 10k"
+                     :color "Local Authority" :shape "Local Authority"
+                     :size 9
+                     :alpha 1.0
+                     :x-type :categorical})
+      geo-color-and-shape-scale
+      (pj/scale :y {:include 0})
+      (pj/options {:title title})
+      (pj/options default-chart-options)))
+
+^:kindly/hide-code
+(def plans_issued_within_20_weeks-per-10k (timeliness-by-category :plans_issued_within_20_weeks))
+
+^:kindly/hide-code
+(timeliness-by-category-chart plans_issued_within_20_weeks-per-10k "Plans Within 20wks")
+
+^:kindly/hide-code
+(def plans_issued_gt20weeks_ltyear-per-10k (timeliness-by-category :plans_issued_gt20weeks_ltyear))
+
+^:kindly/hide-code
+(timeliness-by-category-chart plans_issued_gt20weeks_ltyear-per-10k "Plans Issued Between 20wks and 1yr")
+
+
+^:kindly/hide-code
+(def plans_issued_gt_1_year-per-10k (timeliness-by-category :plans_issued_gt_1_year))
+
+^:kindly/hide-code
+(timeliness-by-category-chart plans_issued_gt_1_year-per-10k "Plans After 1yr")

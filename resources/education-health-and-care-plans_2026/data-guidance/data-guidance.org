@@ -93,8 +93,7 @@ The following convention is used throughout the underlying data.
 
 All data files associated with this releases are listed below with
 guidance on their content. To download any of these files, please
-visit our data catalogue
-(https://explore-education-statistics.service.gov.uk/data-catalogue?publicationId=88312cc0-fe1d-4ab5-81df-33fd708185cb&releaseVersionId=2e60aacd-d46c-416a-af4d-9d2269506ff6).
+visit our [[https://explore-education-statistics.service.gov.uk/data-catalogue?publicationId=88312cc0-fe1d-4ab5-81df-33fd708185cb&releaseVersionId=2e60aacd-d46c-416a-af4d-9d2269506ff6][data catalogue]].
 
 ** Data files
 
@@ -669,6 +668,73 @@ Variable names and descriptions for this file are provided below:
 | plans_issued_gt20weeks_ltyear       | EHC plans issued between 20 and 52 weeks inc. exceptions                                                                   |
 | plans_issued_gt20weeks_ltyear_ex    | EHC plans issued between 20 and 52 weeks exc. exceptions                                                                   |
 | plans_issued_within_20_weeks        | EHC plans issued within 20 weeks inc. exceptions                                                                           |
+
+***** Breakdown
+
+  sen2-timelines-20-week-2026 [57 2]:
+
+  |       :breakdown_topic |                                :breakdown |
+  |------------------------|-------------------------------------------|
+  | Age at time of request |                                   Unknown |
+  | Age at time of request |                                    age 10 |
+  | Age at time of request |                                    age 11 |
+  | Age at time of request |                                    age 12 |
+  | Age at time of request |                                    age 13 |
+  | Age at time of request |                                    age 14 |
+  | Age at time of request |                                    age 15 |
+  | Age at time of request |                                    age 16 |
+  | Age at time of request |                                    age 17 |
+  | Age at time of request |                                    age 18 |
+  | Age at time of request |                                    age 19 |
+  | Age at time of request |                           age 2 and under |
+  | Age at time of request |                           age 20 and over |
+  | Age at time of request |                                     age 3 |
+  | Age at time of request |                                     age 4 |
+  | Age at time of request |                                     age 5 |
+  | Age at time of request |                                     age 6 |
+  | Age at time of request |                                     age 7 |
+  | Age at time of request |                                     age 8 |
+  | Age at time of request |                                     age 9 |
+  |          All EHC plans |                             All EHC plans |
+  |              Ethnicity |                    Any other ethnic group |
+  |              Ethnicity |        Asian - Any other Asian background |
+  |              Ethnicity |                       Asian - Bangladeshi |
+  |              Ethnicity |                           Asian - Chinese |
+  |              Ethnicity |                            Asian - Indian |
+  |              Ethnicity |                         Asian - Pakistani |
+  |              Ethnicity |        Black - Any other Black background |
+  |              Ethnicity |                     Black - Black African |
+  |              Ethnicity |                   Black - Black Caribbean |
+  |              Ethnicity |        Mixed - Any other Mixed background |
+  |              Ethnicity |                   Mixed - White and Asian |
+  |              Ethnicity |           Mixed - White and Black African |
+  |              Ethnicity |         Mixed - White and Black Caribbean |
+  |              Ethnicity |                              Unclassified |
+  |              Ethnicity |        White - Any other White background |
+  |              Ethnicity |                        White - Gypsy/Roma |
+  |              Ethnicity |                             White - Irish |
+  |              Ethnicity |       White - Traveller of Irish heritage |
+  |              Ethnicity |                     White - White British |
+  |   Primary type of need |                Autistic spectrum disorder |
+  |   Primary type of need |                             Down Syndrome |
+  |   Primary type of need |                        Hearing impairment |
+  |   Primary type of need |              Moderate learning difficulty |
+  |   Primary type of need |                  Multi-sensory impairment |
+  |   Primary type of need |                              Not reported |
+  |   Primary type of need |            Other difficulty or disability |
+  |   Primary type of need |                       Physical disability |
+  |   Primary type of need | Profound and multiple learning difficulty |
+  |   Primary type of need |                Severe learning difficulty |
+  |   Primary type of need |       Social, emotional and mental health |
+  |   Primary type of need |              Specific learning difficulty |
+  |   Primary type of need |  Speech, language and communication needs |
+  |   Primary type of need |                         Vision impairment |
+  |                    Sex |                                    Female |
+  |                    Sex |                                      Male |
+  |                    Sex |                                   Unknown |
+
+
+
 
 Footnotes:
 
