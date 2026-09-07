@@ -609,4 +609,4 @@
 (def plans_issued_gt_1_year-per-10k (timeliness-by-category :plans_issued_gt_1_year))
 
 ^:kindly/hide-code
-(timeliness-by-category-chart plans_issued_gt_1_year-per-10k "Plans After 1yr")
+(timeliness-by-category-chart plans_issued_gt_1_year-per-10k "Plans Issued After 1yr")
