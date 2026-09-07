@@ -545,49 +545,51 @@
    :input-fields [category :population]))
 
 ^:kindly/hide-code
-(defn timeliness-by-category-chart [ds title]
-  (-> ds
-      (tc/rename-columns sweet-column-names)
-      (tc/drop-rows #(= (% "Local Authority") la-name))
-      (pj/lay-boxplot "Calendar Year" "EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
-      (pj/lay-point {:data (-> ds
-                               (tc/rename-columns sweet-column-names)
-                               (tc/drop-rows #(= (% "Local Authority") la-name)))
-                     :x "Calendar Year" :y "EHCPs per 10k"
-                     :color "Local Authority" :shape "Local Authority"
-                     ;; :jitter 4
-                     :alpha 1.0
-                     :size 5
-                     :offset-x -40
-                     :x-type :categorical})
-      (pj/lay-point {:data (-> ds
-                               (tc/rename-columns sweet-column-names)
-                               (tc/select-rows #(= (% "Local Authority") la-name)))
-                     :x "Calendar Year" :y "EHCPs per 10k"
-                     :color "Local Authority" :shape "Local Authority"
-                     :size 9
-                     :alpha 1.0
-                     :x-type :categorical})
-      geo-color-and-shape-scale
-      (pj/scale :y {:include 0})
-      (pj/options {:title title})
-      (pj/options default-chart-options)))
+(defn timeliness-by-category-chart [ds ehcplan-field title]
+  (let [base (-> ds
+                 (tc/add-column
+                  :hover
+                  #(map
+                    (fn [geo-name calendar-year population ehcplans ehcp-per-10k]
+                      [:div [:b geo-name]
+                       [:br]
+                       "Calendar Year " calendar-year
+                       [:br]
+                       "EHC Plans: " (format "%,d" ehcplans)
+                       [:br]
+                       "Population: " (format "%,d" (m/round population))
+                       [:br]
+                       "EHCP per 10k: " (format "%,.2f" ehcp-per-10k)])
+                    (:geo-name %) (:calendar-year %) (:population %) (ehcplan-field %) (% "EHCPs per 10k")))
+                 (tc/rename-columns sweet-column-names))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject    (-> base
+                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Calendar Year" "EHCPs per 10k" box-plot-options)
+        (pj/lay-point neighbour-points-options)
+        (pj/lay-point (assoc subject-point-options :data subject))
+        geo-color-and-shape-scale
+        (pj/scale :y {:include 0})
+        (pj/options {:title title})
+        (pj/options default-chart-options))))
 
 ^:kindly/hide-code
 (def plans_issued_within_20_weeks-per-10k (timeliness-by-category :plans_issued_within_20_weeks))
 
 ^:kindly/hide-code
-(timeliness-by-category-chart plans_issued_within_20_weeks-per-10k "Plans Within 20wks")
+(timeliness-by-category-chart plans_issued_within_20_weeks-per-10k :plans_issued_within_20_weeks "Plans Within 20wks")
 
 ^:kindly/hide-code
 (def plans_issued_gt20weeks_ltyear-per-10k (timeliness-by-category :plans_issued_gt20weeks_ltyear))
 
 ^:kindly/hide-code
-(timeliness-by-category-chart plans_issued_gt20weeks_ltyear-per-10k "Plans Issued Between 20wks and 1yr")
+(timeliness-by-category-chart plans_issued_gt20weeks_ltyear-per-10k :plans_issued_gt20weeks_ltyear "Plans Issued Between 20wks and 1yr")
 
 
 ^:kindly/hide-code
 (def plans_issued_gt_1_year-per-10k (timeliness-by-category :plans_issued_gt_1_year))
 
 ^:kindly/hide-code
-(timeliness-by-category-chart plans_issued_gt_1_year-per-10k "Plans Issued After 1yr")
+(timeliness-by-category-chart plans_issued_gt_1_year-per-10k :plans_issued_gt_1_year "Plans Issued After 1yr")
