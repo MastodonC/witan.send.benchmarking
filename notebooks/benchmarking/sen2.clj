@@ -140,16 +140,39 @@
    :theme {:bg "#fff" :grid "#ddd" :font-size 14}})
 
 ^:kindly/hide-code
-(def default-home-point-options
+(def default-home-line-options
   {:color "Local Authority"
    :x-type :categorical})
 
 ^:kindly/hide-code
 (def default-neighbour-point-options
   {:color "Local Authority" :shape "Local Authority"
+   :tooltip :hover
    :size 7
    :alpha 1.0
    :x-type :categorical})
+
+^:kindly/hide-code
+(def subject-point-options
+  {:color "Local Authority" :shape "Local Authority"
+   :tooltip :hover
+   :size 9
+   :alpha 1.0
+   :x-type :categorical})
+
+^:kindly/hide-code
+(def neighbour-points-options
+  {:color "Local Authority" :shape "Local Authority"
+   :tooltip :hover
+   :alpha 0.9
+   :size 5
+   :offset-x -40
+   :x-type :categorical})
+
+^:kindly/hide-code
+(def box-plot-options
+  {:x-type :categorical
+   :alpha 0.2 :box-width 0.3})
 
 ;;; ## Total Population
 ^:kindly/hide-code
@@ -177,35 +200,12 @@
     (tc/select-rows #(= (:geo-name %) la-name))
     (tc/rename-columns sweet-column-names)
     (pj/lay-line "Calendar Year" "0-25 Population"
-                 default-home-point-options)
-    (pj/lay-point "Calendar Year" "0-25 Population"
-                  (assoc default-neighbour-point-options
-                         :tooltip :hover))
+                 default-home-line-options)
+    (pj/lay-point "Calendar Year" "0-25 Population" subject-point-options)
     geo-color-and-shape-scale
     (pj/options default-chart-options)
     (pj/options {:title "0-25 Population"}))
 
-^:kindly/hide-code
-(def subject-point-options
-  {:color "Local Authority" :shape "Local Authority"
-   :tooltip :hover
-   :size 9
-   :alpha 1.0
-   :x-type :categorical})
-
-^:kindly/hide-code
-(def neighbour-points-options
-  {:color "Local Authority" :shape "Local Authority"
-   :tooltip :hover
-   :alpha 0.9
-   :size 5
-   :offset-x -40
-   :x-type :categorical})
-
-^:kindly/hide-code
-(def box-plot-options
-  {:x-type :categorical
-   :alpha 0.2 :box-width 0.3})
 
 ^:kindly/hide-code
 (let [neighbours (-> population-total
@@ -262,20 +262,9 @@
         subject (-> base
                     (tc/select-rows #(= (% "Local Authority") la-name)))]
     (-> neighbours
-        (pj/lay-boxplot "Calendar Year" "Population" {:x-type :categorical :alpha 0.2 :box-width 0.3})
-        (pj/lay-point {:x "Calendar Year" :y "Population"
-                       :color "Local Authority" :shape "Local Authority"
-                       :tooltip :hover
-                       :alpha 0.9
-                       :size 5
-                       :offset-x -40
-                       :x-type :categorical})
-        (pj/lay-point {:data subject
-                       :color "Local Authority" :shape "Local Authority"
-                       :tooltip :hover
-                       :size 9
-                       :alpha 1.0
-                       :x-type :categorical})
+        (pj/lay-boxplot "Calendar Year" "Population" box-plot-options)
+        (pj/lay-point neighbour-points-options)
+        (pj/lay-point (assoc subject-point-options :data subject))
         geo-color-and-shape-scale
         (pj/options {:title (format "%s Population" age-group)})
         (pj/options default-chart-options))))
@@ -443,19 +432,9 @@
         subject    (-> base
                        (tc/select-rows #(= (% "Local Authority") la-name)))]
     (-> neighbours
-        (pj/lay-boxplot "Calendar Year" "New EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
-        (pj/lay-point {:color    "Local Authority" :shape "Local Authority"
-                       :tooltip  :hover
-                       :alpha    1.0
-                       :size     5
-                       :offset-x -40
-                       :x-type   :categorical})
-        (pj/lay-point {:data   subject
-                       :tooltip :hover
-                       :color  "Local Authority" :shape "Local Authority"
-                       :size   9
-                       :alpha  1.0
-                       :x-type :categorical})
+        (pj/lay-boxplot "Calendar Year" "New EHCPs per 10k" box-plot-options)
+        (pj/lay-point neighbour-points-options)
+        (pj/lay-point (assoc subject-point-options :data subject))
         geo-color-and-shape-scale
         (pj/scale :y {:include 0})
         (pj/options {:title title})
@@ -510,40 +489,42 @@
    :input-fields [reason :population]))
 
 ^:kindly/hide-code
-(defn ceasedplans-by-setting-chart [ds title]
-  (-> ds
-      (tc/rename-columns sweet-column-names)
-      (tc/drop-rows #(= (% "Local Authority") la-name))
-      (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.15})
-      (pj/lay-point {:data (-> ds
-                               (tc/rename-columns sweet-column-names)
-                               (tc/drop-rows #(= (% "Local Authority") la-name)))
-                     :x "Calendar Year" :y "Ceased EHCPs per 10k"
-                     :color "Local Authority" :shape "Local Authority"
-                     ;; :jitter 4
-                     :alpha 1.0
-                     :size 5
-                     :offset-x -40
-                     :x-type :categorical})
-      (pj/lay-point {:data (-> ds
-                               (tc/rename-columns sweet-column-names)
-                               (tc/select-rows #(= (% "Local Authority") la-name)))
-                     :x "Calendar Year" :y "Ceased EHCPs per 10k"
-                     :color "Local Authority" :shape "Local Authority"
-                     :size 9
-                     :alpha 1.0
-                     :x-type :categorical})
-      geo-color-and-shape-scale
-      (pj/scale :y {:include 0})
-      (pj/options {:title title})
-      (pj/options default-chart-options)))
+(defn ceasedplans-by-setting-chart [ds ehcplan-field title]
+  (let [base (-> ds
+                 (tc/add-column
+                  :hover
+                  #(map
+                    (fn [geo-name calendar-year population ehcplans ehcp-per-10k]
+                      [:div [:b geo-name]
+                       [:br]
+                       "Calendar Year " calendar-year
+                       [:br]
+                       "Ceased EHC Plans: " (format "%,d" ehcplans)
+                       [:br]
+                       "Population: " (format "%,d" (m/round population))
+                       [:br]
+                       "EHCP per 10k: " (format "%,.2f" ehcp-per-10k)])
+                    (:geo-name %) (:calendar-year %) (:population %) (ehcplan-field %) (% "Ceased EHCPs per 10k")))
+                 (tc/rename-columns sweet-column-names))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject    (-> base
+                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" box-plot-options)
+        (pj/lay-point neighbour-points-options)
+        (pj/lay-point (assoc subject-point-options :data subject))
+        geo-color-and-shape-scale
+        (pj/scale :y {:include 0})
+        (pj/options {:title title})
+        (pj/options default-chart-options))))
 
 ^:kindly/hide-code
 (def overall-ceased-ehcp-per-10k
   (ceasedplans-by-reason :total_ceased))
 
 ^:kindly/hide-code
-(ceasedplans-by-setting-chart overall-ceased-ehcp-per-10k "Overall Rate of Ceased Plans")
+(ceasedplans-by-setting-chart overall-ceased-ehcp-per-10k :total_ceased "Overall Rate of Ceased Plans")
 
 ;;; ## Timeliness Analysis
 
