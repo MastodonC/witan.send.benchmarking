@@ -11,6 +11,21 @@
 (defn time_period->calendar-year [time-period]
   (when time-period (-> time-period str (subs 4) parse-long (+ 2000))))
 
+(defn time_period->academic-year [time-period]
+  (when time-period
+    (let [time-period' (str time-period)]
+      (format "%s/%s" (subs time-period' 0 4) (subs time-period' 4)))))
+
+(comment
+  
+  (time_period->calendar-year 202627)
+  ;; => 2027
+
+  (time_period->academic-year 202627)
+  ;; => "2026/27"
+
+  )
+
 (def file
   (io/as-file
    (io/resource "./education-health-and-care-plans_2026/data/caseload.csv")))
