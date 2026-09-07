@@ -19,7 +19,8 @@
 
 ^:kindly/hide-code
 (def sweet-column-names
-  {:geo-name "Local Authority"
+  {:academic-year "Academic Year"
+   :geo-name "Local Authority"
    :calendar-year "Calendar Year"
    :population "0-25 Population"
    :la_code "LA Code"
@@ -86,7 +87,7 @@
   ;; (map clojure2d.color/format-hex (clojure2d.color/palette :MoMAColors/Warhol))
   ["#ff0066" "#328c97"
    (-> "#d1aac2" (clojure2d.color/darken 0.5) clojure2d.color/format-hex)
-   "#a5506d" 
+   "#a5506d"
    (-> "#b3e0bf" (clojure2d.color/darken 0.5) clojure2d.color/format-hex)
    "#2a9d3d"
    (-> "#edf181" (clojure2d.color/darken 2.0) clojure2d.color/format-hex)
@@ -128,7 +129,7 @@
 
 ^:kindly/hide-code
 (def default-chart-options
-  {:title-font-size 26 
+  {:title-font-size 26
    :label-font-size 18
    :label-offset 50
    ;; :legend-entry-height 50 ; this doesn't work here
@@ -138,13 +139,11 @@
    :width 1400
    :theme {:bg "#fff" :grid "#ddd" :font-size 14}})
 
-;;; FIXME: this isn't quite right
 ^:kindly/hide-code
 (def default-home-point-options
   {:color "Local Authority"
    :x-type :categorical})
 
-;;; FIXME: this isn't quite right
 ^:kindly/hide-code
 (def default-neighbour-point-options
   {:color "Local Authority" :shape "Local Authority"
@@ -165,53 +164,76 @@
 ^:kindly/hide-code
 (def population-total
   (-> (population/pop-total-by-year population-by-age :calendar-year :population)
+      (tc/add-column
+       :hover
+       #(map
+         (fn [calendar-year geo-name population]
+           (format "%s %s: %,d" calendar-year geo-name (m/round population)))
+         (:calendar-year %) (:geo-name %) (:population %)))
       (tc/order-by [:geo-name :calendar-year])))
-
 
 ^:kindly/hide-code
 (-> population-total
     (tc/select-rows #(= (:geo-name %) la-name))
     (tc/rename-columns sweet-column-names)
-    (pj/lay-line "Calendar Year" "0-25 Population" 
+    (pj/lay-line "Calendar Year" "0-25 Population"
                  default-home-point-options)
     (pj/lay-point "Calendar Year" "0-25 Population"
-                  default-neighbour-point-options)
+                  (assoc default-neighbour-point-options
+                         :tooltip :hover))
     geo-color-and-shape-scale
     (pj/options default-chart-options)
     (pj/options {:title "0-25 Population"}))
 
 ^:kindly/hide-code
-(-> population-total
-    (tc/rename-columns sweet-column-names)
-    (tc/drop-rows #(= (% "Local Authority") la-name))
-    (pj/lay-boxplot "Calendar Year" "0-25 Population" {:x-type :categorical :alpha 0.2 :box-width 0.3})
-    (pj/lay-point {:data (-> population-total
-                             (tc/rename-columns sweet-column-names)
-                             (tc/drop-rows #(= (% "Local Authority") la-name)))
-                   :x "Calendar Year" :y "0-25 Population"
-                   :color "Local Authority" :shape "Local Authority"
-                   ;; :jitter true
-                   :alpha 0.9
-                   :size 5
-                   :offset-x -40
-                   :x-type :categorical})
-    (pj/lay-point {:data (-> population-total
-                             (tc/rename-columns sweet-column-names)
-                             (tc/select-rows #(= (% "Local Authority") la-name)))
-                   :x "Calendar Year" :y "0-25 Population"
-                   :color "Local Authority" :shape "Local Authority"
-                   :size 9
-                   :alpha 1.0
-                   :x-type :categorical})
-    (pj/scale :y {:include 0})
-    geo-color-and-shape-scale
-    (pj/options default-chart-options)
-    (pj/options {:title "0-25 Population"}))
+(def subject-point-options
+  {:color "Local Authority" :shape "Local Authority"
+   :tooltip :hover
+   :size 9
+   :alpha 1.0
+   :x-type :categorical})
+
+^:kindly/hide-code
+(def neighbour-points-options
+  {:color "Local Authority" :shape "Local Authority"
+   :tooltip :hover
+   :alpha 0.9
+   :size 5
+   :offset-x -40
+   :x-type :categorical})
+
+^:kindly/hide-code
+(def box-plot-options
+  {:x-type :categorical
+   :alpha 0.2 :box-width 0.3})
+
+^:kindly/hide-code
+(let [neighbours (-> population-total
+                     (tc/rename-columns sweet-column-names)
+                     (tc/drop-rows #(= (% "Local Authority") la-name)))
+      subject (-> population-total
+                  (tc/rename-columns sweet-column-names)
+                  (tc/select-rows #(= (% "Local Authority") la-name)))]
+  (-> neighbours
+      (pj/lay-boxplot "Calendar Year" "0-25 Population"
+                      box-plot-options)
+      (pj/lay-point neighbour-points-options)
+      (pj/lay-point (assoc subject-point-options :data subject))
+      geo-color-and-shape-scale
+      (pj/scale :y {:include 0})
+      (pj/options default-chart-options)
+      (pj/options {:title "0-25 Population"})))
 
 ;;; ## Population by Age Group
 ^:kindly/hide-code
 (def population-by-age-group
   (-> (population/pop-total-by-age-group population-by-age :calendar-year :population :age :age-group)
+      (tc/add-column
+       :hover
+       #(map
+         (fn [calendar-year geo-name age-group population]
+           (format "%s %s %s: %,d" calendar-year geo-name age-group (m/round population)))
+         (:calendar-year %) (:geo-name %) (:age-group %) (:population %)))
       (tc/order-by [:geo-name :calendar-year :age-group-order])))
 
 ^:kindly/hide-code
@@ -220,6 +242,7 @@
     (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population" :age-group "Age Group"})
     (pj/lay-line "Calendar Year" "0-25 Population" {:color "Age Group" :x-type :categorical})
     (pj/lay-point {:shape "Age Group" :color "Age Group" :x-type :categorical
+                   :tooltip :hover
                    :alpha 1.0
                    :size 5})
     (pj/scale :shape {:domain (:domain age-group-domain-lookup)
@@ -231,33 +254,31 @@
 
 ^:kindly/hide-code
 (defn population-by-age-group-chart [age-group]
-  (-> population-by-age-group
-      (tc/select-rows #(#{age-group} (:age-group %)))
-      (tc/rename-columns {:calendar-year "Calendar Year" :population "Population" :geo-name "Local Authority"})
-      (pj/lay-boxplot "Calendar Year" "Population" {:x-type :categorical :alpha 0.2 :box-width 0.3})
-      (pj/lay-point {:data (-> population-by-age-group
-                               (tc/rename-columns sweet-column-names)
-                               (tc/select-rows #(#{age-group} (:age-group %)))
-                               (tc/drop-rows #(= (% "Local Authority") la-name)))
-                     :x "Calendar Year" :y "0-25 Population"
-                     :color "Local Authority" :shape "Local Authority"
-                     ;; :jitter true
-                     :alpha 0.9
-                     :size 5
-                     :offset-x -40
-                     :x-type :categorical})
-      (pj/lay-point {:data (-> population-by-age-group
-                               (tc/rename-columns sweet-column-names)
-                               (tc/select-rows #(#{age-group} (:age-group %)))
-                               (tc/select-rows #(= (% "Local Authority") la-name)))
-                     :x "Calendar Year" :y "0-25 Population"
-                     :color "Local Authority" :shape "Local Authority"
-                     :size 9
-                     :alpha 1.0
-                     :x-type :categorical})
-      geo-color-and-shape-scale
-      (pj/options {:title (format "%s Population" age-group)})
-      (pj/options default-chart-options)))
+  (let [base (-> population-by-age-group
+                 (tc/select-rows #(#{age-group} (:age-group %)))
+                 (tc/rename-columns {:calendar-year "Calendar Year" :population "Population" :geo-name "Local Authority"}))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject (-> base
+                    (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Calendar Year" "Population" {:x-type :categorical :alpha 0.2 :box-width 0.3})
+        (pj/lay-point {:x "Calendar Year" :y "Population"
+                       :color "Local Authority" :shape "Local Authority"
+                       :tooltip :hover
+                       :alpha 0.9
+                       :size 5
+                       :offset-x -40
+                       :x-type :categorical})
+        (pj/lay-point {:data subject
+                       :color "Local Authority" :shape "Local Authority"
+                       :tooltip :hover
+                       :size 9
+                       :alpha 1.0
+                       :x-type :categorical})
+        geo-color-and-shape-scale
+        (pj/options {:title (format "%s Population" age-group)})
+        (pj/options default-chart-options))))
 
 ^:kindly/hide-code
 (population-by-age-group-chart "Under 5")
@@ -294,64 +315,78 @@
    :numerator-ds
    (-> @caseload/table
        (tc/map-columns :calendar-year [:time_period] caseload/time_period->calendar-year)
+       (tc/map-columns :academic-year [:time_period] caseload/time_period->academic-year)
        (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
        (tc/rename-columns {:la_name :geo-name})
        (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
-       (tc/select-columns [:time_period :calendar-year :geo-name setting]))
+       (tc/select-columns [:time_period :calendar-year :academic-year :geo-name setting]))
    :denominator-ds
    population-total
+   ;; When we have background populations by AY we should change the join
    :join-keys [:geo-name :calendar-year]
    :output-field "EHCPs per 10k"
    :input-fields [setting :population]))
 
 ^:kindly/hide-code
-(defn caseload-by-setting-chart [ds title]
-  (-> ds
-      (tc/rename-columns sweet-column-names)
-      (tc/drop-rows #(= (% "Local Authority") la-name))
-      (pj/lay-boxplot "Calendar Year" "EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
-      (pj/lay-point {:data (-> ds
-                               (tc/rename-columns sweet-column-names)
-                               (tc/drop-rows #(= (% "Local Authority") la-name)))
-                     :x "Calendar Year" :y "EHCPs per 10k"
-                     :color "Local Authority" :shape "Local Authority"
-                     ;; :jitter 4
-                     :alpha 1.0
-                     :size 5
-                     :offset-x -40
-                     :x-type :categorical})
-      (pj/lay-point {:data (-> ds
-                               (tc/rename-columns sweet-column-names)
-                               (tc/select-rows #(= (% "Local Authority") la-name)))
-                     :x "Calendar Year" :y "EHCPs per 10k"
-                     :color "Local Authority" :shape "Local Authority"
-                     :size 9
-                     :alpha 1.0
-                     :x-type :categorical})
-      geo-color-and-shape-scale
-      (pj/options {:title title})
-      (pj/scale :y {:include 0})
-      (pj/options default-chart-options)))
+(defn caseload-by-setting-chart [ds ehcplan-field title]
+  (let [base       (-> ds
+                       (tc/add-column
+                        :hover
+                        #(map
+                          (fn [geo-name academic-year population ehcplans ehcp-per-10k]
+                            [:div [:b geo-name]
+                             [:br]
+                             "AY " academic-year
+                             [:br]
+                             "EHC Plans: " (format "%,d" ehcplans)
+                             [:br]
+                             "Population: " (format "%,d" (m/round population))
+                             [:br]
+                             "EHCP per 10k: " (format "%,.2f" ehcp-per-10k)])
+                          (:geo-name %) (:academic-year %) (:population %) (ehcplan-field %) (% "EHCPs per 10k")))
+                       (tc/rename-columns sweet-column-names))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject    (-> base
+                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Academic Year" "EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
+        (pj/lay-point {:color    "Local Authority" :shape "Local Authority"
+                       :tooltip  :hover
+                       :alpha    1.0
+                       :size     5
+                       :offset-x -40
+                       :x-type   :categorical})
+        (pj/lay-point {:data    subject
+                       :tooltip :hover
+                       :color   "Local Authority" :shape "Local Authority"
+                       :size    9
+                       :alpha   1.0
+                       :x-type  :categorical})
+        geo-color-and-shape-scale
+        (pj/options {:title title})
+        (pj/scale :y {:include 0})
+        (pj/options default-chart-options))))
 
 ^:kindly/hide-code
 (def overall-ehcp-per-10k (caseload-by-setting :ehcplans))
 
 ^:kindly/hide-code
-(caseload-by-setting-chart overall-ehcp-per-10k "Overall Rate of EHCPs")
+(caseload-by-setting-chart overall-ehcp-per-10k :ehcplans "Overall Rate of EHCPs")
 
 ^:kindly/hide-code
 (def special-ehcp-per-10k
   (caseload-by-setting :special_total))
 
 ^:kindly/hide-code
-(caseload-by-setting-chart special-ehcp-per-10k "Specialist Rate of EHCPs")
+(caseload-by-setting-chart special-ehcp-per-10k :special_total "Specialist Rate of EHCPs")
 
 ^:kindly/hide-code
 (def mainstream-ehcp-per-10k
   (caseload-by-setting :mainstream_total))
 
 ^:kindly/hide-code
-(caseload-by-setting-chart mainstream-ehcp-per-10k "Mainstream Rate of EHCPs")
+(caseload-by-setting-chart mainstream-ehcp-per-10k :mainstream_total "Mainstream Rate of EHCPs")
 
 
 ^:kindly/hide-code
@@ -359,14 +394,14 @@
   (caseload-by-setting :ap_pru_total))
 
 ^:kindly/hide-code
-(caseload-by-setting-chart ap_pru-ehcp-per-10k "AP and PRU Rate of EHCPs")
+(caseload-by-setting-chart ap_pru-ehcp-per-10k :ap_pru_total "AP and PRU Rate of EHCPs")
 
 ^:kindly/hide-code
 (def fe-ehcp-per-10k
   (caseload-by-setting :fe_total))
 
 ^:kindly/hide-code
-(caseload-by-setting-chart fe-ehcp-per-10k "Further Education Rate of EHCPs")
+(caseload-by-setting-chart fe-ehcp-per-10k :fe_total "Further Education Rate of EHCPs")
 
 ;;; ## New Plan Analysis
 
@@ -386,63 +421,75 @@
    :input-fields [setting :population]))
 
 ^:kindly/hide-code
-(defn newplans-by-setting-chart [ds title]
-  (-> ds
-      (tc/rename-columns sweet-column-names)
-      (tc/drop-rows #(= (% "Local Authority") la-name))
-      (pj/lay-boxplot "Calendar Year" "New EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
-      (pj/lay-point {:data (-> ds
-                               (tc/rename-columns sweet-column-names)
-                               (tc/drop-rows #(= (% "Local Authority") la-name)))
-                     :x "Calendar Year" :y "New EHCPs per 10k"
-                     :color "Local Authority" :shape "Local Authority"
-                     ;; :jitter 4
-                     :alpha 1.0
-                     :size 5
-                     :offset-x -40
-                     :x-type :categorical})
-      (pj/lay-point {:data (-> ds
-                               (tc/rename-columns sweet-column-names)
-                               (tc/select-rows #(= (% "Local Authority") la-name)))
-                     :x "Calendar Year" :y "New EHCPs per 10k"
-                     :color "Local Authority" :shape "Local Authority"
-                     :size 9
-                     :alpha 1.0
-                     :x-type :categorical})
-      geo-color-and-shape-scale
-      (pj/scale :y {:include 0})
-      (pj/options {:title title})
-      (pj/options default-chart-options)))
+(defn newplans-by-setting-chart [ds ehcplan-field title]
+  (let [base       (-> ds
+                       (tc/add-column
+                        :hover
+                        #(map
+                          (fn [geo-name calendar-year population ehcplans ehcp-per-10k]
+                            [:div [:b geo-name]
+                             [:br]
+                             "Calendar Year " calendar-year
+                             [:br]
+                             "New EHC Plans: " (format "%,d" ehcplans)
+                             [:br]
+                             "Population: " (format "%,d" (m/round population))
+                             [:br]
+                             "New EHCPs per 10k: " (format "%,.2f" ehcp-per-10k)])
+                          (:geo-name %) (:calendar-year %) (:population %) (ehcplan-field %) (% "New EHCPs per 10k")))
+                       (tc/rename-columns sweet-column-names))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject    (-> base
+                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Calendar Year" "New EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
+        (pj/lay-point {:color    "Local Authority" :shape "Local Authority"
+                       :tooltip  :hover
+                       :alpha    1.0
+                       :size     5
+                       :offset-x -40
+                       :x-type   :categorical})
+        (pj/lay-point {:data   subject
+                       :tooltip :hover
+                       :color  "Local Authority" :shape "Local Authority"
+                       :size   9
+                       :alpha  1.0
+                       :x-type :categorical})
+        geo-color-and-shape-scale
+        (pj/scale :y {:include 0})
+        (pj/options {:title title})
+        (pj/options default-chart-options))))
 
 ^:kindly/hide-code
 (def overall-new-ehcp-per-10k (newplans-by-setting :new_ehc_plans))
 
 ^:kindly/hide-code
-(newplans-by-setting-chart overall-new-ehcp-per-10k "Overall Rate of New EHCPs")
+(newplans-by-setting-chart overall-new-ehcp-per-10k :new_ehc_plans "Overall Rate of New EHCPs")
 
 ^:kindly/hide-code
 (def special-new-ehcp-per-10k (newplans-by-setting :special_total))
 
 ^:kindly/hide-code
-(newplans-by-setting-chart special-new-ehcp-per-10k "Overall Rate of New EHCPs in Specialist Settings")
+(newplans-by-setting-chart special-new-ehcp-per-10k :special_total "Overall Rate of New EHCPs in Specialist Settings")
 
 ^:kindly/hide-code
 (def mainstream-new-ehcp-per-10k (newplans-by-setting :mainstream_total))
 
 ^:kindly/hide-code
-(newplans-by-setting-chart mainstream-new-ehcp-per-10k "Overall Rate of New EHCPs in Mainstream Settings")
+(newplans-by-setting-chart mainstream-new-ehcp-per-10k :mainstream_total "Overall Rate of New EHCPs in Mainstream Settings")
 
 ^:kindly/hide-code
 (def ap_pru-new-ehcp-per-10k (newplans-by-setting :ap_pru_total))
 
 ^:kindly/hide-code
-(newplans-by-setting-chart ap_pru-new-ehcp-per-10k "Overall Rate of New EHCPs in AP & PRU Settings")
+(newplans-by-setting-chart ap_pru-new-ehcp-per-10k :ap_pru_total "Overall Rate of New EHCPs in AP & PRU Settings")
 
 ^:kindly/hide-code
 (def fe-new-ehcp-per-10k (newplans-by-setting :fe_total))
 
 ^:kindly/hide-code
-(newplans-by-setting-chart fe-new-ehcp-per-10k "Overall Rate of New EHCPs in Further Education Settings")
+(newplans-by-setting-chart fe-new-ehcp-per-10k :fe_total "Overall Rate of New EHCPs in Further Education Settings")
 
 
 ;;; ## Ceased Plan Analysis
