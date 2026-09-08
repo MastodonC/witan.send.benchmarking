@@ -588,7 +588,6 @@
 ^:kindly/hide-code
 (timeliness-by-category-chart plans_issued_gt20weeks_ltyear-per-10k :plans_issued_gt20weeks_ltyear "Plans Issued Between 20wks and 1yr")
 
-
 ^:kindly/hide-code
 (def plans_issued_gt_1_year-per-10k (timeliness-by-category :plans_issued_gt_1_year))
 
