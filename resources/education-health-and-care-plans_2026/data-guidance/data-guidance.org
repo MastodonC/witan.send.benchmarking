@@ -588,6 +588,60 @@ Footnotes:
     2025/26 academic year are suppressed due to issues with data
     quality.
 
+sen2-2026-requests [49 2]:
+
+|                         :breakdown_topic |                               :breakdown |
+|------------------------------------------|------------------------------------------|
+| All requests for an EHC needs assessment | All requests for an EHC needs assessment |
+|               Child or young persons age |                              Age unknown |
+|               Child or young persons age |                                  Aged 10 |
+|               Child or young persons age |                                  Aged 11 |
+|               Child or young persons age |                                  Aged 12 |
+|               Child or young persons age |                                  Aged 13 |
+|               Child or young persons age |                                  Aged 14 |
+|               Child or young persons age |                                  Aged 15 |
+|               Child or young persons age |                                  Aged 16 |
+|               Child or young persons age |                                  Aged 17 |
+|               Child or young persons age |                                  Aged 18 |
+|               Child or young persons age |                                  Aged 19 |
+|               Child or young persons age |                         Aged 2 and under |
+|               Child or young persons age |                         Aged 20 and over |
+|               Child or young persons age |                                   Aged 3 |
+|               Child or young persons age |                                   Aged 4 |
+|               Child or young persons age |                                   Aged 5 |
+|               Child or young persons age |                                   Aged 6 |
+|               Child or young persons age |                                   Aged 7 |
+|               Child or young persons age |                                   Aged 8 |
+|               Child or young persons age |                                   Aged 9 |
+|                                Ethnicity |                   Any other ethnic group |
+|                                Ethnicity |       Asian - Any other Asian background |
+|                                Ethnicity |                      Asian - Bangladeshi |
+|                                Ethnicity |                          Asian - Chinese |
+|                                Ethnicity |                           Asian - Indian |
+|                                Ethnicity |                        Asian - Pakistani |
+|                                Ethnicity |       Black - Any other Black background |
+|                                Ethnicity |                    Black - Black African |
+|                                Ethnicity |                  Black - Black Caribbean |
+|                                Ethnicity |       Mixed - Any other Mixed background |
+|                                Ethnicity |                  Mixed - White and Asian |
+|                                Ethnicity |          Mixed - White and Black African |
+|                                Ethnicity |        Mixed - White and Black Caribbean |
+|                                Ethnicity |                             Unclassified |
+|                                Ethnicity |       White - Any other White background |
+|                                Ethnicity |                       White - Gypsy/Roma |
+|                                Ethnicity |                            White - Irish |
+|                                Ethnicity |      White - Traveller of Irish heritage |
+|                                Ethnicity |                    White - White British |
+|                                      Sex |                                   Female |
+|                                      Sex |                                     Male |
+|                                      Sex |                                  Unknown |
+|                        Source of request |                 Health care professional |
+|                        Source of request |                                Not known |
+|                        Source of request |                                    Other |
+|                        Source of request |                   Parent or young person |
+|                        Source of request |        School or other education setting |
+|                        Source of request |                 Social care professional |
+
 
 *** Assessments for an education, health and care plan carried out during the calendar year
 

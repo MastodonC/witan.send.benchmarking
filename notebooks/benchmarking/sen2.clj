@@ -10,6 +10,7 @@
    [witan.send.benchmarking.population :as population]
    [witan.send.benchmarking.neighbours.statistical :as sn]
    [witan.send.benchmarking.sen2.assessments-2026 :as ehcna]
+   [witan.send.benchmarking.sen2.requests-2026 :as ehcnar]
    [witan.send.benchmarking.sen2.caseload-2026 :as caseload]
    [witan.send.benchmarking.sen2.newplans-2026 :as newplans]
    [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]
@@ -648,3 +649,57 @@
 
 ^:kindly/hide-code
 (assessments-by-category-chart assessments-in-year :assess_in_year "Assessments in Year")
+
+;;; ## Requests
+^:kindly/hide-code
+(defn requests-by-category [category]
+  (calculate
+   :numerator-ds
+   (-> @ehcnar/table
+       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+       (tc/rename-columns {:la_name :geo-name :time_period :calendar-year})
+       (tc/select-rows (fn [r] (= "All requests for an EHC needs assessment" (:breakdown_topic r))))
+       (tc/select-columns [:calendar-year :geo-name category])
+       (tc/drop-missing [category]))
+   :denominator-ds
+   population-total
+   :join-keys [:geo-name :calendar-year]
+   :output-field "EHCNARs per 10k"
+   :input-fields [category :population]))
+
+^:kindly/hide-code
+(defn requests-by-category-chart [ds ehcnar-field title]
+  (let [base (-> ds
+                 (tc/add-column
+                  :hover
+                  #(map
+                    (fn [geo-name calendar-year population ehcplans ehcnar-per-10k]
+                      [:div [:b geo-name]
+                       [:br]
+                       "Calendar Year " calendar-year
+                       [:br]
+                       "EHCNARs : " (format "%,d" ehcplans)
+                       [:br]
+                       "Population: " (format "%,d" (m/round population))
+                       [:br]
+                       "EHCNARs per 10k: " (format "%,.2f" ehcnar-per-10k)])
+                    (:geo-name %) (:calendar-year %) (:population %) (ehcnar-field %) (% "EHCNARs per 10k")))
+                 (tc/rename-columns sweet-column-names))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject    (-> base
+                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Calendar Year" "EHCNARs per 10k" box-plot-options)
+        (pj/lay-point neighbour-points-options)
+        (pj/lay-point (assoc subject-point-options :data subject))
+        geo-color-and-shape-scale
+        (pj/scale :y {:include 0})
+        (pj/options {:title title})
+        (pj/options default-chart-options))))
+
+^:kindly/hide-code
+(def requests-in-year (requests-by-category :requests_received_in_year))
+
+^:kindly/hide-code
+(requests-by-category-chart requests-in-year :requests_received_in_year "Requests in Year")
