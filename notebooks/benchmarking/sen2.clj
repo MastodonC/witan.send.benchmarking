@@ -291,7 +291,8 @@
                            input-fields
                            value-fn
                            output-field]
-                    :or {value-fn #(m/approx (dfn/* 10000 (dfn// %1 %2)))}}]
+                    :or {value-fn #(when (and (number? %1) (number? %2))
+                                     (m/approx (dfn/* 10000 (dfn// %1 %2))))}}]
   (-> numerator-ds
       (tc/inner-join denominator-ds join-keys)
       (tc/map-columns output-field input-fields value-fn)))
