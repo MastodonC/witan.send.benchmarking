@@ -9,13 +9,14 @@
    [tech.v3.datatype.functional :as dfn]
    [witan.send.benchmarking.population :as population]
    [witan.send.benchmarking.neighbours.statistical :as sn]
+   [witan.send.benchmarking.sen2.assessments-2026 :as ehcna]
    [witan.send.benchmarking.sen2.caseload-2026 :as caseload]
    [witan.send.benchmarking.sen2.newplans-2026 :as newplans]
    [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]
    [witan.send.benchmarking.sen2.timeliness-20-week :as timeliness]))
 
 ^:kindly/hide-code
-(def la-name "Cornwall")
+(def la-name "Hertfordshire")
 
 ^:kindly/hide-code
 (def sweet-column-names
@@ -593,3 +594,57 @@
 
 ^:kindly/hide-code
 (timeliness-by-category-chart plans_issued_gt_1_year-per-10k :plans_issued_gt_1_year "Plans Issued After 1yr")
+
+;;; ## Assessments
+^:kindly/hide-code
+(defn assessments-by-category [category]
+  (calculate
+   :numerator-ds
+   (-> @ehcna/table
+       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+       (tc/rename-columns {:la_name :geo-name :time_period :calendar-year})
+       (tc/select-rows (fn [r] (= "All EHC needs assessments" (:breakdown_topic r))))
+       (tc/select-columns [:calendar-year :geo-name category])
+       (tc/drop-missing [category]))
+   :denominator-ds
+   population-total
+   :join-keys [:geo-name :calendar-year]
+   :output-field "EHCNAs per 10k"
+   :input-fields [category :population]))
+
+^:kindly/hide-code
+(defn assessments-by-category-chart [ds ehcna-field title]
+  (let [base (-> ds
+                 (tc/add-column
+                  :hover
+                  #(map
+                    (fn [geo-name calendar-year population ehcplans ehcna-per-10k]
+                      [:div [:b geo-name]
+                       [:br]
+                       "Calendar Year " calendar-year
+                       [:br]
+                       "EHCNAs : " (format "%,d" ehcplans)
+                       [:br]
+                       "Population: " (format "%,d" (m/round population))
+                       [:br]
+                       "EHCNAs per 10k: " (format "%,.2f" ehcna-per-10k)])
+                    (:geo-name %) (:calendar-year %) (:population %) (ehcna-field %) (% "EHCNAs per 10k")))
+                 (tc/rename-columns sweet-column-names))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject    (-> base
+                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Calendar Year" "EHCNAs per 10k" box-plot-options)
+        (pj/lay-point neighbour-points-options)
+        (pj/lay-point (assoc subject-point-options :data subject))
+        geo-color-and-shape-scale
+        (pj/scale :y {:include 0})
+        (pj/options {:title title})
+        (pj/options default-chart-options))))
+
+^:kindly/hide-code
+(def assessments-in-year (assessments-by-category :assess_in_year))
+
+^:kindly/hide-code
+(assessments-by-category-chart assessments-in-year :assess_in_year "Assessments in Year")
