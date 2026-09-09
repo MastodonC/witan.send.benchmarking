@@ -357,7 +357,7 @@
                        :x-type  :categorical})
         geo-color-and-shape-scale
         (pj/options {:title title})
-        (pj/scale :y {:include 0})
+        ;; (pj/scale :y {:include 0})
         (pj/options default-chart-options))))
 
 ^:kindly/hide-code
@@ -439,7 +439,7 @@
         (pj/lay-point neighbour-points-options)
         (pj/lay-point (assoc subject-point-options :data subject))
         geo-color-and-shape-scale
-        (pj/scale :y {:include 0})
+        ;; (pj/scale :y {:include 0})
         (pj/options {:title title})
         (pj/options default-chart-options))))
 
@@ -640,7 +640,7 @@
         (pj/lay-point neighbour-points-options)
         (pj/lay-point (assoc subject-point-options :data subject))
         geo-color-and-shape-scale
-        (pj/scale :y {:include 0})
+        ;; (pj/scale :y {:include 0})
         (pj/options {:title title})
         (pj/options default-chart-options))))
 
@@ -694,7 +694,7 @@
         (pj/lay-point neighbour-points-options)
         (pj/lay-point (assoc subject-point-options :data subject))
         geo-color-and-shape-scale
-        (pj/scale :y {:include 0})
+        ;; (pj/scale :y {:include 0})
         (pj/options {:title title})
         (pj/options default-chart-options))))
 
