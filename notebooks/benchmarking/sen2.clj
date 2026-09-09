@@ -297,7 +297,9 @@
                                      (m/approx (dfn/* 10000 (dfn// %1 %2))))}}]
   (-> numerator-ds
       (tc/inner-join denominator-ds join-keys)
-      (tc/map-columns output-field input-fields value-fn)))
+      (tc/map-columns output-field input-fields value-fn)
+      ;; FIXME: This is a hack. Need a way to consitently sort the output for charting.
+      (tc/order-by [:calendar-year])))
 
 ;;; # EHCP analysis
 
