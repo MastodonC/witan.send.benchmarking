@@ -515,7 +515,7 @@
                        (tc/select-rows #(= (% "Local Authority") la-name)))]
     (-> neighbours
         (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" box-plot-options)
-        (pj/lay-point neighbour-points-options)
+        (pj/lay-point (assoc neighbour-points-options :offset-x -70))
         (pj/lay-point (assoc subject-point-options :data subject))
         geo-color-and-shape-scale
         (pj/scale :y {:include 0})
