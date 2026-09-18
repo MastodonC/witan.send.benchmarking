@@ -652,6 +652,13 @@
 ^:kindly/hide-code
 (assessments-by-category-chart assessments-in-year :assess_in_year "Assessments in Year")
 
+^:kindly/hide-code
+(def number_assess_tribunal-in-year (assessments-by-category :number_assess_tribunal))
+
+^:kindly/hide-code
+(assessments-by-category-chart number_assess_tribunal-in-year :number_assess_tribunal "Tribunals Related to Assessment Decisions in Year")
+
+
 ;;; ## Requests
 ^:kindly/hide-code
 (defn requests-by-category [category]
@@ -705,3 +712,10 @@
 
 ^:kindly/hide-code
 (requests-by-category-chart requests-in-year :requests_received_in_year "Requests in Year")
+
+^:kindly/hide-code
+(def tribunal_related_request-in-year (requests-by-category :tribunal_related_request))
+
+^:kindly/hide-code
+(requests-by-category-chart tribunal_related_request-in-year :tribunal_related_request "Requests Subject to a Tribunal in Year")
+
