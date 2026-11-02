@@ -2,6 +2,7 @@
 ^:kindly/hide-code
 (ns benchmarking.sen2
   (:require
+   [scicloj.clay.v2.api :as clay]
    [fastmath.core :as m]
    [scicloj.plotje.api :as pj]
    [scicloj.kindly.v4.kind :as kind]
@@ -15,6 +16,9 @@
    [witan.send.benchmarking.sen2.newplans-2026 :as newplans]
    [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]
    [witan.send.benchmarking.sen2.timeliness-20-week :as timeliness]))
+
+^:kindly/hide-code
+(comment (clay/make! {:source-path *file*}))
 
 ^:kindly/hide-code
 (def la-name "Hertfordshire")
@@ -93,8 +97,7 @@
    (-> "#b3e0bf" (clojure2d.color/darken 0.5) clojure2d.color/format-hex)
    "#2a9d3d"
    (-> "#edf181" (clojure2d.color/darken 2.0) clojure2d.color/format-hex)
-   "#db7003" "#fba600" "#f8c1a6" "#a30000" "#ff3200" "#011a51" "#97d1d9" "#916c37"]
-  )
+   "#db7003" "#fba600" "#f8c1a6" "#a30000" "#ff3200" "#011a51" "#97d1d9" "#916c37"])
 
 ^:kindly/hide-code
 (def shapes [:diamond :circle :square :triangle :cross])
@@ -543,104 +546,48 @@
         :plans_issued_den
         :pc_plans_issued_within_20_weeks :pc_plans_issued_gt20weeks_ltyear :pc_plans_issued_gt_1_year])
       (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
-      (tc/order-by [:calendar-year])))
+      (tc/order-by [:geo-name :calendar-year])))
 
 ^:kindly/hide-code
-(let [title "Plans within 20 weeks"
-      timeliness-field "Pct Plans Issued w/in 20 Weeks"
-      base (-> timeliness-percentages
-               (tc/rename-columns
-                (assoc sweet-column-names
-                       :pc_plans_issued_within_20_weeks "Pct Plans Issued w/in 20 Weeks"
-                       :pc_plans_issued_gt20weeks_ltyear "Pct Plans Between 20 Weeks and 1 Year"
-                       :pc_plans_issued_gt_1_year "Pct Plans Issued After 1 Year"))
-               (tc/add-column
-                :hover
-                #(map
-                  (fn [geo-name calendar-year timeliness-value]
-                    [:div [:b geo-name]
-                     [:br]
-                     "Calendar Year " calendar-year
-                     [:br]
-                     (str timeliness-field ": " timeliness-value)])
-                  (% "Local Authority") (% "Calendar Year") (% timeliness-field))))
-      neighbours (-> base
-                     (tc/drop-rows #(= (% "Local Authority") la-name)))
-      subject (-> base
-                  (tc/select-rows #(= (% "Local Authority") la-name)))]
-  (-> neighbours
-      (pj/lay-boxplot "Calendar Year" timeliness-field box-plot-options)
-      (pj/lay-point neighbour-points-options)
-      (pj/lay-point (assoc subject-point-options :data subject))
-      geo-color-and-shape-scale
-      (pj/scale :y {:include 0})
-      (pj/options {:title title})
-      (pj/options default-chart-options)))
+(defn timeliness-percentages-chart [ds title timeliness-field]
+  (let [base (-> ds
+                 (tc/rename-columns
+                  (assoc sweet-column-names
+                         :pc_plans_issued_within_20_weeks "Pct Plans Issued w/in 20 Weeks"
+                         :pc_plans_issued_gt20weeks_ltyear "Pct Plans Between 20 Weeks and 1 Year"
+                         :pc_plans_issued_gt_1_year "Pct Plans Issued After 1 Year"))
+                 (tc/add-column
+                  :hover
+                  (fn [ds] (map
+                            (fn [geo-name calendar-year timeliness-value]
+                              [:div [:b geo-name]
+                               [:br]
+                               "Calendar Year " calendar-year
+                               [:br]
+                               (str timeliness-field ": " timeliness-value)])
+                            (ds "Local Authority") (ds "Calendar Year") (ds timeliness-field)))))
+        neighbours
+        (-> base
+            (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject (-> base
+                    (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Calendar Year" timeliness-field box-plot-options)
+        (pj/lay-point neighbour-points-options)
+        (pj/lay-point (assoc subject-point-options :data subject))
+        geo-color-and-shape-scale
+        (pj/scale :y {:include 0})
+        (pj/options {:title title})
+        (pj/options default-chart-options))))
 
 ^:kindly/hide-code
-(let [timeliness-field "Pct Plans Issued Between 20 Weeks and 1 Year"
-      title timeliness-field
-      base (-> timeliness-percentages
-               (tc/rename-columns
-                (assoc sweet-column-names
-                       :pc_plans_issued_within_20_weeks "Pct Plans Issued w/in 20 Weeks"
-                       :pc_plans_issued_gt20weeks_ltyear "Pct Plans Issued Between 20 Weeks and 1 Year"
-                       :pc_plans_issued_gt_1_year "Pct Plans Issued After 1 Year"))
-               (tc/add-column
-                :hover
-                #(map
-                  (fn [geo-name calendar-year timeliness-value]
-                    [:div [:b geo-name]
-                     [:br]
-                     "Calendar Year " calendar-year
-                     [:br]
-                     (str timeliness-field ": " timeliness-value)])
-                  (% "Local Authority") (% "Calendar Year") (% timeliness-field))))
-      neighbours (-> base
-                     (tc/drop-rows #(= (% "Local Authority") la-name)))
-      subject (-> base
-                  (tc/select-rows #(= (% "Local Authority") la-name)))]
-  (-> neighbours
-      (pj/lay-boxplot "Calendar Year" timeliness-field box-plot-options)
-      (pj/lay-point neighbour-points-options)
-      (pj/lay-point (assoc subject-point-options :data subject))
-      geo-color-and-shape-scale
-      (pj/scale :y {:include 0})
-      (pj/options {:title title})
-      (pj/options default-chart-options)))
+(timeliness-percentages-chart timeliness-percentages "Plans within 20 weeks" "Pct Plans Issued w/in 20 Weeks")
 
 ^:kindly/hide-code
-(let [timeliness-field "Pct Plans Issued After 1 Year"
-      title timeliness-field
-      base (-> timeliness-percentages
-               (tc/rename-columns
-                (assoc sweet-column-names
-                       :pc_plans_issued_within_20_weeks "Pct Plans Issued w/in 20 Weeks"
-                       :pc_plans_issued_gt20weeks_ltyear "Pct Plans Issued Between 20 Weeks and 1 Year"
-                       :pc_plans_issued_gt_1_year "Pct Plans Issued After 1 Year"))
-               (tc/add-column
-                :hover
-                #(map
-                  (fn [geo-name calendar-year timeliness-value]
-                    [:div [:b geo-name]
-                     [:br]
-                     "Calendar Year " calendar-year
-                     [:br]
-                     (str timeliness-field ": " timeliness-value)])
-                  (% "Local Authority") (% "Calendar Year") (% timeliness-field))))
-      neighbours (-> base
-                     (tc/drop-rows #(= (% "Local Authority") la-name)))
-      subject (-> base
-                  (tc/select-rows #(= (% "Local Authority") la-name)))]
-  (-> neighbours
-      (pj/lay-boxplot "Calendar Year" timeliness-field box-plot-options)
-      (pj/lay-point neighbour-points-options)
-      (pj/lay-point (assoc subject-point-options :data subject))
-      geo-color-and-shape-scale
-      (pj/scale :y {:include 0})
-      (pj/options {:title title})
-      (pj/options default-chart-options)))
+(timeliness-percentages-chart timeliness-percentages "Plans between 20 weeks and 1 Year" "Pct Plans Between 20 Weeks and 1 Year")
 
+^:kindly/hide-code
+(timeliness-percentages-chart timeliness-percentages "Plans Issued after 1 Year" "Pct Plans Issued After 1 Year")
 
 ;;; ## Assessments
 ^:kindly/hide-code
