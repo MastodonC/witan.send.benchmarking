@@ -2,6 +2,7 @@
 ^:kindly/hide-code
 (ns benchmarking.sen2
   (:require
+   [scicloj.clay.v2.api :as clay]
    [fastmath.core :as m]
    [scicloj.plotje.api :as pj]
    [scicloj.kindly.v4.kind :as kind]
@@ -15,6 +16,9 @@
    [witan.send.benchmarking.sen2.newplans-2026 :as newplans]
    [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]
    [witan.send.benchmarking.sen2.timeliness-20-week :as timeliness]))
+
+^:kindly/hide-code
+(comment (clay/make! {:source-path *file*}))
 
 ^:kindly/hide-code
 (def la-name "Hertfordshire")
@@ -93,8 +97,7 @@
    (-> "#b3e0bf" (clojure2d.color/darken 0.5) clojure2d.color/format-hex)
    "#2a9d3d"
    (-> "#edf181" (clojure2d.color/darken 2.0) clojure2d.color/format-hex)
-   "#db7003" "#fba600" "#f8c1a6" "#a30000" "#ff3200" "#011a51" "#97d1d9" "#916c37"]
-  )
+   "#db7003" "#fba600" "#f8c1a6" "#a30000" "#ff3200" "#011a51" "#97d1d9" "#916c37"])
 
 ^:kindly/hide-code
 (def shapes [:diamond :circle :square :triangle :cross])
@@ -534,45 +537,42 @@
 ;;; ## Timeliness Analysis
 
 ^:kindly/hide-code
-(defn timeliness-by-category [category]
-  (calculate
-   :numerator-ds
-   (-> @timeliness/table
-       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
-       (tc/rename-columns {:la_name :geo-name :time_period :calendar-year})
-       (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
-       (tc/select-columns [:calendar-year :geo-name category])
-       (tc/drop-missing [category]))
-   :denominator-ds
-   population-total
-   :join-keys [:geo-name :calendar-year]
-   :output-field "EHCPs per 10k"
-   :input-fields [category :population]))
+(def timeliness-percentages
+  (-> @timeliness/table
+      (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+      (tc/rename-columns {:la_name :geo-name :time_period :calendar-year})
+      (tc/select-columns
+       [:calendar-year :geo-name :breakdown_topic :breakdown
+        :plans_issued_den
+        :pc_plans_issued_within_20_weeks :pc_plans_issued_gt20weeks_ltyear :pc_plans_issued_gt_1_year])
+      (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
+      (tc/order-by [:geo-name :calendar-year])))
 
 ^:kindly/hide-code
-(defn timeliness-by-category-chart [ds ehcplan-field title]
+(defn timeliness-percentages-chart [ds title timeliness-field]
   (let [base (-> ds
+                 (tc/rename-columns
+                  (assoc sweet-column-names
+                         :pc_plans_issued_within_20_weeks "Pct Plans Issued w/in 20 Weeks"
+                         :pc_plans_issued_gt20weeks_ltyear "Pct Plans Between 20 Weeks and 1 Year"
+                         :pc_plans_issued_gt_1_year "Pct Plans Issued After 1 Year"))
                  (tc/add-column
                   :hover
-                  #(map
-                    (fn [geo-name calendar-year population ehcplans ehcp-per-10k]
-                      [:div [:b geo-name]
-                       [:br]
-                       "Calendar Year " calendar-year
-                       [:br]
-                       "EHC Plans: " (format "%,d" ehcplans)
-                       [:br]
-                       "Population: " (format "%,d" (m/round population))
-                       [:br]
-                       "EHCP per 10k: " (format "%,.2f" ehcp-per-10k)])
-                    (:geo-name %) (:calendar-year %) (:population %) (ehcplan-field %) (% "EHCPs per 10k")))
-                 (tc/rename-columns sweet-column-names))
-        neighbours (-> base
-                       (tc/drop-rows #(= (% "Local Authority") la-name)))
-        subject    (-> base
-                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+                  (fn [ds] (map
+                            (fn [geo-name calendar-year timeliness-value]
+                              [:div [:b geo-name]
+                               [:br]
+                               "Calendar Year " calendar-year
+                               [:br]
+                               (str timeliness-field ": " timeliness-value)])
+                            (ds "Local Authority") (ds "Calendar Year") (ds timeliness-field)))))
+        neighbours
+        (-> base
+            (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject (-> base
+                    (tc/select-rows #(= (% "Local Authority") la-name)))]
     (-> neighbours
-        (pj/lay-boxplot "Calendar Year" "EHCPs per 10k" box-plot-options)
+        (pj/lay-boxplot "Calendar Year" timeliness-field box-plot-options)
         (pj/lay-point neighbour-points-options)
         (pj/lay-point (assoc subject-point-options :data subject))
         geo-color-and-shape-scale
@@ -581,22 +581,13 @@
         (pj/options default-chart-options))))
 
 ^:kindly/hide-code
-(def plans_issued_within_20_weeks-per-10k (timeliness-by-category :plans_issued_within_20_weeks))
+(timeliness-percentages-chart timeliness-percentages "Plans within 20 weeks" "Pct Plans Issued w/in 20 Weeks")
 
 ^:kindly/hide-code
-(timeliness-by-category-chart plans_issued_within_20_weeks-per-10k :plans_issued_within_20_weeks "Plans Within 20wks")
+(timeliness-percentages-chart timeliness-percentages "Plans between 20 weeks and 1 Year" "Pct Plans Between 20 Weeks and 1 Year")
 
 ^:kindly/hide-code
-(def plans_issued_gt20weeks_ltyear-per-10k (timeliness-by-category :plans_issued_gt20weeks_ltyear))
-
-^:kindly/hide-code
-(timeliness-by-category-chart plans_issued_gt20weeks_ltyear-per-10k :plans_issued_gt20weeks_ltyear "Plans Issued Between 20wks and 1yr")
-
-^:kindly/hide-code
-(def plans_issued_gt_1_year-per-10k (timeliness-by-category :plans_issued_gt_1_year))
-
-^:kindly/hide-code
-(timeliness-by-category-chart plans_issued_gt_1_year-per-10k :plans_issued_gt_1_year "Plans Issued After 1yr")
+(timeliness-percentages-chart timeliness-percentages "Plans Issued after 1 Year" "Pct Plans Issued After 1 Year")
 
 ;;; ## Assessments
 ^:kindly/hide-code
@@ -718,4 +709,3 @@
 
 ^:kindly/hide-code
 (requests-by-category-chart tribunal_related_request-in-year :tribunal_related_request "Requests Subject to a Tribunal in Year")
-
