@@ -400,6 +400,27 @@
 ^:kindly/hide-code
 (caseload-by-setting-chart fe-ehcp-per-10k :fe_total "Further Education Rate of EHCPs")
 
+^:kindly/hide-code
+(def ehe-ehcp-per-10k
+  (caseload-by-setting :elective_home_education))
+
+^:kindly/hide-code
+(caseload-by-setting-chart ehe-ehcp-per-10k :elective_home_education "Elective Home Education Rate of EHCPs")
+
+^:kindly/hide-code
+(def opr-ehcp-per-10k
+  (caseload-by-setting :other_arrangements_parents))
+
+^:kindly/hide-code
+(caseload-by-setting-chart opr-ehcp-per-10k :other_arrangements_parents "Other Arrangements by Parents Rate of EHCPs")
+
+^:kindly/hide-code
+(def ola-ehcp-per-10k
+  (caseload-by-setting :other_arrangements_la))
+
+^:kindly/hide-code
+(caseload-by-setting-chart ola-ehcp-per-10k :other_arrangements_la "Other Arrangements by LA Rate of EHCPs")
+
 ;;; ## New Plan Analysis
 
 ^:kindly/hide-code
