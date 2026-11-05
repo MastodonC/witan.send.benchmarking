@@ -499,6 +499,24 @@
 ^:kindly/hide-code
 (newplans-by-setting-chart fe-new-ehcp-per-10k :fe_total "Overall Rate of New EHCPs in Further Education Settings")
 
+^:kindly/hide-code
+(def ehe-new-ehcp-per-10k (newplans-by-setting :elective_home_education))
+
+^:kindly/hide-code
+(newplans-by-setting-chart ehe-new-ehcp-per-10k :elective_home_education "Overall Rate of New EHCPs in Elective Home Education Settings")
+
+^:kindly/hide-code
+(def opr-new-ehcp-per-10k (newplans-by-setting :other_arrangements_parents))
+
+^:kindly/hide-code
+(newplans-by-setting-chart opr-new-ehcp-per-10k :other_arrangements_parents "Overall Rate of New EHCPs in Other Arrangements by Parents Settings")
+
+^:kindly/hide-code
+(def ola-new-ehcp-per-10k (newplans-by-setting :other_arrangements_la))
+
+^:kindly/hide-code
+(newplans-by-setting-chart ola-new-ehcp-per-10k :other_arrangements_la "Overall Rate of New EHCPs in Other Arrangements by LA Settings")
+
 
 ;;; ## Ceased Plan Analysis
 
