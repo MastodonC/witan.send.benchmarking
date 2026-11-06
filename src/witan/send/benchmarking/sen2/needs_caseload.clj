@@ -2,10 +2,6 @@
   (:require
    [clojure.java.io :as io]
    [tablecloth.api :as tc]
-   [tech.v3.datatype.gradient :as dt-grad]
-   [tech.v3.datatype.functional :as dfn]
-   [tech.v3.dataset.reductions :as dsr]
-   [witan.send.benchmarking.population :as pop]))
 
 ;; FIXME: This should be academic-year
 (defn time_period->calendar-year [time-period]
