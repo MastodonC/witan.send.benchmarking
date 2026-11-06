@@ -1,7 +1,7 @@
 (ns witan.send.benchmarking.sen2.needs-caseload
   (:require
    [clojure.java.io :as io]
-   [tablecloth.api :as tc]
+   [tablecloth.api :as tc]))
 
 ;; FIXME: This should be academic-year
 (defn time_period->calendar-year [time-period]
