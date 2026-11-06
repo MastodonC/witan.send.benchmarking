@@ -15,7 +15,8 @@
    [witan.send.benchmarking.sen2.caseload-2026 :as caseload]
    [witan.send.benchmarking.sen2.newplans-2026 :as newplans]
    [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]
-   [witan.send.benchmarking.sen2.timeliness-20-week :as timeliness]))
+   [witan.send.benchmarking.sen2.timeliness-20-week :as timeliness] 
+   [witan.send.benchmarking.sen2.needs-caseload :as needs-caseload]))
 
 ^:kindly/hide-code
 (comment (clay/make! {:source-path *file*}))
@@ -748,3 +749,74 @@
 
 ^:kindly/hide-code
 (requests-by-category-chart tribunal_related_request-in-year :tribunal_related_request "Requests Subject to a Tribunal in Year")
+
+;;; ## Needs analysis
+
+^:kindly/hide-code
+(defn needs-per-10k [needs]
+  (calculate
+   :numerator-ds
+   (-> @needs-caseload/table
+       (tc/map-columns :calendar-year [:time_period] caseload/time_period->calendar-year)
+       (tc/map-columns :academic-year [:time_period] caseload/time_period->academic-year)
+       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+       (tc/rename-columns {:la_name :geo-name})
+       (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
+       (tc/select-columns [:time_period :calendar-year :academic-year :geo-name needs]))
+   :denominator-ds
+   population-total
+   ;; When we have background populations by AY we should change the join
+   :join-keys [:geo-name :calendar-year]
+   :output-field "EHCPs per 10k"
+   :input-fields [needs :population]))
+
+^:kindly/hide-code
+(defn caseload-by-needs-chart [ds ehcplan-field title]
+  (let [base       (-> ds
+                       (tc/add-column
+                        :hover
+                        #(map
+                          (fn [geo-name academic-year population ehcplans ehcp-per-10k]
+                            [:div [:b geo-name]
+                             [:br]
+                             "AY " academic-year
+                             [:br]
+                             "EHC Plans: " (format "%,d" ehcplans)
+                             [:br]
+                             "Population: " (format "%,d" (m/round population))
+                             [:br]
+                             "EHCP per 10k: " (format "%,.2f" ehcp-per-10k)])
+                          (:geo-name %) (:academic-year %) (:population %) (ehcplan-field %) (% "EHCPs per 10k")))
+                       (tc/rename-columns sweet-column-names))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject    (-> base
+                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Academic Year" "EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.1})
+        (pj/lay-point {:color    "Local Authority" :shape "Local Authority"
+                       :tooltip  :hover
+                       :alpha    1.0
+                       :size     5
+                       :offset-x -60
+                       :x-type   :categorical})
+        (pj/lay-point {:data    subject
+                       :tooltip :hover
+                       :color   "Local Authority" :shape "Local Authority"
+                       :size    9
+                       :alpha   1.0
+                       :x-type  :categorical})
+        geo-color-and-shape-scale
+        (pj/options {:title title})
+        ;; (pj/scale :y {:include 0})
+        (pj/options default-chart-options))))
+
+^:kindly/hide-code
+;;(needs-per-10k :number_asd)
+
+^:kindly/hide-code
+(def asd-per-10k
+  (needs-per-10k :number_asd))
+
+^:kindly/hide-code
+(caseload-by-needs-chart asd-per-10k :number_asd "Autistic Spectrum Disorder (ASD) Rate of EHCPs")
