@@ -815,8 +815,100 @@
 ;;(needs-per-10k :number_asd)
 
 ^:kindly/hide-code
-(def asd-per-10k
+#_(def asd-per-10k
   (needs-per-10k :number_asd))
 
 ^:kindly/hide-code
-(caseload-by-needs-chart asd-per-10k :number_asd "Autistic Spectrum Disorder (ASD) Rate of EHCPs")
+#_(caseload-by-needs-chart asd-per-10k :number_asd "Autistic Spectrum Disorder (ASD) Rate of EHCPs")
+
+^:kindly/hide-code
+(defn need-2026 [need-col need-label]
+  (-> (needs-per-10k need-col)
+      (tc/select-rows #(= 2026 (:calendar-year %)))
+      (tc/rename-columns {need-col :ehc-plans})
+      (tc/add-column :need need-label)))
+
+^:kindly/hide-code
+;;(need-2026 :number_asd "ASD")
+
+^:kindly/hide-code
+(def needs-2026-per-10k
+  (tc/concat
+   (need-2026 :number_asd  "ASD")
+   (need-2026 :number_ds   "DS")
+   (need-2026 :number_hi   "HI")
+   (need-2026 :number_mld  "MLD")
+   (need-2026 :number_msi  "MSI")
+   (need-2026 :number_oth  "OTH")
+   (need-2026 :number_pd   "PD")
+   (need-2026 :number_pmld "PMLD")
+   (need-2026 :number_semh "SEMH")
+   (need-2026 :number_slcn "SLCN")
+   (need-2026 :number_sld  "SLD")
+   (need-2026 :number_spld "SPLD")
+   (need-2026 :number_vi   "VI")
+   (need-2026 :number_need_unknown "Unknown")))
+
+^:kindly/hide-code
+(def main-needs-2026-per-10k
+  (tc/concat
+   (need-2026 :number_asd  "ASD")
+   (need-2026 :number_mld  "MLD")
+   (need-2026 :number_semh "SEMH")
+   (need-2026 :number_slcn "SLCN")
+   (need-2026 :number_sld  "SLD")))
+
+^:kindly/hide-code
+;;(frequencies (needs-2026-per-10k :need))
+
+^:kindly/hide-code
+;; caseload-by-needs-chart with the changes:
+;; 1) x-axis shows need instead of year
+;; 2) the hover shows need
+;; 3) count column is always :ehc-plans
+;; 4) so ehcplan-field is no longer a parameter
+^:kindly/hide-code
+(defn needs-2026-chart [ds title]
+  (let [base       (-> ds
+                       (tc/add-column
+                        :hover
+                        #(map
+                          (fn [geo-name need population ehcplans ehcp-per-10k]
+                            [:div [:b geo-name]
+                             [:br] 
+                             need " plans: " (format "%,d" ehcplans)
+                             [:br]
+                             "Population: " (format "%,d" (m/round population))
+                             [:br]
+                             "EHCP per 10k: " (format "%,.2f" ehcp-per-10k)])
+                          (:geo-name %) (:need %) (:population %) (:ehc-plans %) (% "EHCPs per 10k")))
+                       (tc/rename-columns sweet-column-names)
+                       (tc/rename-columns {:need "Need"}))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject    (-> base
+                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Need" "EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
+        (pj/lay-point {:color    "Local Authority" :shape "Local Authority"
+                       :tooltip  :hover
+                       :alpha    1.0
+                       :size     5
+                       :offset-x -40
+                       :x-type   :categorical})
+        (pj/lay-point {:data    subject
+                       :tooltip :hover
+                       :color   "Local Authority" :shape "Local Authority"
+                       :size    9
+                       :alpha   1.0
+                       :x-type  :categorical})
+        geo-color-and-shape-scale
+        (pj/options {:title title})
+        ;; (pj/scale :y {:include 0})
+        (pj/options default-chart-options))))
+
+^:kindly/hide-code
+(needs-2026-chart needs-2026-per-10k "EHC Plans per 10k by Primary Need, 2025/26")
+
+^:kindly/hide-code
+(needs-2026-chart main-needs-2026-per-10k "EHC Plans per 10k, Main Primary Needs, 2025/26")
