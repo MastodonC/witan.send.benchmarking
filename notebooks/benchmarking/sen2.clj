@@ -16,13 +16,14 @@
    [witan.send.benchmarking.sen2.newplans-2026 :as newplans]
    [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]
    [witan.send.benchmarking.sen2.timeliness-20-week :as timeliness] 
-   [witan.send.benchmarking.sen2.needs-caseload :as needs-caseload]))
+   [witan.send.benchmarking.sen2.needs-caseload :as needs-caseload]
+   [witan.send.benchmarking.sen2.needs-newplans-2026 :as needs-newplans]))
 
 ^:kindly/hide-code
 (comment (clay/make! {:source-path *file*}))
 
 ^:kindly/hide-code
-(def la-name "Hertfordshire")
+(def la-name "Reading")
 
 ^:kindly/hide-code
 (def sweet-column-names
@@ -895,3 +896,63 @@
 
 ^:kindly/hide-code
 (needs5-2026-chart top5-needs-2026-per-10k "EHC Plans per 10k, Main Primary Needs, 2025/26")
+
+;;; ## Needs analysis, New Plans
+
+^:kindly/hide-code
+(defn newplans-needs-per-10k [needs]
+  (calculate
+   :numerator-ds
+   (-> @needs-newplans/table
+       ;; No map-columns as new plans data is calendar years
+       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+       (tc/rename-columns {:la_name :geo-name})
+       (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
+       (tc/select-columns [:calendar-year :geo-name needs]))
+   :denominator-ds
+   population-total
+   ;; When we have background populations by AY we should change the join
+   :join-keys [:geo-name :calendar-year]
+   :output-field "EHCPs per 10k"
+   :input-fields [needs :population]))
+
+^:kindly/hide-code
+(defn newplans-need-2025 [need-col need-label]
+  (-> (newplans-needs-per-10k need-col)
+      (tc/select-rows #(= 2025 (:calendar-year %)))
+      (tc/rename-columns {need-col :ehc-plans})
+      (tc/add-column :need need-label)))
+
+^:kindly/hide-code
+(def newplans-needs-2025-per-10k
+  (tc/concat
+   (newplans-need-2025 :number_asd  "ASD")
+   (newplans-need-2025 :number_ds   "DS")
+   (newplans-need-2025 :number_hi   "HI")
+   (newplans-need-2025 :number_mld  "MLD")
+   (newplans-need-2025 :number_msi  "MSI")
+   (newplans-need-2025 :number_oth  "OTH")
+   (newplans-need-2025 :number_pd   "PD")
+   (newplans-need-2025 :number_pmld "PMLD")
+   (newplans-need-2025 :number_semh "SEMH")
+   (newplans-need-2025 :number_slcn "SLCN")
+   (newplans-need-2025 :number_sld  "SLD")
+   (newplans-need-2025 :number_spld "SPLD")
+   (newplans-need-2025 :number_vi   "VI")
+   (newplans-need-2025 :number_need_unknown "Unknown")))
+
+^:kindly/hide-code
+(def newplans-top-5-needs
+  (into (sorted-set) (-> newplans-needs-2025-per-10k
+                         (tc/select-rows (fn [r] (= la-name (:geo-name r))))
+                         (tc/order-by [:ehc-plans] [:desc])
+                         (tc/head 5)
+                         (:need))))
+
+^:kindly/hide-code
+(def newplans-top5-needs-2025-per-10k
+  (-> newplans-needs-2025-per-10k
+      (tc/select-rows (fn [r] (top-5-needs (:need r))))))
+
+^:kindly/hide-code
+(needs5-2026-chart newplans-top5-needs-2025-per-10k "New EHC Plans per 10k, Main Primary Needs, 2025")
