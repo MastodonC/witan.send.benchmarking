@@ -37,7 +37,6 @@
    :sn_prox "Proximity"
    :ehcplans "EHC Plans"})
 
-
 ^:kindly/hide-code
 (kind/hiccup [:h1 (format "SEN2 Benchmarking for %s" la-name)])
 
@@ -518,7 +517,6 @@
 ^:kindly/hide-code
 (newplans-by-setting-chart ola-new-ehcp-per-10k :other_arrangements_la "Overall Rate of New EHCPs in Other Arrangements by LA Settings")
 
-
 ;;; ## Ceased Plan Analysis
 
 ^:kindly/hide-code
@@ -563,7 +561,7 @@
         (pj/lay-point (assoc neighbour-points-options :offset-x -70))
         (pj/lay-point (assoc subject-point-options :data subject))
         geo-color-and-shape-scale
-        (pj/scale :y {:include 0})
+        ;;(pj/scale :y {:include 0})
         (pj/options {:title title})
         (pj/options default-chart-options))))
 
@@ -575,28 +573,27 @@
 (ceasedplans-by-setting-chart overall-ceased-ehcp-per-10k :total_ceased "Overall Rate of Ceased Plans")
 
 ^:kindly/hide-code
-;; same style as newplans-need-2025
-(defn ceased-reason-2025 [reason-col reason-label]
+;; same style as ceased-reason-2025, but with 2025 filter removed
+(defn ceased-reason [reason-col reason-label]
   (-> (ceasedplans-by-reason reason-col)
-      (tc/select-rows #(= 2025 (:calendar-year %)))
       (tc/rename-columns {reason-col :ceased-plans})
       (tc/add-column :reason reason-label)))
 
 ^:kindly/hide-code
-(def ceased-reasons-2025-per-10k
+(def ceased-reason-all-year
   (tc/concat
-   (ceased-reason-2025 :max_age           "Reached max age")
-   (ceased-reason-2025 :needs_met         "Needs met")
-   (ceased-reason-2025 :he                "Higher education")
-   (ceased-reason-2025 :employ            "Employment")
-   (ceased-reason-2025 :transfer          "Transferred to other LA")
-   (ceased-reason-2025 :no_engage         "No longer engaging")
-   (ceased-reason-2025 :moved_outside_eng "Moved outside England")
-   (ceased-reason-2025 :deceased          "Deceased")
-   (ceased-reason-2025 :other             "Other")))
+   (ceased-reason :max_age           "Reached max age")
+   (ceased-reason :needs_met         "Needs met")
+   (ceased-reason :he                "Higher education")
+   (ceased-reason :employ            "Employment")
+   (ceased-reason :transfer          "Transferred to other LA")
+   (ceased-reason :no_engage         "No longer engaging")
+   (ceased-reason :moved_outside_eng "Moved outside England")
+   (ceased-reason :deceased          "Deceased")
+   (ceased-reason :other             "Other")))
 
 ^:kindly/hide-code
-#_(defn ceased-reasons-2026-chart [ds title]
+(defn ceased-reasons-chart-facet [ds title]
   (let [base       (-> ds
                        (tc/add-column
                         :hover
@@ -617,52 +614,55 @@
         subject    (-> base
                        (tc/select-rows #(= (% "Local Authority") la-name)))]
     (-> neighbours
-        (pj/lay-boxplot "Reason" "Ceased EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
-        (pj/lay-point {:data    subject
-                       :tooltip :hover
-                       :color   "Local Authority" :shape "Local Authority"
-                       :size    9
-                       :alpha   1.0
-                       :x-type  :categorical})
-        geo-color-and-shape-scale
+        ;; Don't want "Reason" on the X axis, as each panel will have the individual reason
+        ;; Instead we have "Calendar Year" on the X-axis
+        (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" box-plot-options)
+        (pj/lay-point neighbour-points-options)
+        (pj/lay-point (assoc subject-point-options :data subject))
+        geo-color-and-shape-scale 
         (pj/options {:title title})
-        ;; (pj/scale :y {:include 0})
-        (pj/options default-chart-options))))
+        ;;(pj/scale :y {:include 0})
+        (pj/options default-chart-options)
+        (pj/facet "Reason"))))
 
 ^:kindly/hide-code
-#_(ceased-reasons-2026-chart ceased-reasons-2025-per-10k "Reasons for Ceasing per 10k, 2025")
+(ceased-reasons-chart-facet ceased-reason-all-year "Reasons for Ceasing per 10k")
 
 ^:kindly/hide-code
-(defn ceasedplans-by-reason-chart [ds reason-field title]
-  (let [base (-> ds
-                 (tc/add-column
-                  :hover
-                  #(map
-                    (fn [geo-name calendar-year population ceased ceased-per-10k]
-                      [:div [:b geo-name]
-                       [:br]
-                       "Calendar Year " calendar-year
-                       [:br]
-                       "Ceased EHC Plans: " (format "%,d" ceased)
-                       [:br]
-                       "Population: " (format "%,d" (m/round population))
-                       [:br]
-                       "Ceased per 10k: " (format "%,.2f" ceased-per-10k)])
-                    (:geo-name %) (:calendar-year %) (:population %) (reason-field %) (% "Ceased EHCPs per 10k")))
-                 (tc/rename-columns sweet-column-names))
+(defn ceased-reasons-chart [ds title]
+  (let [base       (-> ds
+                       (tc/add-column
+                        :hover
+                        #(map
+                          (fn [geo-name reason population ceased ehcp-per-10k]
+                            [:div [:b geo-name]
+                             [:br]
+                             reason " plans: " (format "%,d" ceased)
+                             [:br]
+                             "Population: " (format "%,d" (m/round population))
+                             [:br]
+                             "EHCP per 10k: " (format "%,.2f" ehcp-per-10k)])
+                          (:geo-name %) (:reason %) (:population %) (:ceased-plans %) (% "Ceased EHCPs per 10k")))
+                       (tc/rename-columns sweet-column-names)
+                       (tc/rename-columns {:reason "Reason"}))
         neighbours (-> base
                        (tc/drop-rows #(= (% "Local Authority") la-name)))
         subject    (-> base
                        (tc/select-rows #(= (% "Local Authority") la-name)))]
     (-> neighbours
         (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" box-plot-options)
-        (pj/lay-point (assoc neighbour-points-options :offset-x -70))
+        (pj/lay-point neighbour-points-options)
         (pj/lay-point (assoc subject-point-options :data subject))
         geo-color-and-shape-scale
-        (pj/scale :y {:include 0})
         (pj/options {:title title})
-        (pj/options default-chart-options)
-        (pj/facet :reason))))
+        ;;(pj/scale :y {:include 0})
+        (pj/options default-chart-options))))
+
+^:kindly/hide-code
+(ceased-reasons-chart (ceased-reason :needs_met "Needs met")
+                            "Ceased Plans per 10k: Needs Met")
+
+
 
 ;;; ## Timeliness Analysis
 
