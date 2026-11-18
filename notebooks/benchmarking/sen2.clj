@@ -659,10 +659,31 @@
         (pj/options default-chart-options))))
 
 ^:kindly/hide-code
-(ceased-reasons-chart (ceased-reason :needs_met "Needs met")
-                            "Ceased Plans per 10k: Needs Met")
+(ceased-reasons-chart (ceased-reason :max_age "Reached max age") "Ceased Plans per 10k: Reached Max Age")
 
+^:kindly/hide-code
+(ceased-reasons-chart (ceased-reason :needs_met "Needs met") "Ceased Plans per 10k: Needs Met")
 
+^:kindly/hide-code
+(ceased-reasons-chart (ceased-reason :he "Higher education") "Ceased Plans per 10k: Higher Education")
+
+^:kindly/hide-code
+(ceased-reasons-chart (ceased-reason :employ "Employment") "Ceased Plans per 10k: Employment")
+
+^:kindly/hide-code
+(ceased-reasons-chart (ceased-reason :transfer "Transferred to other LA") "Ceased Plans per 10k: Transferred to other LA")
+
+^:kindly/hide-code
+(ceased-reasons-chart (ceased-reason :no_engage "No longer engaging") "Ceased Plans per 10k: No Longer Engaging")
+
+^:kindly/hide-code
+(ceased-reasons-chart (ceased-reason :moved_outside_eng "Moved outside England") "Ceased Plans per 10k: Moved Outside England")
+
+^:kindly/hide-code
+(ceased-reasons-chart (ceased-reason :deceased "Deceased") "Ceased Plans per 10k: Deceased")
+
+^:kindly/hide-code
+(ceased-reasons-chart (ceased-reason :other "Other") "Ceased Plans per 10k: Other")
 
 ;;; ## Timeliness Analysis
 
