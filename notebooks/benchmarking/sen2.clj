@@ -573,7 +573,6 @@
 (ceasedplans-by-setting-chart overall-ceased-ehcp-per-10k :total_ceased "Overall Rate of Ceased Plans")
 
 ^:kindly/hide-code
-;; same style as ceased-reason-2025, but with 2025 filter removed
 (defn ceased-reason [reason-col reason-label]
   (-> (ceasedplans-by-reason reason-col)
       (tc/rename-columns {reason-col :ceased-plans})
@@ -591,42 +590,6 @@
    (ceased-reason :moved_outside_eng "Moved outside England")
    (ceased-reason :deceased          "Deceased")
    (ceased-reason :other             "Other")))
-
-^:kindly/hide-code
-(defn ceased-reasons-chart-facet [ds title]
-  (let [base       (-> ds
-                       (tc/add-column
-                        :hover
-                        #(map
-                          (fn [geo-name reason population ceased ehcp-per-10k]
-                            [:div [:b geo-name]
-                             [:br]
-                             reason " plans: " (format "%,d" ceased)
-                             [:br]
-                             "Population: " (format "%,d" (m/round population))
-                             [:br]
-                             "EHCP per 10k: " (format "%,.2f" ehcp-per-10k)])
-                          (:geo-name %) (:reason %) (:population %) (:ceased-plans %) (% "Ceased EHCPs per 10k")))
-                       (tc/rename-columns sweet-column-names)
-                       (tc/rename-columns {:reason "Reason"}))
-        neighbours (-> base
-                       (tc/drop-rows #(= (% "Local Authority") la-name)))
-        subject    (-> base
-                       (tc/select-rows #(= (% "Local Authority") la-name)))]
-    (-> neighbours
-        ;; Don't want "Reason" on the X axis, as each panel will have the individual reason
-        ;; Instead we have "Calendar Year" on the X-axis
-        (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" box-plot-options)
-        (pj/lay-point neighbour-points-options)
-        (pj/lay-point (assoc subject-point-options :data subject))
-        geo-color-and-shape-scale 
-        (pj/options {:title title})
-        ;;(pj/scale :y {:include 0})
-        (pj/options default-chart-options)
-        (pj/facet "Reason"))))
-
-^:kindly/hide-code
-(ceased-reasons-chart-facet ceased-reason-all-year "Reasons for Ceasing per 10k")
 
 ^:kindly/hide-code
 (defn ceased-reasons-chart [ds title]
