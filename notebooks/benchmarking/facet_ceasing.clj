@@ -1,5 +1,6 @@
+
 ^:kindly/hide-code
-(ns benchmarking.facet-ceasing-charts
+(ns benchmarking.facet-ceasing
   (:require
    [scicloj.clay.v2.api :as clay]
    [fastmath.core :as m]
@@ -22,9 +23,6 @@
 (comment (clay/make! {:source-path *file*}))
 
 ^:kindly/hide-code
-(comment (clay/make! {:source-path *file*}))
-
-^:kindly/hide-code
 (def la-name "Hertfordshire")
 
 ^:kindly/hide-code
@@ -39,7 +37,6 @@
    :sn_prox "Proximity"
    :ehcplans "EHC Plans"})
 
-
 ^:kindly/hide-code
 (kind/hiccup [:h1 (format "SEN2 Benchmarking for %s" la-name)])
 
@@ -53,9 +50,6 @@
 ^:kindly/hide-code
 (def geo-domain
   (into [la-name] (:sn_name neighbours)))
-
-^:kindly/hide-code
-(kind/hiccup [:h3 (format "Statistical Neighbours for %s" la-name)])
 
 ^:kindly/hide-code
 (kind/table
@@ -233,82 +227,6 @@
       (pj/options default-chart-options)
       (pj/options {:title "0-25 Population"})))
 
-;;; ## Population by Age Group
-^:kindly/hide-code
-(def population-by-age-group
-  (-> (population/pop-total-by-age-group population-by-age :calendar-year :population :age :age-group)
-      (tc/add-column
-       :hover
-       #(map
-         (fn [calendar-year geo-name age-group population]
-           (format "%s %s %s: %,d" calendar-year geo-name age-group (m/round population)))
-         (:calendar-year %) (:geo-name %) (:age-group %) (:population %)))
-      (tc/order-by [:geo-name :calendar-year :age-group-order])))
-
-^:kindly/hide-code
-(-> population-by-age-group
-    (tc/select-rows #(= (:geo-name %) la-name))
-    (tc/rename-columns {:calendar-year "Calendar Year" :population "0-25 Population" :age-group "Age Group"})
-    (pj/lay-line "Calendar Year" "0-25 Population" {:color "Age Group" :x-type :categorical})
-    (pj/lay-point {:shape "Age Group" :color "Age Group" :x-type :categorical
-                   :tooltip :hover
-                   :alpha 1.0
-                   :size 5})
-    (pj/scale :shape {:domain (:domain age-group-domain-lookup)
-                      :values (:shapes age-group-domain-lookup)})
-    (pj/scale :color {:domain (:domain age-group-domain-lookup)
-                      :values (:colors age-group-domain-lookup)})
-    (pj/options default-chart-options)
-    (pj/options {:title "0-25 Population by Age Group"}))
-
-^:kindly/hide-code
-(defn population-by-age-group-chart [age-group]
-  (let [base (-> population-by-age-group
-                 (tc/select-rows #(#{age-group} (:age-group %)))
-                 (tc/rename-columns {:calendar-year "Calendar Year" :population "Population" :geo-name "Local Authority"}))
-        neighbours (-> base
-                       (tc/drop-rows #(= (% "Local Authority") la-name)))
-        subject (-> base
-                    (tc/select-rows #(= (% "Local Authority") la-name)))]
-    (-> neighbours
-        (pj/lay-boxplot "Calendar Year" "Population" box-plot-options)
-        (pj/lay-point neighbour-points-options)
-        (pj/lay-point (assoc subject-point-options :data subject))
-        geo-color-and-shape-scale
-        (pj/options {:title (format "%s Population" age-group)})
-        (pj/options default-chart-options))))
-
-^:kindly/hide-code
-(population-by-age-group-chart "Under 5")
-
-^:kindly/hide-code
-(population-by-age-group-chart "Age 5 to 10")
-
-^:kindly/hide-code
-(population-by-age-group-chart "Age 11 to 15")
-
-^:kindly/hide-code
-(population-by-age-group-chart "Age 16 to 19")
-
-^:kindly/hide-code
-(population-by-age-group-chart "Age 20 to 25")
-
-^:kindly/hide-code
-(defn calculate [& {:keys [numerator-ds
-                           denominator-ds
-                           join-keys
-                           input-fields
-                           value-fn
-                           output-field]
-                    :or {value-fn #(when (and (number? %1) (number? %2))
-                                     (m/approx (dfn/* 10000 (dfn// %1 %2))))}}]
-  (-> numerator-ds
-      (tc/inner-join denominator-ds join-keys)
-      (tc/map-columns output-field input-fields value-fn)
-      ;; FIXME: This is a hack. Need a way to consitently sort the output for charting.
-      (tc/order-by [:calendar-year])))
-
-;;; # EHCP analysis
 
 ^:kindly/hide-code
 (defn caseload-by-setting [setting]
@@ -369,63 +287,6 @@
         ;; (pj/scale :y {:include 0})
         (pj/options default-chart-options))))
 
-^:kindly/hide-code
-(def overall-ehcp-per-10k (caseload-by-setting :ehcplans))
-
-^:kindly/hide-code
-(caseload-by-setting-chart overall-ehcp-per-10k :ehcplans "Overall Rate of EHCPs")
-
-^:kindly/hide-code
-(def special-ehcp-per-10k
-  (caseload-by-setting :special_total))
-
-^:kindly/hide-code
-(caseload-by-setting-chart special-ehcp-per-10k :special_total "Specialist Rate of EHCPs")
-
-^:kindly/hide-code
-(def mainstream-ehcp-per-10k
-  (caseload-by-setting :mainstream_total))
-
-^:kindly/hide-code
-(caseload-by-setting-chart mainstream-ehcp-per-10k :mainstream_total "Mainstream Rate of EHCPs")
-
-
-^:kindly/hide-code
-(def ap_pru-ehcp-per-10k
-  (caseload-by-setting :ap_pru_total))
-
-^:kindly/hide-code
-(caseload-by-setting-chart ap_pru-ehcp-per-10k :ap_pru_total "AP and PRU Rate of EHCPs")
-
-^:kindly/hide-code
-(def fe-ehcp-per-10k
-  (caseload-by-setting :fe_total))
-
-^:kindly/hide-code
-(caseload-by-setting-chart fe-ehcp-per-10k :fe_total "Further Education Rate of EHCPs")
-
-^:kindly/hide-code
-(def ehe-ehcp-per-10k
-  (caseload-by-setting :elective_home_education))
-
-^:kindly/hide-code
-(caseload-by-setting-chart ehe-ehcp-per-10k :elective_home_education "Elective Home Education Rate of EHCPs")
-
-^:kindly/hide-code
-(def opr-ehcp-per-10k
-  (caseload-by-setting :other_arrangements_parents))
-
-^:kindly/hide-code
-(caseload-by-setting-chart opr-ehcp-per-10k :other_arrangements_parents "Other Arrangements by Parents Rate of EHCPs")
-
-^:kindly/hide-code
-(def ola-ehcp-per-10k
-  (caseload-by-setting :other_arrangements_la))
-
-^:kindly/hide-code
-(caseload-by-setting-chart ola-ehcp-per-10k :other_arrangements_la "Other Arrangements by LA Rate of EHCPs")
-
-;;; ## New Plan Analysis
 
 ^:kindly/hide-code
 (defn newplans-by-setting [setting]
@@ -479,47 +340,7 @@
 ^:kindly/hide-code
 (newplans-by-setting-chart overall-new-ehcp-per-10k :new_ehc_plans "Overall Rate of New EHCPs")
 
-^:kindly/hide-code
-(def special-new-ehcp-per-10k (newplans-by-setting :special_total))
 
-^:kindly/hide-code
-(newplans-by-setting-chart special-new-ehcp-per-10k :special_total "Overall Rate of New EHCPs in Specialist Settings")
-
-^:kindly/hide-code
-(def mainstream-new-ehcp-per-10k (newplans-by-setting :mainstream_total))
-
-^:kindly/hide-code
-(newplans-by-setting-chart mainstream-new-ehcp-per-10k :mainstream_total "Overall Rate of New EHCPs in Mainstream Settings")
-
-^:kindly/hide-code
-(def ap_pru-new-ehcp-per-10k (newplans-by-setting :ap_pru_total))
-
-^:kindly/hide-code
-(newplans-by-setting-chart ap_pru-new-ehcp-per-10k :ap_pru_total "Overall Rate of New EHCPs in AP & PRU Settings")
-
-^:kindly/hide-code
-(def fe-new-ehcp-per-10k (newplans-by-setting :fe_total))
-
-^:kindly/hide-code
-(newplans-by-setting-chart fe-new-ehcp-per-10k :fe_total "Overall Rate of New EHCPs in Further Education Settings")
-
-^:kindly/hide-code
-(def ehe-new-ehcp-per-10k (newplans-by-setting :elective_home_education))
-
-^:kindly/hide-code
-(newplans-by-setting-chart ehe-new-ehcp-per-10k :elective_home_education "Overall Rate of New EHCPs in Elective Home Education Settings")
-
-^:kindly/hide-code
-(def opr-new-ehcp-per-10k (newplans-by-setting :other_arrangements_parents))
-
-^:kindly/hide-code
-(newplans-by-setting-chart opr-new-ehcp-per-10k :other_arrangements_parents "Overall Rate of New EHCPs in Other Arrangements by Parents Settings")
-
-^:kindly/hide-code
-(def ola-new-ehcp-per-10k (newplans-by-setting :other_arrangements_la))
-
-^:kindly/hide-code
-(newplans-by-setting-chart ola-new-ehcp-per-10k :other_arrangements_la "Overall Rate of New EHCPs in Other Arrangements by LA Settings")
 
 ;;; ## Ceased Plan Analysis
 
@@ -577,6 +398,7 @@
 (ceasedplans-by-setting-chart overall-ceased-ehcp-per-10k :total_ceased "Overall Rate of Ceased Plans")
 
 ^:kindly/hide-code
+;; same style as ceased-reason-2025, but with 2025 filter removed
 (defn ceased-reason [reason-col reason-label]
   (-> (ceasedplans-by-reason reason-col)
       (tc/rename-columns {reason-col :ceased-plans})
@@ -594,6 +416,42 @@
    (ceased-reason :moved_outside_eng "Moved outside England")
    (ceased-reason :deceased          "Deceased")
    (ceased-reason :other             "Other")))
+
+^:kindly/hide-code
+(defn ceased-reasons-facet-chart [ds title]
+  (let [base (-> ds
+                 (tc/add-column
+                  :hover
+                  #(map
+                    (fn [geo-name calendar-year population ceased ceased-per-10k]
+                      [:div [:b geo-name]
+                       [:br]
+                       "Calendar Year " calendar-year
+                       [:br]
+                       "Ceased EHC Plans: " (format "%,d" ceased)
+                       [:br]
+                       "Population: " (format "%,d" (m/round population))
+                       [:br]
+                       "Ceased per 10k: " (format "%,.2f" ceased-per-10k)])
+                    (:geo-name %) (:calendar-year %) (:population %) (:ceased-plans %) (% "Ceased EHCPs per 10k")))
+                 (tc/rename-columns sweet-column-names)
+                 (tc/rename-columns {:reason "Reason"}))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject    (-> base
+                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" box-plot-options)
+        ;(pj/lay-point (assoc neighbour-points-options :offset-x -70))
+        (pj/lay-point (assoc subject-point-options :data subject))
+        geo-color-and-shape-scale
+        ;(pj/scale :y {:include 0})
+        (pj/options {:title title})
+        (pj/options default-chart-options)
+        (pj/facet "Reason"))))
+
+^:kindly/hide-code
+(ceased-reasons-facet-chart ceased-reason-all-year "Ceased Plans per 10k by Reason, 2022–2025")
 
 ^:kindly/hide-code
 (let [base       (-> ceased-reason-all-year
@@ -624,8 +482,8 @@
       (pj/options {:title "Reasons for Ceasing per 10k"})
       ;;(pj/scale :y {:include 0})
       (pj/options default-chart-options)))
-    
 
+^:kindly/hide-code
 (-> ceased-reason-all-year
     (tc/add-column
      :hover
@@ -652,3 +510,32 @@
 ^:kindly/hide-code
 (comment (clay/make! {:source-path *file*}))
 
+^:kindly/hide-code
+(defn ceased-reasons-chart [ds title]
+  (let [base       (-> ds
+                       (tc/add-column
+                        :hover
+                        #(map
+                          (fn [geo-name reason population ceased ehcp-per-10k]
+                            [:div [:b geo-name]
+                             [:br]
+                             reason " plans: " (format "%,d" ceased)
+                             [:br]
+                             "Population: " (format "%,d" (m/round population))
+                             [:br]
+                             "EHCP per 10k: " (format "%,.2f" ehcp-per-10k)])
+                          (:geo-name %) (:reason %) (:population %) (:ceased-plans %) (% "Ceased EHCPs per 10k")))
+                       (tc/rename-columns sweet-column-names)
+                       (tc/rename-columns {:reason "Reason"}))
+        neighbours (-> base
+                       (tc/drop-rows #(= (% "Local Authority") la-name)))
+        subject    (-> base
+                       (tc/select-rows #(= (% "Local Authority") la-name)))]
+    (-> neighbours
+        (pj/lay-boxplot "Calendar Year" "Ceased EHCPs per 10k" box-plot-options)
+        (pj/lay-point neighbour-points-options)
+        (pj/lay-point (assoc subject-point-options :data subject))
+        geo-color-and-shape-scale
+        (pj/options {:title title})
+        ;;(pj/scale :y {:include 0})
+        (pj/options default-chart-options))))
