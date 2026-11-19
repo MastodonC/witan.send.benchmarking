@@ -4,58 +4,15 @@
   (:require
    [scicloj.clay.v2.api :as clay]
    [fastmath.core :as m]
-   [scicloj.plotje.api :as pj]
-   [scicloj.kindly.v4.kind :as kind]
-   [tablecloth.api :as tc]
-   [tech.v3.datatype.functional :as dfn]
-   [witan.send.benchmarking.population :as population]
-   [witan.send.benchmarking.neighbours.statistical :as sn]
-   [witan.send.benchmarking.sen2.assessments-2026 :as ehcna]
-   [witan.send.benchmarking.sen2.requests-2026 :as ehcnar]
-   [witan.send.benchmarking.sen2.caseload-2026 :as caseload]
-   [witan.send.benchmarking.sen2.newplans-2026 :as newplans]
-   [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]
-   [witan.send.benchmarking.sen2.timeliness-20-week :as timeliness]
-   [witan.send.benchmarking.sen2.needs-caseload :as needs-caseload]
-   [witan.send.benchmarking.sen2.needs-newplans-2026 :as needs-newplans]))
+   [scicloj.plotje.api :as pj] 
+   [tablecloth.api :as tc] 
+   [witan.send.benchmarking.sen2.ceased-plans-2026 :as ceased-plans]))
 
 ^:kindly/hide-code
 (comment (clay/make! {:source-path *file*}))
 
 ^:kindly/hide-code
 (def la-name "Hertfordshire")
-
-^:kindly/hide-code
-(def sweet-column-names
-  {:academic-year "Academic Year"
-   :geo-name "Local Authority"
-   :calendar-year "Calendar Year"
-   :population "0-25 Population"
-   :la_code "LA Code"
-   :sn "Neighbour Rank"
-   :sn_name "Local Authority"
-   :sn_prox "Proximity"
-   :ehcplans "EHC Plans"})
-
-^:kindly/hide-code
-(kind/hiccup [:h1 (format "SEN2 Benchmarking for %s" la-name)])
-
-;;; ## LA and Neighbours
-
-^:kindly/hide-code
-(def neighbours (sn/neighbours la-name))
-^:kindly/hide-code
-(def neighbours-pred (sn/neighbours-name-pred la-name))
-
-^:kindly/hide-code
-(def geo-domain
-  (into [la-name] (:sn_name neighbours)))
-
-^:kindly/hide-code
-(kind/table
- (-> neighbours
-     (tc/select-columns [:sn :sn_name :sn_prox])
-     (tc/rename-columns sweet-column-names)))
 
 ^:kindly/hide-code
 (def colors
@@ -96,251 +53,6 @@
    "#2a9d3d"
    (-> "#edf181" (clojure2d.color/darken 2.0) clojure2d.color/format-hex)
    "#db7003" "#fba600" "#f8c1a6" "#a30000" "#ff3200" "#011a51" "#97d1d9" "#916c37"])
-
-^:kindly/hide-code
-(def shapes [:diamond :circle :square :triangle :cross])
-
-^:kindly/hide-code
-(def geo-domain-lookup
-  (tc/dataset
-   {:domain geo-domain
-    :shapes (cycle shapes)
-    :colors (cycle colors)}))
-
-^:kindly/hide-code
-(defn geo-color-and-shape-scale [pose]
-  (-> pose
-      (pj/scale :shape {:domain (:domain geo-domain-lookup)
-                        :values (:shapes geo-domain-lookup)})
-      (pj/scale :color {:domain (:domain geo-domain-lookup)
-                        :values (:colors geo-domain-lookup)})))
-
-^:kindly/hide-code
-(def age-group-domain-lookup
-  (tc/dataset
-   {:domain ["Under 5" "Age 5 to 10" "Age 11 to 15" "Age 16 to 19" "Age 20 to 25"]
-    :shapes (cycle shapes)
-    :colors (cycle (drop 1 colors))}))
-
-^:kindly/hide-code
-(defn age-color-and-shape-scale [pose]
-  (-> pose
-      (pj/scale :shape {:domain (:domain age-group-domain-lookup)
-                        :values (:shapes age-group-domain-lookup)})
-      (pj/scale :color {:domain (:domain age-group-domain-lookup)
-                        :values (:colors age-group-domain-lookup)})))
-
-^:kindly/hide-code
-(def default-chart-options
-  {:title-font-size 26
-   :label-font-size 18
-   :label-offset 50
-   ;; :legend-entry-height 50 ; this doesn't work here
-   :tooltip true
-   :thousands-separator ","
-   :point-opacity 1.0
-   :width 1400
-   :theme {:bg "#fff" :grid "#ddd" :font-size 14}})
-
-^:kindly/hide-code
-(def default-home-line-options
-  {:color "Local Authority"
-   :x-type :categorical})
-
-^:kindly/hide-code
-(def default-neighbour-point-options
-  {:color "Local Authority" :shape "Local Authority"
-   :tooltip :hover
-   :size 7
-   :alpha 1.0
-   :x-type :categorical})
-
-^:kindly/hide-code
-(def subject-point-options
-  {:color "Local Authority" :shape "Local Authority"
-   :tooltip :hover
-   :size 9
-   :alpha 1.0
-   :x-type :categorical})
-
-^:kindly/hide-code
-(def neighbour-points-options
-  {:color "Local Authority" :shape "Local Authority"
-   :tooltip :hover
-   :alpha 0.9
-   :size 5
-   :offset-x -40
-   :x-type :categorical})
-
-^:kindly/hide-code
-(def box-plot-options
-  {:x-type :categorical
-   :alpha 0.2 :box-width 0.3})
-
-;;; ## Total Population
-^:kindly/hide-code
-(def population-by-age
-  (population/table
-   :la-name-f (conj neighbours-pred la-name)
-   :pipeline-f
-   #(-> %
-        (tc/select-rows (fn [r] (< 2018 (:calendar-year r) 2027)))
-        (tc/order-by [:geo-name :age :calendar-year]))))
-
-^:kindly/hide-code
-(def population-total
-  (-> (population/pop-total-by-year population-by-age :calendar-year :population)
-      (tc/add-column
-       :hover
-       #(map
-         (fn [calendar-year geo-name population]
-           (format "%s %s: %,d" calendar-year geo-name (m/round population)))
-         (:calendar-year %) (:geo-name %) (:population %)))
-      (tc/order-by [:geo-name :calendar-year])))
-
-^:kindly/hide-code
-(-> population-total
-    (tc/select-rows #(= (:geo-name %) la-name))
-    (tc/rename-columns sweet-column-names)
-    (pj/lay-line "Calendar Year" "0-25 Population"
-                 default-home-line-options)
-    (pj/lay-point "Calendar Year" "0-25 Population" subject-point-options)
-    geo-color-and-shape-scale
-    (pj/options default-chart-options)
-    (pj/options {:title "0-25 Population"}))
-
-
-^:kindly/hide-code
-(let [neighbours (-> population-total
-                     (tc/rename-columns sweet-column-names)
-                     (tc/drop-rows #(= (% "Local Authority") la-name)))
-      subject (-> population-total
-                  (tc/rename-columns sweet-column-names)
-                  (tc/select-rows #(= (% "Local Authority") la-name)))]
-  (-> neighbours
-      (pj/lay-boxplot "Calendar Year" "0-25 Population"
-                      box-plot-options)
-      (pj/lay-point neighbour-points-options)
-      (pj/lay-point (assoc subject-point-options :data subject))
-      geo-color-and-shape-scale
-      (pj/scale :y {:include 0})
-      (pj/options default-chart-options)
-      (pj/options {:title "0-25 Population"})))
-
-
-^:kindly/hide-code
-(defn caseload-by-setting [setting]
-  (calculate
-   :numerator-ds
-   (-> @caseload/table
-       (tc/map-columns :calendar-year [:time_period] caseload/time_period->calendar-year)
-       (tc/map-columns :academic-year [:time_period] caseload/time_period->academic-year)
-       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
-       (tc/rename-columns {:la_name :geo-name})
-       (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
-       (tc/select-columns [:time_period :calendar-year :academic-year :geo-name setting]))
-   :denominator-ds
-   population-total
-   ;; When we have background populations by AY we should change the join
-   :join-keys [:geo-name :calendar-year]
-   :output-field "EHCPs per 10k"
-   :input-fields [setting :population]))
-
-^:kindly/hide-code
-(defn caseload-by-setting-chart [ds ehcplan-field title]
-  (let [base       (-> ds
-                       (tc/add-column
-                        :hover
-                        #(map
-                          (fn [geo-name academic-year population ehcplans ehcp-per-10k]
-                            [:div [:b geo-name]
-                             [:br]
-                             "AY " academic-year
-                             [:br]
-                             "EHC Plans: " (format "%,d" ehcplans)
-                             [:br]
-                             "Population: " (format "%,d" (m/round population))
-                             [:br]
-                             "EHCP per 10k: " (format "%,.2f" ehcp-per-10k)])
-                          (:geo-name %) (:academic-year %) (:population %) (ehcplan-field %) (% "EHCPs per 10k")))
-                       (tc/rename-columns sweet-column-names))
-        neighbours (-> base
-                       (tc/drop-rows #(= (% "Local Authority") la-name)))
-        subject    (-> base
-                       (tc/select-rows #(= (% "Local Authority") la-name)))]
-    (-> neighbours
-        (pj/lay-boxplot "Academic Year" "EHCPs per 10k" {:x-type :categorical :alpha 0.2 :box-width 0.3})
-        (pj/lay-point {:color    "Local Authority" :shape "Local Authority"
-                       :tooltip  :hover
-                       :alpha    1.0
-                       :size     5
-                       :offset-x -40
-                       :x-type   :categorical})
-        (pj/lay-point {:data    subject
-                       :tooltip :hover
-                       :color   "Local Authority" :shape "Local Authority"
-                       :size    9
-                       :alpha   1.0
-                       :x-type  :categorical})
-        geo-color-and-shape-scale
-        (pj/options {:title title})
-        ;; (pj/scale :y {:include 0})
-        (pj/options default-chart-options))))
-
-
-^:kindly/hide-code
-(defn newplans-by-setting [setting]
-  (calculate
-   :numerator-ds
-   (-> @newplans/table
-       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
-       (tc/rename-columns {:la_name :geo-name :time_period :calendar-year})
-       (tc/select-rows (fn [r] (= "All new EHC plans" (:breakdown_topic r))))
-       (tc/select-columns [:calendar-year :geo-name setting]))
-   :denominator-ds
-   population-total
-   :join-keys [:geo-name :calendar-year]
-   :output-field "New EHCPs per 10k"
-   :input-fields [setting :population]))
-
-^:kindly/hide-code
-(defn newplans-by-setting-chart [ds ehcplan-field title]
-  (let [base       (-> ds
-                       (tc/add-column
-                        :hover
-                        #(map
-                          (fn [geo-name calendar-year population ehcplans ehcp-per-10k]
-                            [:div [:b geo-name]
-                             [:br]
-                             "Calendar Year " calendar-year
-                             [:br]
-                             "New EHC Plans: " (format "%,d" ehcplans)
-                             [:br]
-                             "Population: " (format "%,d" (m/round population))
-                             [:br]
-                             "New EHCPs per 10k: " (format "%,.2f" ehcp-per-10k)])
-                          (:geo-name %) (:calendar-year %) (:population %) (ehcplan-field %) (% "New EHCPs per 10k")))
-                       (tc/rename-columns sweet-column-names))
-        neighbours (-> base
-                       (tc/drop-rows #(= (% "Local Authority") la-name)))
-        subject    (-> base
-                       (tc/select-rows #(= (% "Local Authority") la-name)))]
-    (-> neighbours
-        (pj/lay-boxplot "Calendar Year" "New EHCPs per 10k" box-plot-options)
-        (pj/lay-point neighbour-points-options)
-        (pj/lay-point (assoc subject-point-options :data subject))
-        geo-color-and-shape-scale
-        ;; (pj/scale :y {:include 0})
-        (pj/options {:title title})
-        (pj/options default-chart-options))))
-
-^:kindly/hide-code
-(def overall-new-ehcp-per-10k (newplans-by-setting :new_ehc_plans))
-
-^:kindly/hide-code
-(newplans-by-setting-chart overall-new-ehcp-per-10k :new_ehc_plans "Overall Rate of New EHCPs")
-
-
 
 ;;; ## Ceased Plan Analysis
 
@@ -398,7 +110,6 @@
 (ceasedplans-by-setting-chart overall-ceased-ehcp-per-10k :total_ceased "Overall Rate of Ceased Plans")
 
 ^:kindly/hide-code
-;; same style as ceased-reason-2025, but with 2025 filter removed
 (defn ceased-reason [reason-col reason-label]
   (-> (ceasedplans-by-reason reason-col)
       (tc/rename-columns {reason-col :ceased-plans})
@@ -434,8 +145,7 @@
                        [:br]
                        "Ceased per 10k: " (format "%,.2f" ceased-per-10k)])
                     (:geo-name %) (:calendar-year %) (:population %) (:ceased-plans %) (% "Ceased EHCPs per 10k")))
-                 (tc/rename-columns sweet-column-names)
-                 (tc/rename-columns {:reason "Reason"}))
+                 (tc/rename-columns sweet-column-names))
         neighbours (-> base
                        (tc/drop-rows #(= (% "Local Authority") la-name)))
         subject    (-> base
@@ -448,7 +158,7 @@
         ;(pj/scale :y {:include 0})
         (pj/options {:title title})
         (pj/options default-chart-options)
-        (pj/facet "Reason"))))
+        (pj/facet :reason))))
 
 ^:kindly/hide-code
 (ceased-reasons-facet-chart ceased-reason-all-year "Ceased Plans per 10k by Reason, 2022–2025")
@@ -506,9 +216,6 @@
                  :theme {:bg "#fff", :grid "#ddd", :font-size 14}})
     ;; geo-color-and-shape-scale
     (pj/facet :reason {:cols 3}))
-
-^:kindly/hide-code
-(comment (clay/make! {:source-path *file*}))
 
 ^:kindly/hide-code
 (defn ceased-reasons-chart [ds title]

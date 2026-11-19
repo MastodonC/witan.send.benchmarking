@@ -573,7 +573,6 @@
 (ceasedplans-by-setting-chart overall-ceased-ehcp-per-10k :total_ceased "Overall Rate of Ceased Plans")
 
 ^:kindly/hide-code
-;; same style as ceased-reason-2025, but with 2025 filter removed
 (defn ceased-reason [reason-col reason-label]
   (-> (ceasedplans-by-reason reason-col)
       (tc/rename-columns {reason-col :ceased-plans})
