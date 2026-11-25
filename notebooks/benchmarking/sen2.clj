@@ -973,23 +973,6 @@
 ;;; ## Needs analysis, New Plans
 
 ^:kindly/hide-code
-(def need-labels
-  {:number_asd  "ASD"
-   :number_ds   "DS"
-   :number_hi   "HI"
-   :number_mld  "MLD"
-   :number_msi  "MSI"
-   :number_oth  "OTH"
-   :number_pd   "PD"
-   :number_pmld "PMLD"
-   :number_semh "SEMH"
-   :number_slcn "SLCN"
-   :number_sld  "SLD"
-   :number_spld "SPLD"
-   :number_vi   "VI"
-   :number_need_unknown "Unknown"})
-
-^:kindly/hide-code
 (def newplans-needs-per-10k
   (calculate
    :numerator-ds
@@ -1001,11 +984,13 @@
                                                      :number_msi :number_oth :number_pd :number_pmld
                                                      :number_semh :number_slcn :number_sld :number_spld
                                                      :number_vi :number_need_unknown])
-   (tc/pivot->longer [:number_asd :number_ds :number_hi :number_mld   ;; ← NEW
-                       :number_msi :number_oth :number_pd :number_pmld
-                       :number_semh :number_slcn :number_sld :number_spld
-                       :number_vi :number_need_unknown]
-                     {:target-columns :need :value-column-name :ehc-plans}))
+   (tc/pivot->longer [:number_asd :number_ds :number_hi :number_mld
+                      :number_msi :number_oth :number_pd :number_pmld
+                      :number_semh :number_slcn :number_sld :number_spld
+                      :number_vi :number_need_unknown]
+                     {:target-columns [:need] :value-column-name :ehc-plans :splitter #"number_(.+)"}) 
+   (tc/map-columns :need [:need] #(if (= % "need_unknown") "Unknown" (clojure.string/upper-case %)))
+                     )
    :denominator-ds
    population-total
    ;; When we have background populations by AY we should change the join
@@ -1016,9 +1001,7 @@
 ^:kindly/hide-code
 (def newplans-needs-2025-per-10k
   (-> newplans-needs-per-10k
-      (tc/select-rows #(= 2025 (:calendar-year %)))
-      ;for each row, read the value in :need, look it up in need-labels, and write the result back into :need 
-      (tc/map-columns :need [:need] need-labels)))
+       (tc/select-rows #(= 2025 (:calendar-year %)))))
 
 ^:kindly/hide-code
 (def newplans-top-5-needs
