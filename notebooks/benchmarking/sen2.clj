@@ -973,46 +973,35 @@
 ;;; ## Needs analysis, New Plans
 
 ^:kindly/hide-code
-(defn newplans-needs-per-10k [needs]
+(def newplans-needs-per-10k
   (calculate
    :numerator-ds
    (-> @needs-newplans/table
-       ;; No map-columns as new plans data is calendar years
        (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
        (tc/rename-columns {:la_name :geo-name})
        (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
-       (tc/select-columns [:calendar-year :geo-name needs]))
+       (tc/select-columns [:calendar-year :geo-name :number_asd :number_ds :number_hi :number_mld
+                                                     :number_msi :number_oth :number_pd :number_pmld
+                                                     :number_semh :number_slcn :number_sld :number_spld
+                                                     :number_vi :number_need_unknown])
+   (tc/pivot->longer [:number_asd :number_ds :number_hi :number_mld
+                      :number_msi :number_oth :number_pd :number_pmld
+                      :number_semh :number_slcn :number_sld :number_spld
+                      :number_vi :number_need_unknown]
+                     {:target-columns [:need] :value-column-name :ehc-plans :splitter #"number_(.+)"}) 
+   (tc/map-columns :need [:need] #(if (= % "need_unknown") "Unknown" (clojure.string/upper-case %)))
+                     )
    :denominator-ds
    population-total
    ;; When we have background populations by AY we should change the join
    :join-keys [:geo-name :calendar-year]
    :output-field "EHCPs per 10k"
-   :input-fields [needs :population]))
-
-^:kindly/hide-code
-(defn newplans-need-2025 [need-col need-label]
-  (-> (newplans-needs-per-10k need-col)
-      (tc/select-rows #(= 2025 (:calendar-year %)))
-      (tc/rename-columns {need-col :ehc-plans})
-      (tc/add-column :need need-label)))
+   :input-fields [:ehc-plans :population]))
 
 ^:kindly/hide-code
 (def newplans-needs-2025-per-10k
-  (tc/concat
-   (newplans-need-2025 :number_asd  "ASD")
-   (newplans-need-2025 :number_ds   "DS")
-   (newplans-need-2025 :number_hi   "HI")
-   (newplans-need-2025 :number_mld  "MLD")
-   (newplans-need-2025 :number_msi  "MSI")
-   (newplans-need-2025 :number_oth  "OTH")
-   (newplans-need-2025 :number_pd   "PD")
-   (newplans-need-2025 :number_pmld "PMLD")
-   (newplans-need-2025 :number_semh "SEMH")
-   (newplans-need-2025 :number_slcn "SLCN")
-   (newplans-need-2025 :number_sld  "SLD")
-   (newplans-need-2025 :number_spld "SPLD")
-   (newplans-need-2025 :number_vi   "VI")
-   (newplans-need-2025 :number_need_unknown "Unknown")))
+  (-> newplans-needs-per-10k
+       (tc/select-rows #(= 2025 (:calendar-year %)))))
 
 ^:kindly/hide-code
 (def newplans-top-5-needs
