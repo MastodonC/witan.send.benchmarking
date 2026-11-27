@@ -1021,3 +1021,73 @@
 
 ^:kindly/hide-code
 (needs5-2026-chart newplans-top5-needs-2025-per-10k "New EHC Plans per 10k, Main Primary Needs, 2025")
+
+;;; ## Settings analysis, by age
+
+^:kindly/hide-code
+(def setting-labels
+  {:ehcplans                   "Overall"
+   :special_total              "Specialist"
+   :mainstream_total           "Mainstream"
+   :ap_pru_total               "AP and PRU"
+   :fe_total                   "Further Education"
+   :elective_home_education    "Elective Home Education"
+   :other_arrangements_parents "Other Arrangements by Parents"
+   :other_arrangements_la      "Other Arrangements by LA"})
+
+^:kindly/hide-code
+;; Age breakdown ("Age at start of academic year") is published from 2023/24 onwards
+(def caseload-by-setting-and-age
+  (calculate
+   :numerator-ds
+   (-> @caseload/table
+       (tc/map-columns :calendar-year [:time_period] caseload/time_period->calendar-year)
+       (tc/map-columns :academic-year [:time_period] caseload/time_period->academic-year)
+       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+       (tc/rename-columns {:la_name :geo-name :breakdown :age})
+       (tc/select-rows (fn [r] (= "Age at start of academic year" (:breakdown_topic r))))
+       (tc/select-columns [:time_period :calendar-year :academic-year :geo-name :age
+                           :ehcplans :special_total :mainstream_total :ap_pru_total
+                           :fe_total :elective_home_education
+                           :other_arrangements_parents :other_arrangements_la])
+       (tc/pivot->longer [:ehcplans :special_total :mainstream_total :ap_pru_total
+                          :fe_total :elective_home_education
+                          :other_arrangements_parents :other_arrangements_la]
+                         {:target-columns :setting :value-column-name :ehc-plans})
+       (tc/map-columns :setting [:setting] setting-labels))
+   :denominator-ds
+   population-total
+   ;; When we have background populations by AY we should change the join
+   :join-keys [:geo-name :calendar-year]
+   :output-field "EHCPs per 10k"
+   :input-fields [:ehc-plans :population]))
+
+^:kindly/hide-code
+(defn setting-and-age [setting-label age]
+  (-> caseload-by-setting-and-age
+      (tc/select-rows #(= setting-label (:setting %)))
+      (tc/select-rows #(= age (:age %)))))
+
+
+^:kindly/hide-code
+(caseload-by-setting-chart (setting-and-age "Specialist" "age 4")
+                           :ehc-plans
+                           "Specialist Rate of EHCPs, Age 4")
+
+^:kindly/hide-code
+(caseload-by-setting-chart (setting-and-age "Specialist" "age 5")
+                           :ehc-plans
+                           "Specialist Rate of EHCPs, Age 5")
+
+^:kindly/hide-code
+(caseload-by-setting-chart (setting-and-age "Specialist" "age 6")
+                           :ehc-plans
+                           "Specialist Rate of EHCPs, Age 6")
+
+^:kindly/hide-code
+(caseload-by-setting-chart (setting-and-age "Specialist" "age 7")
+                           :ehc-plans
+                           "Specialist Rate of EHCPs, Age 7")
+
+^:kindly/hide-code
+(comment (clay/make! {:source-path *file*}))
