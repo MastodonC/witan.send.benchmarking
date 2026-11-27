@@ -573,23 +573,43 @@
 (ceasedplans-by-setting-chart overall-ceased-ehcp-per-10k :total_ceased "Overall Rate of Ceased Plans")
 
 ^:kindly/hide-code
-(defn ceased-reason [reason-col reason-label]
-  (-> (ceasedplans-by-reason reason-col)
-      (tc/rename-columns {reason-col :ceased-plans})
-      (tc/add-column :reason reason-label)))
+(def reason-labels
+  {:max_age           "Reached max age"
+   :needs_met         "Needs met"
+   :he                "Higher education"
+   :employ            "Employment"
+   :transfer          "Transferred to other LA"
+   :no_engage         "No longer engaging"
+   :moved_outside_eng "Moved outside England"
+   :deceased          "Deceased"
+   :other             "Other"})
 
 ^:kindly/hide-code
-(def ceased-reason-all-year
-  (tc/concat
-   (ceased-reason :max_age           "Reached max age")
-   (ceased-reason :needs_met         "Needs met")
-   (ceased-reason :he                "Higher education")
-   (ceased-reason :employ            "Employment")
-   (ceased-reason :transfer          "Transferred to other LA")
-   (ceased-reason :no_engage         "No longer engaging")
-   (ceased-reason :moved_outside_eng "Moved outside England")
-   (ceased-reason :deceased          "Deceased")
-   (ceased-reason :other             "Other")))
+(def ceased-reasons-per-10k
+  (calculate
+   :numerator-ds
+   (-> @ceased-plans/table
+       (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
+       (tc/rename-columns {:la_name :geo-name :time_period :calendar-year})
+       (tc/select-rows (fn [r] (= "All ceased EHC plans" (:breakdown_topic r))))
+       (tc/select-columns [:calendar-year :geo-name 
+                           :max_age :needs_met :he :employ :transfer
+                           :no_engage :moved_outside_eng :deceased :other])
+       (tc/pivot->longer [:max_age :needs_met :he :employ :transfer
+                          :no_engage :moved_outside_eng :deceased :other]
+                         {:target-columns :reason :value-column-name :ceased-plans})
+       (tc/map-columns :reason [:reason] reason-labels))
+   :denominator-ds
+   population-total
+   ;; When we have background populations by AY we should change the join
+   :join-keys [:geo-name :calendar-year]
+   :output-field "Ceased EHCPs per 10k"
+   :input-fields [:ceased-plans :population]))
+
+
+^:kindly/hide-code
+(defn ceased-reason [reason-label]
+  (tc/select-rows ceased-reasons-per-10k #(= reason-label (:reason %))))
 
 ^:kindly/hide-code
 (defn ceased-reasons-chart [ds title]
@@ -622,31 +642,31 @@
         (pj/options default-chart-options))))
 
 ^:kindly/hide-code
-(ceased-reasons-chart (ceased-reason :max_age "Reached max age") "Ceased Plans per 10k: Reached Max Age")
+(ceased-reasons-chart (ceased-reason "Reached max age") "Ceased Plans per 10k: Reached Max Age")
 
 ^:kindly/hide-code
-(ceased-reasons-chart (ceased-reason :needs_met "Needs met") "Ceased Plans per 10k: Needs Met")
+(ceased-reasons-chart (ceased-reason "Needs met") "Ceased Plans per 10k: Needs Met")
 
 ^:kindly/hide-code
-(ceased-reasons-chart (ceased-reason :he "Higher education") "Ceased Plans per 10k: Higher Education")
+(ceased-reasons-chart (ceased-reason "Higher education") "Ceased Plans per 10k: Higher Education")
 
 ^:kindly/hide-code
-(ceased-reasons-chart (ceased-reason :employ "Employment") "Ceased Plans per 10k: Employment")
+(ceased-reasons-chart (ceased-reason "Employment") "Ceased Plans per 10k: Employment")
 
 ^:kindly/hide-code
-(ceased-reasons-chart (ceased-reason :transfer "Transferred to other LA") "Ceased Plans per 10k: Transferred to other LA")
+(ceased-reasons-chart (ceased-reason "Transferred to other LA") "Ceased Plans per 10k: Transferred to other LA")
 
 ^:kindly/hide-code
-(ceased-reasons-chart (ceased-reason :no_engage "No longer engaging") "Ceased Plans per 10k: No Longer Engaging")
+(ceased-reasons-chart (ceased-reason "No longer engaging") "Ceased Plans per 10k: No Longer Engaging")
 
 ^:kindly/hide-code
-(ceased-reasons-chart (ceased-reason :moved_outside_eng "Moved outside England") "Ceased Plans per 10k: Moved Outside England")
+(ceased-reasons-chart (ceased-reason "Moved outside England") "Ceased Plans per 10k: Moved Outside England")
 
 ^:kindly/hide-code
-(ceased-reasons-chart (ceased-reason :deceased "Deceased") "Ceased Plans per 10k: Deceased")
+(ceased-reasons-chart (ceased-reason "Deceased") "Ceased Plans per 10k: Deceased")
 
 ^:kindly/hide-code
-(ceased-reasons-chart (ceased-reason :other "Other") "Ceased Plans per 10k: Other")
+(ceased-reasons-chart (ceased-reason "Other") "Ceased Plans per 10k: Other")
 
 ;;; ## Timeliness Analysis
 
@@ -827,7 +847,7 @@
 ;;; ## Needs analysis
 
 ^:kindly/hide-code
-(defn needs-per-10k [needs]
+(def needs-per-10k
   (calculate
    :numerator-ds
    (-> @needs-caseload/table
@@ -836,38 +856,28 @@
        (tc/select-rows (fn [r] ((conj neighbours-pred la-name) (:la_name r))))
        (tc/rename-columns {:la_name :geo-name})
        (tc/select-rows (fn [r] (= "All EHC plans" (:breakdown_topic r))))
-       (tc/select-columns [:time_period :calendar-year :academic-year :geo-name needs]))
+       (tc/select-columns [:time_period :calendar-year :academic-year :geo-name 
+                           :number_asd :number_ds :number_hi :number_mld :number_msi 
+                           :number_oth :number_pd :number_pmld :number_semh 
+                           :number_slcn :number_sld  :number_spld :number_vi 
+                           :number_need_unknown])
+       (tc/pivot->longer [:number_asd :number_ds :number_hi :number_mld :number_msi
+                          :number_oth :number_pd :number_pmld :number_semh
+                          :number_slcn :number_sld  :number_spld :number_vi
+                          :number_need_unknown]
+                         {:target-columns [:need] :value-column-name :ehc-plans :splitter #"number_(.+)"})
+       (tc/map-columns :need [:need] #(if (= % "need_unknown") "Unknown" (clojure.string/upper-case %))))
    :denominator-ds
    population-total
    ;; When we have background populations by AY we should change the join
    :join-keys [:geo-name :calendar-year]
    :output-field "EHCPs per 10k"
-   :input-fields [needs :population]))
-
-^:kindly/hide-code
-(defn need-2026 [need-col need-label]
-  (-> (needs-per-10k need-col)
-      (tc/select-rows #(= 2026 (:calendar-year %)))
-      (tc/rename-columns {need-col :ehc-plans})
-      (tc/add-column :need need-label)))
+   :input-fields [:ehc-plans :population]))
 
 ^:kindly/hide-code
 (def needs-2026-per-10k
-  (tc/concat
-   (need-2026 :number_asd  "ASD")
-   (need-2026 :number_ds   "DS")
-   (need-2026 :number_hi   "HI")
-   (need-2026 :number_mld  "MLD")
-   (need-2026 :number_msi  "MSI")
-   (need-2026 :number_oth  "OTH")
-   (need-2026 :number_pd   "PD")
-   (need-2026 :number_pmld "PMLD")
-   (need-2026 :number_semh "SEMH")
-   (need-2026 :number_slcn "SLCN")
-   (need-2026 :number_sld  "SLD")
-   (need-2026 :number_spld "SPLD")
-   (need-2026 :number_vi   "VI")
-   (need-2026 :number_need_unknown "Unknown")))
+  (-> needs-per-10k
+       (tc/select-rows #(= 2026 (:calendar-year %)))))
 
 ^:kindly/hide-code
 (def top-5-needs
@@ -882,13 +892,6 @@
   (-> needs-2026-per-10k
       (tc/select-rows (fn [r] (top-5-needs (:need r))))))
  
- ^:kindly/hide-code
- ;; caseload-by-needs-chart with the changes:
- ;; 1) x-axis shows need instead of year
- ;; 2) the hover shows need
- ;; 3) count column is always :ehc-plans
- ;; 4) so ehcplan-field is no longer a parameter
- ;; 5) not showing neighbours
  ^:kindly/hide-code
  (defn needs-2026-chart [ds title]
    (let [base       (-> ds
