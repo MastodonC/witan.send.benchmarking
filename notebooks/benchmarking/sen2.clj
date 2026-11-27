@@ -1068,21 +1068,19 @@
       (tc/select-rows #(= setting-label (:setting %)))
       (tc/select-rows #(= age (:age %)))))
 
+(-> (caseload-by-setting-chart (setting-and-age "Specialist" "age 7")
+                               :ehc-plans
+                               "test")
+    :layers
+    second)
 
 ^:kindly/hide-code
-(caseload-by-setting-chart (setting-and-age "Specialist" "age 4")
-                           :ehc-plans
-                           "Specialist Rate of EHCPs, Age 4")
+(-> (caseload-by-setting-chart (setting-and-age "Specialist" "age 7")
+                               :ehc-plans
+                               "Specialist Rate of EHCPs, Age 7")
+    (assoc-in [:layers 0 :mapping :box-width] 0.2)
+    (assoc-in [:layers 1 :mapping :offset-x] -70))
 
-^:kindly/hide-code
-(caseload-by-setting-chart (setting-and-age "Specialist" "age 5")
-                           :ehc-plans
-                           "Specialist Rate of EHCPs, Age 5")
-
-^:kindly/hide-code
-(caseload-by-setting-chart (setting-and-age "Specialist" "age 6")
-                           :ehc-plans
-                           "Specialist Rate of EHCPs, Age 6")
 
 ^:kindly/hide-code
 (caseload-by-setting-chart (setting-and-age "Specialist" "age 7")
